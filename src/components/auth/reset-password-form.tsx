@@ -132,8 +132,8 @@ export function ResetPasswordForm({ token, error }: ResetPasswordFormProps) {
   }
 
   return (
-    <div className="w-full rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_20px_70px_rgba(15,23,42,0.08)] sm:p-6">
-      <div className="border-b border-slate-200 pb-6">
+    <div className="w-full rounded-[28px] border border-slate-300 bg-[#f1f5f9] p-5 shadow-[0_24px_70px_rgba(15,23,42,0.12)] sm:p-6">
+      <div className="border-b border-slate-300 pb-6">
         <div className="flex size-12 items-center justify-center rounded-2xl bg-[#dbeaf4] text-[#3b82a4]">
           <KeyRound className="size-5" />
         </div>
@@ -157,7 +157,7 @@ export function ResetPasswordForm({ token, error }: ResetPasswordFormProps) {
             <Button
               asChild
               variant="outline"
-              className="w-full rounded-2xl border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
+              className="w-full rounded-2xl border-slate-300 bg-[#f3f6fa] text-slate-700 hover:bg-[#e9eef4]"
             >
               <Link href="/auth?mode=reset">Вернуться к форме сброса</Link>
             </Button>
@@ -187,7 +187,7 @@ export function ResetPasswordForm({ token, error }: ResetPasswordFormProps) {
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 placeholder="Минимум 10 символов"
-                className="h-12 rounded-2xl border-slate-200 bg-white text-slate-900 placeholder:text-slate-400"
+                className="h-12 rounded-2xl border-slate-300 bg-[#f8fbfd] text-slate-900 placeholder:text-slate-400"
                 required
               />
             </div>
@@ -207,7 +207,7 @@ export function ResetPasswordForm({ token, error }: ResetPasswordFormProps) {
                 value={confirmPassword}
                 onChange={(event) => setConfirmPassword(event.target.value)}
                 placeholder="Повторите пароль"
-                className="h-12 rounded-2xl border-slate-200 bg-white text-slate-900 placeholder:text-slate-400"
+                className="h-12 rounded-2xl border-slate-300 bg-[#f8fbfd] text-slate-900 placeholder:text-slate-400"
                 required
               />
             </div>

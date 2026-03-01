@@ -1,6 +1,7 @@
 ﻿@import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@import "highlight.js/styles/github-dark.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -49,37 +50,37 @@
 
 :root {
   --radius: 0.625rem;
-  --background: #f3f5f8;
-  --foreground: #232b33;
-  --card: #ffffff;
+  --background: #e6ebf1;
+  --foreground: #202a33;
+  --card: #f3f6fa;
   --card-foreground: #232b33;
-  --popover: #ffffff;
+  --popover: #f3f6fa;
   --popover-foreground: #232b33;
-  --primary: #3b82a4;
+  --primary: #33799a;
   --primary-foreground: #f7fbff;
-  --secondary: #e9eff4;
+  --secondary: #dce6ee;
   --secondary-foreground: #2a3d4a;
-  --muted: #edf2f6;
+  --muted: #e2eaf1;
   --muted-foreground: #627382;
-  --accent: #dde8ef;
+  --accent: #d2e0ea;
   --accent-foreground: #284152;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: #d8e2ea;
-  --input: #d8e2ea;
-  --ring: #70a8c1;
-  --chart-1: #3b82a4;
-  --chart-2: #5b9fc0;
+  --border: #c7d4de;
+  --input: #c7d4de;
+  --ring: #5f94ac;
+  --chart-1: #33799a;
+  --chart-2: #4f90af;
   --chart-3: #345f75;
   --chart-4: #9dbed0;
   --chart-5: #6f8fa1;
-  --sidebar: #f6f8fb;
+  --sidebar: #dee6ee;
   --sidebar-foreground: #232b33;
-  --sidebar-primary: #3b82a4;
+  --sidebar-primary: #33799a;
   --sidebar-primary-foreground: #f7fbff;
-  --sidebar-accent: #e7eef3;
+  --sidebar-accent: #d5e1ea;
   --sidebar-accent-foreground: #2a3d4a;
-  --sidebar-border: #d8e2ea;
-  --sidebar-ring: #70a8c1;
+  --sidebar-border: #c7d4de;
+  --sidebar-ring: #5f94ac;
 }
 
 .dark {
@@ -124,9 +125,9 @@
   body {
     @apply bg-background text-foreground;
     background-image:
-      radial-gradient(circle at top left, rgba(176, 214, 235, 0.38), transparent 32%),
-      radial-gradient(circle at bottom right, rgba(214, 228, 238, 0.35), transparent 30%),
-      linear-gradient(180deg, #f6f8fb 0%, #edf2f7 100%);
+      radial-gradient(circle at top left, rgba(133, 171, 196, 0.38), transparent 36%),
+      radial-gradient(circle at bottom right, rgba(168, 186, 202, 0.34), transparent 34%),
+      linear-gradient(180deg, #edf1f6 0%, #e0e7ee 100%);
     min-height: 100vh;
   }
 }
@@ -217,4 +218,80 @@
   height: 0;
   pointer-events: none;
 }
+
+
+.nook-snippet {
+  margin: 0.9rem 0;
+  overflow: hidden;
+  border: 1px solid #334155;
+  border-radius: 0.9rem;
+  background: #0b1220;
+}
+
+.nook-snippet-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.65rem;
+  border-bottom: 1px solid #334155;
+  background: #101a2f;
+}
+
+.nook-snippet-lang {
+  font-size: 0.67rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #93c5fd;
+}
+
+.nook-snippet-copy {
+  border: 1px solid #3b4b66;
+  border-radius: 0.5rem;
+  padding: 0.22rem 0.6rem;
+  font-size: 0.74rem;
+  color: #dbeafe;
+  background: #172339;
+  cursor: pointer;
+}
+
+.nook-snippet-copy:hover {
+  background: #1d2e4a;
+}
+
+.nook-snippet-copy:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
+}
+
+.nook-snippet pre {
+  margin: 0;
+  border-radius: 0;
+  border: 0;
+  background: #0b1220;
+}
+
+.nook-snippet code {
+  font-family: var(--font-mono);
+}
+
+.nook-wiki-link {
+  color: #0f5f88;
+  text-decoration: none;
+  font-weight: 600;
+  border-bottom: 1px dashed #0f5f88;
+}
+
+.nook-wiki-link:hover {
+  color: #0b4665;
+  border-bottom-color: #0b4665;
+}
+
+.nook-wiki-missing {
+  color: #9f1239;
+  background: #ffe4e6;
+  border: 1px dashed #fda4af;
+  border-radius: 0.4rem;
+  padding: 0.05rem 0.35rem;
+}
+
 

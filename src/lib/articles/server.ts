@@ -56,6 +56,18 @@ export type SaveArticleInput = {
   contentText: string;
 };
 
+function articleSearchVectorSql() {
+  return `
+    to_tsvector(
+      'simple',
+      coalesce(articles.title, '') || ' ' ||
+      coalesce(articles.summary, '') || ' ' ||
+      coalesce(articles.content_text, '') || ' ' ||
+      coalesce(articles.content_markdown, '')
+    )
+  `;
+}
+
 function mapArticle(row: ArticleRow): ArticleRecord {
   const authorName = row.author_name?.trim() || "\u0410\u0432\u0442\u043e\u0440";
   const updatedByName = row.updated_by_name?.trim() || authorName;
@@ -172,6 +184,29 @@ export async function listArticlesByAuthor(authorId: string) {
       order by articles.updated_at desc
     `,
     [authorId]
+  );
+
+  return rows.map((row) => toListItem(mapArticle(row)));
+}
+
+export async function searchArticlesByAuthor(authorId: string, query: string) {
+  const normalizedQuery = query.trim().slice(0, 180);
+
+  if (!normalizedQuery) {
+    return listArticlesByAuthor(authorId);
+  }
+
+  const searchVectorSql = articleSearchVectorSql();
+  const { rows } = await pool.query<ArticleRow>(
+    `
+      ${articleSelectSql()}
+      where articles.author_id = $1
+        and ${searchVectorSql} @@ plainto_tsquery('simple', $2)
+      order by
+        ts_rank(${searchVectorSql}, plainto_tsquery('simple', $2)) desc,
+        articles.updated_at desc
+    `,
+    [authorId, normalizedQuery]
   );
 
   return rows.map((row) => toListItem(mapArticle(row)));

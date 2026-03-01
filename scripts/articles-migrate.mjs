@@ -58,6 +58,17 @@ const migrationSql = `
 
   create index if not exists articles_author_topic_category_idx
     on articles(author_id, topic, category, updated_at desc);
+
+  create index if not exists articles_search_tsv_idx
+    on articles using gin (
+      to_tsvector(
+        'simple',
+        coalesce(title, '') || ' ' ||
+        coalesce(summary, '') || ' ' ||
+        coalesce(content_text, '') || ' ' ||
+        coalesce(content_markdown, '')
+      )
+    );
 `;
 
 try {

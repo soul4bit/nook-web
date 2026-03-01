@@ -354,9 +354,9 @@ export function AuthForms() {
   }
 
   return (
-    <div className="w-full rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_20px_70px_rgba(15,23,42,0.08)] sm:p-6">
-      <div className="border-b border-slate-200 pb-6">
-        <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+    <div className="w-full rounded-[28px] border border-slate-300 bg-[#f1f5f9] p-5 shadow-[0_24px_70px_rgba(15,23,42,0.12)] sm:p-6">
+      <div className="border-b border-slate-300 pb-6">
+        <div className="inline-flex rounded-full border border-slate-300 bg-[#e6ecf2] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600">
           {mode === "sign-in" ? "sign in" : mode === "sign-up" ? "sign up" : "reset access"}
         </div>
         <div className="mt-4 space-y-2">
@@ -382,7 +382,7 @@ export function AuthForms() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="rounded-2xl border-slate-200 bg-white text-slate-800 hover:bg-slate-100"
+                  className="rounded-2xl border-slate-300 bg-[#f3f6fa] text-slate-800 hover:bg-[#e9eef4]"
                   onClick={handleResendVerification}
                   disabled={pendingAction === "resend"}
                 >
@@ -474,7 +474,7 @@ export function AuthForms() {
               </Button>
             </form>
 
-            <div className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
+            <div className="rounded-[20px] border border-slate-300 bg-[#e8eff5] p-4">
               <p className="text-sm font-medium text-slate-900">Нет аккаунта?</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 Создайте доступ, подтвердите email и после этого входите в Контур Знаний.
@@ -482,7 +482,7 @@ export function AuthForms() {
               <Button
                 type="button"
                 variant="outline"
-                className="mt-4 w-full rounded-2xl border-slate-200 bg-white text-slate-800 hover:bg-slate-100"
+                className="mt-4 w-full rounded-2xl border-slate-300 bg-[#f3f6fa] text-slate-800 hover:bg-[#e9eef4]"
                 onClick={() => {
                   openMode("sign-up");
                   setSignUpForm((current) => ({

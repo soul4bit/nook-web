@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   ArrowUpRight,
@@ -17,7 +17,9 @@ import {
   UserRoundCog,
 } from "lucide-react";
 import { SignOutButton } from "@/components/auth/sign-out-button";
+import { KnowledgeLogo } from "@/components/brand/knowledge-logo";
 import { ThoughtEditor } from "@/components/editor/thought-editor";
+import { ArticleContent } from "@/components/articles/article-content";
 import { UserAvatar } from "@/components/user/user-avatar";
 import { Button } from "@/components/ui/button";
 import { getCurrentSession } from "@/lib/auth/session";
@@ -25,47 +27,52 @@ import {
   getArticleById,
   isArticleTopic,
   listArticlesByAuthor,
+  searchArticlesByAuthor,
 } from "@/lib/articles/server";
 import { articleTopics } from "@/lib/content/devops-library";
 
 const copy = {
-  workspace: "Личное пространство",
+  workspace: "Р›РёС‡РЅРѕРµ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ",
   workspaceText:
-    "Вся база по Linux, Docker, сетям, Ansible, Kubernetes, Terraform и CI/CD в одном интерфейсе: слева разделы и статьи, справа чтение и редактирование.",
-  newArticle: "Новая статья",
-  account: "Личный кабинет",
-  sections: "Разделы",
-  articlesSuffix: "статей",
+    "Р’СЃСЏ Р±Р°Р·Р° РїРѕ Linux, Docker, СЃРµС‚СЏРј, Ansible, Kubernetes, Terraform Рё CI/CD РІ РѕРґРЅРѕРј РёРЅС‚РµСЂС„РµР№СЃРµ: СЃР»РµРІР° СЂР°Р·РґРµР»С‹ Рё СЃС‚Р°С‚СЊРё, СЃРїСЂР°РІР° С‡С‚РµРЅРёРµ Рё СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ.",
+  newArticle: "РќРѕРІР°СЏ СЃС‚Р°С‚СЊСЏ",
+  account: "Р›РёС‡РЅС‹Р№ РєР°Р±РёРЅРµС‚",
+  sections: "Р Р°Р·РґРµР»С‹",
+  articlesSuffix: "СЃС‚Р°С‚РµР№",
   noArticlesInSection:
-    "В этом разделе пока нет статей. Создайте первую заметку через редактор справа.",
-  currentSection: "Текущий раздел",
-  sectionCount: "статей в категории",
-  heroTitle: "База знаний, в которой легко найти нужный ответ.",
+    "Р’ СЌС‚РѕРј СЂР°Р·РґРµР»Рµ РїРѕРєР° РЅРµС‚ СЃС‚Р°С‚РµР№. РЎРѕР·РґР°Р№С‚Рµ РїРµСЂРІСѓСЋ Р·Р°РјРµС‚РєСѓ С‡РµСЂРµР· СЂРµРґР°РєС‚РѕСЂ СЃРїСЂР°РІР°.",
+  currentSection: "РўРµРєСѓС‰РёР№ СЂР°Р·РґРµР»",
+  sectionCount: "СЃС‚Р°С‚РµР№ РІ РєР°С‚РµРіРѕСЂРёРё",
+  heroTitle: "Р‘Р°Р·Р° Р·РЅР°РЅРёР№, РІ РєРѕС‚РѕСЂРѕР№ Р»РµРіРєРѕ РЅР°Р№С‚Рё РЅСѓР¶РЅС‹Р№ РѕС‚РІРµС‚.",
   heroText:
-    "Откройте тему, выберите категорию и читайте статью рядом с редактором. Можно быстро обновлять материал и сразу видеть итоговый текст.",
-  snapshot: "Сводка",
-  allArticles: "Всего статей",
-  lastUpdate: "Последнее обновление",
-  emptyValue: "Пока нет данных",
-  updated: "Обновлено",
-  created: "Создано",
-  author: "Автор",
-  lastEditor: "Последний редактор",
-  reading: "Чтение статьи",
-  nothingToRead: "Пока нечего читать",
+    "РћС‚РєСЂРѕР№С‚Рµ С‚РµРјСѓ, РІС‹Р±РµСЂРёС‚Рµ РєР°С‚РµРіРѕСЂРёСЋ Рё С‡РёС‚Р°Р№С‚Рµ СЃС‚Р°С‚СЊСЋ СЂСЏРґРѕРј СЃ СЂРµРґР°РєС‚РѕСЂРѕРј. РњРѕР¶РЅРѕ Р±С‹СЃС‚СЂРѕ РѕР±РЅРѕРІР»СЏС‚СЊ РјР°С‚РµСЂРёР°Р» Рё СЃСЂР°Р·Сѓ РІРёРґРµС‚СЊ РёС‚РѕРіРѕРІС‹Р№ С‚РµРєСЃС‚.",
+  snapshot: "РЎРІРѕРґРєР°",
+  allArticles: "Р’СЃРµРіРѕ СЃС‚Р°С‚РµР№",
+  lastUpdate: "РџРѕСЃР»РµРґРЅРµРµ РѕР±РЅРѕРІР»РµРЅРёРµ",
+  emptyValue: "РџРѕРєР° РЅРµС‚ РґР°РЅРЅС‹С…",
+  updated: "РћР±РЅРѕРІР»РµРЅРѕ",
+  created: "РЎРѕР·РґР°РЅРѕ",
+  author: "РђРІС‚РѕСЂ",
+  lastEditor: "РџРѕСЃР»РµРґРЅРёР№ СЂРµРґР°РєС‚РѕСЂ",
+  reading: "Р§С‚РµРЅРёРµ СЃС‚Р°С‚СЊРё",
+  nothingToRead: "РџРѕРєР° РЅРµС‡РµРіРѕ С‡РёС‚Р°С‚СЊ",
   nothingToReadText:
-    "Выберите категорию со статьями или создайте новую заметку. Как только сохраните материал, он сразу появится в списке.",
-  editor: "Редактор",
-  editArticle: "Редактирование статьи",
-  newNote: "Новая заметка",
+    "Р’С‹Р±РµСЂРёС‚Рµ РєР°С‚РµРіРѕСЂРёСЋ СЃРѕ СЃС‚Р°С‚СЊСЏРјРё РёР»Рё СЃРѕР·РґР°Р№С‚Рµ РЅРѕРІСѓСЋ Р·Р°РјРµС‚РєСѓ. РљР°Рє С‚РѕР»СЊРєРѕ СЃРѕС…СЂР°РЅРёС‚Рµ РјР°С‚РµСЂРёР°Р», РѕРЅ СЃСЂР°Р·Сѓ РїРѕСЏРІРёС‚СЃСЏ РІ СЃРїРёСЃРєРµ.",
+  editor: "Р РµРґР°РєС‚РѕСЂ",
+  editArticle: "Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ СЃС‚Р°С‚СЊРё",
+  newNote: "РќРѕРІР°СЏ Р·Р°РјРµС‚РєР°",
   editorText:
-    "Сохранение идет в PostgreSQL в формате markdown + html. После сохранения материал сразу отображается в списке категории.",
+    "РЎРѕС…СЂР°РЅРµРЅРёРµ РёРґРµС‚ РІ PostgreSQL РІ С„РѕСЂРјР°С‚Рµ markdown + html. РџРѕСЃР»Рµ СЃРѕС…СЂР°РЅРµРЅРёСЏ РјР°С‚РµСЂРёР°Р» СЃСЂР°Р·Сѓ РѕС‚РѕР±СЂР°Р¶Р°РµС‚СЃСЏ РІ СЃРїРёСЃРєРµ РєР°С‚РµРіРѕСЂРёРё.",
+  searchPlaceholder: "Поиск по заголовку, описанию и тексту",
+  searchButton: "Найти",
+  clearSearch: "Сброс",
+  searchResult: "Результаты поиска",
 } as const;
 
 const topicIcons = {
   Linux: ServerCog,
   Docker: Boxes,
-  Сети: Cable,
+  "\u0421\u0435\u0442\u0438": Cable,
   Ansible: FolderKanban,
   K8S: HardDriveUpload,
   Terraform: FolderKanban,
@@ -78,12 +85,18 @@ type AppPageProps = {
     topic?: string;
     category?: string;
     draft?: string;
+    q?: string;
   }>;
 };
 
 function buildAppHref(
   topic: string,
-  options?: { articleId?: string; draft?: boolean; category?: string }
+  options?: {
+    articleId?: string;
+    draft?: boolean;
+    category?: string;
+    query?: string;
+  }
 ) {
   const params = new URLSearchParams({ topic });
 
@@ -97,6 +110,10 @@ function buildAppHref(
 
   if (options?.draft) {
     params.set("draft", "1");
+  }
+
+  if (options?.query?.trim()) {
+    params.set("q", options.query.trim());
   }
 
   return `/app?${params.toString()}`;
@@ -122,7 +139,11 @@ export default async function AppPage({ searchParams }: AppPageProps) {
   const requestedCategory = params?.category?.trim() || null;
   const requestedArticleId = params?.article;
   const draftMode = params?.draft === "1";
-  const articles = await listArticlesByAuthor(session.user.id);
+  const searchQuery = params?.q?.trim().slice(0, 180) ?? "";
+  const allArticles = await listArticlesByAuthor(session.user.id);
+  const articles = searchQuery
+    ? await searchArticlesByAuthor(session.user.id, searchQuery)
+    : allArticles;
   const requestedArticle = requestedArticleId
     ? await getArticleById(session.user.id, requestedArticleId)
     : null;
@@ -135,10 +156,10 @@ export default async function AppPage({ searchParams }: AppPageProps) {
       Array.from(
         new Set([
           ...topic.categories,
-          ...articles
+          ...allArticles
             .filter((article) => article.topic === topic.name)
             .map((article) => article.category),
-          "Общее",
+          "РћР±С‰РµРµ",
         ])
       ),
     ])
@@ -150,7 +171,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
     requestedCategory ??
     topicArticles[0]?.category ??
     currentTopic.categories[0] ??
-    "Общее";
+    "РћР±С‰РµРµ";
   const categoryArticles = topicArticles.filter(
     (article) => article.category === selectedCategory
   );
@@ -168,33 +189,29 @@ export default async function AppPage({ searchParams }: AppPageProps) {
         : requestedArticle;
 
   const displayName = session.user.name?.trim() || session.user.email;
-  const totalArticles = articles.length;
+  const totalArticles = allArticles.length;
+  const visibleArticlesCount = articles.length;
+  const hasSearchQuery = Boolean(searchQuery);
+  const wikiLinks = allArticles.map((article) => ({
+    slug: article.slug,
+    title: article.title,
+    href: buildAppHref(article.topic, {
+      articleId: article.id,
+      category: article.category,
+    }),
+  }));
 
   return (
     <div className="min-h-screen px-4 py-4 text-slate-900 sm:px-6 lg:px-8">
-      <div className="mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-[1640px] flex-col overflow-hidden rounded-[32px] border border-slate-200 bg-[#f7f9fb]/95 shadow-[0_24px_90px_rgba(15,23,42,0.08)] lg:flex-row">
-        <aside className="flex w-full shrink-0 flex-col border-b border-slate-200 bg-[#f2f6fa] p-5 lg:max-w-[340px] lg:border-b-0 lg:border-r">
+      <div className="mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-[1640px] flex-col overflow-hidden rounded-[32px] border border-slate-300 bg-[#e9edf3]/96 shadow-[0_30px_90px_rgba(15,23,42,0.12)] lg:flex-row">
+        <aside className="flex w-full shrink-0 flex-col border-b border-slate-300 bg-[#dde5ee] p-5 lg:max-w-[340px] lg:border-b-0 lg:border-r">
           <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="relative flex h-12 w-16 items-center justify-center overflow-hidden rounded-[16px] border border-[#bfcede] bg-white">
-                <div className="absolute left-2 h-3 w-2 rounded-full bg-[#3b82a4]" />
-                <div className="absolute left-5 top-3 h-6 w-4 rounded-l-[18px] rounded-r-[6px] bg-[#3b82a4]" />
-                <div className="absolute left-7 top-2 h-8 w-3 rotate-[32deg] rounded-full bg-[#3b82a4]" />
-                <div className="absolute right-5 top-3 h-6 w-4 rounded-l-[6px] rounded-r-[18px] bg-[#3b82a4]" />
-                <div className="absolute right-2 h-3 w-2 rounded-full bg-[#3b82a4]" />
-              </div>
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-[#50758a]">
-                  Контур Знаний
-                </p>
-                <p className="text-sm text-slate-600">Личная DevOps-вики</p>
-              </div>
-            </div>
+            <KnowledgeLogo subtitle="Личная DevOps-вики" />
 
             <SignOutButton />
           </div>
 
-          <div className="mt-7 rounded-[24px] border border-slate-200 bg-white p-4">
+          <div className="mt-7 rounded-[24px] border border-slate-300 bg-[#f3f6fa] p-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
               {copy.workspace}
             </p>
@@ -223,6 +240,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                   href={buildAppHref(selectedTopic, {
                     draft: true,
                     category: selectedCategory,
+                    query: searchQuery || undefined,
                   })}
                 >
                   <Plus className="size-4" />
@@ -243,13 +261,51 @@ export default async function AppPage({ searchParams }: AppPageProps) {
             </div>
           </div>
 
+          <div className="mt-5 rounded-[20px] border border-slate-300 bg-[#edf2f7] p-3">
+            <form action="/app" method="get" className="space-y-2">
+              <input type="hidden" name="topic" value={selectedTopic} />
+              <input type="hidden" name="category" value={selectedCategory} />
+              <div className="flex items-center gap-2">
+                <input
+                  type="search"
+                  name="q"
+                  defaultValue={searchQuery}
+                  placeholder={copy.searchPlaceholder}
+                  className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-[#3b82a4] focus-visible:outline-none"
+                />
+                <button
+                  type="submit"
+                  className="h-10 rounded-xl bg-[#3b82a4] px-3 text-sm font-semibold text-white hover:bg-[#327391]"
+                >
+                  {copy.searchButton}
+                </button>
+              </div>
+            </form>
+            {hasSearchQuery ? (
+              <div className="mt-2 flex items-center justify-between">
+                <p className="text-xs text-slate-600">
+                  {copy.searchResult}: {visibleArticlesCount}
+                </p>
+                <Link
+                  href={buildAppHref(selectedTopic, {
+                    category: selectedCategory,
+                  })}
+                  className="text-xs font-semibold text-[#2d6782] hover:underline"
+                >
+                  {copy.clearSearch}
+                </Link>
+              </div>
+            ) : null}
+          </div>
+
           <div className="mt-6 flex-1 overflow-y-auto pr-1">
             <div className="mb-3 flex items-center justify-between">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 {copy.sections}
               </p>
-              <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs text-slate-600">
-                {totalArticles} {copy.articlesSuffix}
+              <span className="rounded-full border border-slate-300 bg-[#eef3f7] px-2.5 py-1 text-xs text-slate-600">
+                {hasSearchQuery ? `${visibleArticlesCount}/${totalArticles}` : totalArticles}{" "}
+                {copy.articlesSuffix}
               </span>
             </div>
 
@@ -274,7 +330,9 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                     }`}
                   >
                     <Link
-                      href={buildAppHref(topic.name)}
+                      href={buildAppHref(topic.name, {
+                        query: searchQuery || undefined,
+                      })}
                       className="flex items-start gap-3 px-4 py-4"
                     >
                       <div
@@ -310,6 +368,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                                   <Link
                                     href={buildAppHref(topic.name, {
                                       category: categoryName,
+                                      query: searchQuery || undefined,
                                     })}
                                     className={`flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] transition-colors ${
                                       isCategoryActive
@@ -332,6 +391,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                                             href={buildAppHref(topic.name, {
                                               articleId: article.id,
                                               category: categoryName,
+                                              query: searchQuery || undefined,
                                             })}
                                             className={`block rounded-xl border px-3 py-3 transition-colors ${
                                               isSelected
@@ -362,7 +422,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                                     </div>
                                   ) : (
                                     <div className="rounded-xl border border-dashed border-slate-300 bg-[#f8fafc] px-3 py-3 text-sm leading-6 text-slate-500">
-                                      В этой категории пока нет статей.
+                                      Р’ СЌС‚РѕР№ РєР°С‚РµРіРѕСЂРёРё РїРѕРєР° РЅРµС‚ СЃС‚Р°С‚РµР№.
                                     </div>
                                   )}
                                 </div>
@@ -385,7 +445,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
 
         <main className="flex min-w-0 flex-1 flex-col gap-5 p-5 lg:p-6">
           <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_290px]">
-            <div className="rounded-[28px] border border-slate-200 bg-white p-6">
+            <div className="rounded-[28px] border border-slate-300 bg-[#f3f6fa] p-6">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 {copy.currentSection}
               </p>
@@ -408,7 +468,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
               </p>
             </div>
 
-            <div className="rounded-[28px] border border-slate-200 bg-white p-6">
+            <div className="rounded-[28px] border border-slate-300 bg-[#f3f6fa] p-6">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 {copy.snapshot}
               </p>
@@ -421,7 +481,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                 </div>
                 <div className="rounded-[18px] border border-slate-200 bg-[#f8fafc] px-4 py-4">
                   <p className="text-xs uppercase tracking-[0.16em] text-slate-500">
-                    Категория
+                    РљР°С‚РµРіРѕСЂРёСЏ
                   </p>
                   <p className="mt-2 text-sm font-semibold text-slate-900">{selectedCategory}</p>
                 </div>
@@ -438,7 +498,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
           </section>
 
           <section className="grid min-h-0 gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-            <div className="rounded-[28px] border border-slate-200 bg-white p-6">
+            <div className="rounded-[28px] border border-slate-300 bg-[#f3f6fa] p-6">
               {selectedArticle ? (
                 <>
                   <div className="flex flex-wrap items-center gap-3">
@@ -494,9 +554,10 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                       <BookOpenText className="size-4 text-[#3b82a4]" />
                       {copy.reading}
                     </div>
-                    <article
-                      className="nook-editor max-w-none space-y-4 text-sm leading-7 text-slate-700"
-                      dangerouslySetInnerHTML={{ __html: selectedArticle.contentHtml }}
+                    <ArticleContent
+                      html={selectedArticle.contentHtml}
+                      wikiLinks={wikiLinks}
+                      className="max-w-none space-y-4 text-sm leading-7 text-slate-700"
                     />
                   </div>
                 </>
@@ -515,7 +576,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
               )}
             </div>
 
-            <div className="rounded-[28px] border border-slate-200 bg-white p-6">
+            <div className="rounded-[28px] border border-slate-300 bg-[#f3f6fa] p-6">
               <div className="mb-5">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                   {copy.editor}
@@ -543,3 +604,5 @@ export default async function AppPage({ searchParams }: AppPageProps) {
     </div>
   );
 }
+
+

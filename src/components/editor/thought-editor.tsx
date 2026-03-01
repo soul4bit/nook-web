@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { type ChangeEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -29,48 +29,48 @@ import { NookImage } from "@/lib/editor/nook-image";
 import { cn } from "@/lib/utils";
 
 const copy = {
-  emptyTitle: "Новая статья",
+  emptyTitle: "РќРѕРІР°СЏ СЃС‚Р°С‚СЊСЏ",
   emptyBody:
-    "Зафиксируйте разбор, команды и практические выводы, чтобы потом быстро вернуться к ним.",
+    "Р—Р°С„РёРєСЃРёСЂСѓР№С‚Рµ СЂР°Р·Р±РѕСЂ, РєРѕРјР°РЅРґС‹ Рё РїСЂР°РєС‚РёС‡РµСЃРєРёРµ РІС‹РІРѕРґС‹, С‡С‚РѕР±С‹ РїРѕС‚РѕРј Р±С‹СЃС‚СЂРѕ РІРµСЂРЅСѓС‚СЊСЃСЏ Рє РЅРёРј.",
   placeholder:
-    "Пишите пошаговый разбор, команды, примеры конфигов и короткие выводы по задаче...",
-  saveError: "Не удалось сохранить статью.",
-  titleRequired: "Укажите заголовок статьи.",
-  bodyRequired: "Статья не может быть пустой.",
-  updated: "Статья обновлена.",
-  created: "Статья создана.",
-  titleLabel: "Заголовок статьи",
-  titlePlaceholder: "Например: Kubernetes probes без боли",
-  draft: "Черновик",
-  blocks: "блоков",
-  chars: "символов",
-  topicLabel: "Раздел",
-  categoryLabel: "Категория",
-  categoryPlaceholder: "Например: systemd",
-  summaryLabel: "Короткое описание",
+    "РџРёС€РёС‚Рµ РїРѕС€Р°РіРѕРІС‹Р№ СЂР°Р·Р±РѕСЂ, РєРѕРјР°РЅРґС‹, РїСЂРёРјРµСЂС‹ РєРѕРЅС„РёРіРѕРІ Рё РєРѕСЂРѕС‚РєРёРµ РІС‹РІРѕРґС‹ РїРѕ Р·Р°РґР°С‡Рµ...",
+  saveError: "РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕС…СЂР°РЅРёС‚СЊ СЃС‚Р°С‚СЊСЋ.",
+  titleRequired: "РЈРєР°Р¶РёС‚Рµ Р·Р°РіРѕР»РѕРІРѕРє СЃС‚Р°С‚СЊРё.",
+  bodyRequired: "РЎС‚Р°С‚СЊСЏ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ РїСѓСЃС‚РѕР№.",
+  updated: "РЎС‚Р°С‚СЊСЏ РѕР±РЅРѕРІР»РµРЅР°.",
+  created: "РЎС‚Р°С‚СЊСЏ СЃРѕР·РґР°РЅР°.",
+  titleLabel: "Р—Р°РіРѕР»РѕРІРѕРє СЃС‚Р°С‚СЊРё",
+  titlePlaceholder: "РќР°РїСЂРёРјРµСЂ: Kubernetes probes Р±РµР· Р±РѕР»Рё",
+  draft: "Р§РµСЂРЅРѕРІРёРє",
+  blocks: "Р±Р»РѕРєРѕРІ",
+  chars: "СЃРёРјРІРѕР»РѕРІ",
+  topicLabel: "Р Р°Р·РґРµР»",
+  categoryLabel: "РљР°С‚РµРіРѕСЂРёСЏ",
+  categoryPlaceholder: "РќР°РїСЂРёРјРµСЂ: systemd",
+  summaryLabel: "РљРѕСЂРѕС‚РєРѕРµ РѕРїРёСЃР°РЅРёРµ",
   summaryPlaceholder:
-    "2-3 предложения, чтобы в списке было понятно, о чем статья",
-  bold: "Жирный",
-  list: "Список",
-  ordered: "Нумерация",
-  quote: "Цитата",
-  code: "Код",
-  divider: "Разделитель",
-  reset: "Сброс",
-  saving: "Сохраняем...",
-  saveChanges: "Сохранить изменения",
-  createArticle: "Создать статью",
-  newDraft: "Новый черновик",
-  image: "Картинка",
-  uploadingImage: "Загружаем картинку...",
-  imageUploaded: "Картинка добавлена в статью.",
-  imageUploadError: "Не удалось загрузить картинку.",
-  deleteArticle: "Удалить статью",
-  deleting: "Удаляем...",
-  deleteConfirm: "Удалить статью? Это действие нельзя отменить.",
-  deleteError: "Не удалось удалить статью.",
+    "2-3 РїСЂРµРґР»РѕР¶РµРЅРёСЏ, С‡С‚РѕР±С‹ РІ СЃРїРёСЃРєРµ Р±С‹Р»Рѕ РїРѕРЅСЏС‚РЅРѕ, Рѕ С‡РµРј СЃС‚Р°С‚СЊСЏ",
+  bold: "Р–РёСЂРЅС‹Р№",
+  list: "РЎРїРёСЃРѕРє",
+  ordered: "РќСѓРјРµСЂР°С†РёСЏ",
+  quote: "Р¦РёС‚Р°С‚Р°",
+  code: "РљРѕРґ",
+  divider: "Р Р°Р·РґРµР»РёС‚РµР»СЊ",
+  reset: "РЎР±СЂРѕСЃ",
+  saving: "РЎРѕС…СЂР°РЅСЏРµРј...",
+  saveChanges: "РЎРѕС…СЂР°РЅРёС‚СЊ РёР·РјРµРЅРµРЅРёСЏ",
+  createArticle: "РЎРѕР·РґР°С‚СЊ СЃС‚Р°С‚СЊСЋ",
+  newDraft: "РќРѕРІС‹Р№ С‡РµСЂРЅРѕРІРёРє",
+  image: "РљР°СЂС‚РёРЅРєР°",
+  uploadingImage: "Р—Р°РіСЂСѓР¶Р°РµРј РєР°СЂС‚РёРЅРєСѓ...",
+  imageUploaded: "РљР°СЂС‚РёРЅРєР° РґРѕР±Р°РІР»РµРЅР° РІ СЃС‚Р°С‚СЊСЋ.",
+  imageUploadError: "РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ РєР°СЂС‚РёРЅРєСѓ.",
+  deleteArticle: "РЈРґР°Р»РёС‚СЊ СЃС‚Р°С‚СЊСЋ",
+  deleting: "РЈРґР°Р»СЏРµРј...",
+  deleteConfirm: "РЈРґР°Р»РёС‚СЊ СЃС‚Р°С‚СЊСЋ? Р­С‚Рѕ РґРµР№СЃС‚РІРёРµ РЅРµР»СЊР·СЏ РѕС‚РјРµРЅРёС‚СЊ.",
+  deleteError: "РќРµ СѓРґР°Р»РѕСЃСЊ СѓРґР°Р»РёС‚СЊ СЃС‚Р°С‚СЊСЋ.",
   footer:
-    "Текст хранится в PostgreSQL и в markdown-представлении, поэтому материалы можно будет выгружать отдельно.",
+    "РўРµРєСЃС‚ С…СЂР°РЅРёС‚СЃСЏ РІ PostgreSQL Рё РІ markdown-РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРё, РїРѕСЌС‚РѕРјСѓ РјР°С‚РµСЂРёР°Р»С‹ РјРѕР¶РЅРѕ Р±СѓРґРµС‚ РІС‹РіСЂСѓР¶Р°С‚СЊ РѕС‚РґРµР»СЊРЅРѕ.",
 } as const;
 
 const emptyDocument = {
@@ -127,7 +127,7 @@ function EditorButton({ active = false, onClick, children }: EditorButtonProps) 
       size="sm"
       variant="outline"
       className={cn(
-        "rounded-xl border-slate-200 bg-white text-slate-700 hover:bg-slate-100",
+        "rounded-xl border-slate-300 bg-[#f8fbfd] text-slate-700 hover:bg-slate-100",
         active && "border-[#3b82a4] bg-[#dbeaf4] text-[#2d6782] hover:bg-[#dbeaf4]"
       )}
       onClick={onClick}
@@ -247,7 +247,7 @@ export function ThoughtEditor({
     editorProps: {
       attributes: {
         class:
-          "nook-editor min-h-80 rounded-[22px] border border-slate-200 bg-[#fbfcfe] px-5 py-4 text-[15px] leading-7 text-slate-700 focus-visible:outline-none",
+          "nook-editor min-h-80 rounded-[22px] border border-slate-300 bg-[#eef3f7] px-5 py-4 text-[15px] leading-7 text-slate-700 focus-visible:outline-none",
       },
     },
   });
@@ -268,12 +268,12 @@ export function ThoughtEditor({
 
   useEffect(() => {
     if (!category.trim()) {
-      setCategory(availableCategories[0] ?? "Общее");
+      setCategory(availableCategories[0] ?? "РћР±С‰РµРµ");
       return;
     }
 
     if (!availableCategories.includes(category)) {
-      setCategory(availableCategories[0] ?? "Общее");
+      setCategory(availableCategories[0] ?? "РћР±С‰РµРµ");
     }
   }, [availableCategories, category]);
 
@@ -428,11 +428,11 @@ export function ThoughtEditor({
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder={copy.titlePlaceholder}
-            className="h-12 rounded-2xl border-slate-200 bg-white text-slate-900 placeholder:text-slate-400"
+            className="h-12 rounded-2xl border-slate-300 bg-[#f8fbfd] text-slate-900 placeholder:text-slate-400"
           />
         </div>
 
-        <div className="rounded-[18px] border border-slate-200 bg-[#f8fafc] px-4 py-3 text-sm leading-6 text-slate-600">
+        <div className="rounded-[18px] border border-slate-300 bg-[#eaf0f6] px-4 py-3 text-sm leading-6 text-slate-600">
           <p className="font-semibold text-slate-800">{copy.draft}</p>
           <p className="mt-2">
             {stats.paragraphs} {copy.blocks}
@@ -452,7 +452,7 @@ export function ThoughtEditor({
             id="article-topic"
             value={topic}
             onChange={(event) => setTopic(event.target.value as ArticleTopic)}
-            className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none focus-visible:border-[#3b82a4]"
+            className="h-12 w-full rounded-2xl border border-slate-300 bg-[#f8fbfd] px-4 text-sm text-slate-900 outline-none focus-visible:border-[#3b82a4]"
           >
             {topics.map((item) => (
               <option key={item} value={item}>
@@ -472,7 +472,7 @@ export function ThoughtEditor({
             value={category}
             onChange={(event) => setCategory(event.target.value)}
             placeholder={copy.categoryPlaceholder}
-            className="h-12 rounded-2xl border-slate-200 bg-white text-slate-900 placeholder:text-slate-400"
+            className="h-12 rounded-2xl border-slate-300 bg-[#f8fbfd] text-slate-900 placeholder:text-slate-400"
           />
           <datalist id="article-category-list">
             {availableCategories.map((item) => (
@@ -492,7 +492,7 @@ export function ThoughtEditor({
           onChange={(event) => setSummary(event.target.value)}
           placeholder={copy.summaryPlaceholder}
           rows={3}
-          className="min-h-12 rounded-2xl border-slate-200 bg-white text-slate-900 placeholder:text-slate-400"
+          className="min-h-12 rounded-2xl border-slate-300 bg-[#f8fbfd] text-slate-900 placeholder:text-slate-400"
         />
       </div>
 
@@ -606,7 +606,7 @@ export function ThoughtEditor({
         <Button
           type="button"
           variant="outline"
-          className="rounded-2xl border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
+          className="rounded-2xl border-slate-300 bg-[#f8fbfd] text-slate-700 hover:bg-slate-100"
           onClick={handleNewDraft}
           disabled={isSaving || isDeleting || isUploadingImage}
         >
@@ -636,9 +636,10 @@ export function ThoughtEditor({
         ) : null}
       </div>
 
-      <div className="rounded-[18px] border border-slate-200 bg-[#f8fafc] p-4 text-sm leading-7 text-slate-600">
+      <div className="rounded-[18px] border border-slate-300 bg-[#eaf0f6] p-4 text-sm leading-7 text-slate-600">
         {copy.footer}
       </div>
     </div>
   );
 }
+

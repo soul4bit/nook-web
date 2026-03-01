@@ -1,5 +1,6 @@
 import { LockKeyhole, ShieldCheck } from "lucide-react";
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
+import { KnowledgeLogo } from "@/components/brand/knowledge-logo";
 
 type ResetPasswordPageProps = {
   searchParams: Promise<{
@@ -15,10 +16,11 @@ export default async function ResetPasswordPage({
 
   return (
     <div className="min-h-screen px-4 py-4 text-slate-900 sm:px-6 lg:px-8">
-      <main className="mx-auto grid min-h-[calc(100vh-2rem)] max-w-[1480px] overflow-hidden rounded-[32px] border border-slate-200 bg-[#f7f9fb]/95 shadow-[0_24px_90px_rgba(15,23,42,0.08)] lg:grid-cols-[1.05fr_minmax(0,0.95fr)]">
-        <section className="flex flex-col justify-between border-b border-slate-200 bg-[#f2f6fa] p-6 lg:border-b-0 lg:border-r lg:p-8 xl:p-10">
+      <main className="mx-auto grid min-h-[calc(100vh-2rem)] max-w-[1480px] overflow-hidden rounded-[32px] border border-slate-300 bg-[#e9edf3]/96 shadow-[0_30px_90px_rgba(15,23,42,0.12)] lg:grid-cols-[1.05fr_minmax(0,0.95fr)]">
+        <section className="flex flex-col justify-between border-b border-slate-300 bg-[#dde5ee] p-6 lg:border-b-0 lg:border-r lg:p-8 xl:p-10">
           <div>
-            <span className="inline-flex rounded-full border border-[#bfd3df] bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#4c7390]">
+            <KnowledgeLogo subtitle="Сброс доступа" />
+            <span className="mt-6 inline-flex rounded-full border border-[#9fb8c9] bg-[#edf2f7] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#3d6178]">
               password reset
             </span>
             <div className="mt-8 space-y-5">
@@ -33,7 +35,7 @@ export default async function ResetPasswordPage({
           </div>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-[22px] border border-slate-200 bg-white p-5">
+            <div className="rounded-[22px] border border-slate-300 bg-[#f3f6fa] p-5">
               <div className="flex size-11 items-center justify-center rounded-2xl bg-[#dbeaf4] text-[#3b82a4]">
                 <LockKeyhole className="size-5" />
               </div>
@@ -44,7 +46,7 @@ export default async function ResetPasswordPage({
               </p>
             </div>
 
-            <div className="rounded-[22px] border border-slate-200 bg-white p-5">
+            <div className="rounded-[22px] border border-slate-300 bg-[#f3f6fa] p-5">
               <div className="flex size-11 items-center justify-center rounded-2xl bg-[#dbeaf4] text-[#3b82a4]">
                 <ShieldCheck className="size-5" />
               </div>
