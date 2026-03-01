@@ -39,6 +39,10 @@ export function getAuthErrorMessage(message?: string) {
     return message;
   }
 
+  if (message.startsWith("Пароль можно менять не чаще одного раза в 24 часа.")) {
+    return message;
+  }
+
   switch (message) {
     case "Invalid email or password":
       return "Неверный email или пароль.";

@@ -1,6 +1,6 @@
 "use client";
 
-import { type ChangeEvent, type FormEvent, useEffect, useState } from "react";
+import { type ChangeEvent, type FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -28,6 +28,10 @@ type AccountSettingsProps = {
     email: string;
     image?: string | null;
     emailVerified?: boolean;
+  };
+  passwordStatus: {
+    canChange: boolean;
+    nextAllowedAt: string | null;
   };
 };
 
@@ -80,6 +84,13 @@ async function uploadAvatar(file: File) {
   return result.imageUrl;
 }
 
+function formatDateTime(value: string) {
+  return new Intl.DateTimeFormat("ru-RU", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(new Date(value));
+}
+
 function FeedbackBanner({ feedback }: { feedback: AuthFeedback }) {
   const toneClass =
     feedback.tone === "error"
@@ -95,8 +106,9 @@ function FeedbackBanner({ feedback }: { feedback: AuthFeedback }) {
   );
 }
 
-export function AccountSettings({ user }: AccountSettingsProps) {
+export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) {
   const router = useRouter();
+  const avatarInputRef = useRef<HTMLInputElement>(null);
   const [currentImage, setCurrentImage] = useState(user.image ?? null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [removeAvatar, setRemoveAvatar] = useState(false);
@@ -109,6 +121,20 @@ export function AccountSettings({ user }: AccountSettingsProps) {
     confirmPassword: "",
   });
   const [previewImage, setPreviewImage] = useState<string | null>(user.image ?? null);
+  const [passwordNextAllowedAt, setPasswordNextAllowedAt] = useState<string | null>(
+    passwordStatus.nextAllowedAt
+  );
+  const isPasswordLocked = Boolean(
+    passwordNextAllowedAt && new Date(passwordNextAllowedAt).getTime() > Date.now()
+  );
+
+  const passwordCooldownText = useMemo(() => {
+    if (!passwordNextAllowedAt) {
+      return "Пароль можно менять не чаще одного раза в 24 часа.";
+    }
+
+    return `Следующая смена пароля будет доступна ${formatDateTime(passwordNextAllowedAt)}.`;
+  }, [passwordNextAllowedAt]);
 
   useEffect(() => {
     if (selectedFile) {
@@ -122,6 +148,12 @@ export function AccountSettings({ user }: AccountSettingsProps) {
 
     setPreviewImage(removeAvatar ? null : currentImage);
   }, [currentImage, removeAvatar, selectedFile]);
+
+  function resetAvatarInput() {
+    if (avatarInputRef.current) {
+      avatarInputRef.current.value = "";
+    }
+  }
 
   function handleAvatarChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -160,6 +192,7 @@ export function AccountSettings({ user }: AccountSettingsProps) {
       setCurrentImage(image);
       setSelectedFile(null);
       setRemoveAvatar(false);
+      resetAvatarInput();
       setProfileFeedback({
         tone: "success",
         text: "Аватар обновлен.",
@@ -181,6 +214,14 @@ export function AccountSettings({ user }: AccountSettingsProps) {
   async function handlePasswordSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    if (isPasswordLocked && passwordNextAllowedAt) {
+      setPasswordFeedback({
+        tone: "info",
+        text: `Пароль можно менять не чаще одного раза в 24 часа. Следующая смена будет доступна ${formatDateTime(passwordNextAllowedAt)}.`,
+      });
+      return;
+    }
+
     if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
       setPasswordFeedback({ tone: "error", text: "Заполните все поля для смены пароля." });
       return;
@@ -200,21 +241,23 @@ export function AccountSettings({ user }: AccountSettingsProps) {
     setPasswordFeedback(null);
 
     try {
-      await postJson("/api/auth/change-password", {
+      const result = (await postJson("/api/account/change-password", {
         currentPassword: passwordForm.currentPassword,
         newPassword: passwordForm.newPassword,
         revokeOtherSessions: true,
-      });
+      })) as { nextAllowedAt?: string | null };
 
       setPasswordForm({
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
+      setPasswordNextAllowedAt(result.nextAllowedAt ?? null);
       setPasswordFeedback({
         tone: "success",
-        text: "Пароль обновлен. Остальные сессии сброшены.",
+        text: "Пароль обновлен. Следующая смена будет доступна через 24 часа.",
       });
+      router.refresh();
     } catch (error) {
       setPasswordFeedback({
         tone: "error",
@@ -240,8 +283,8 @@ export function AccountSettings({ user }: AccountSettingsProps) {
               Личный кабинет
             </h2>
             <p className="mt-3 text-sm leading-7 text-[#8fa59c]">
-              Здесь можно управлять аватаром и безопасностью аккаунта. Имя из
-              регистрации остается как есть, без отдельного редактирования.
+              Здесь можно управлять аватаром и безопасностью аккаунта. Имя из регистрации остается как есть,
+              без отдельного редактирования.
             </p>
           </div>
 
@@ -291,6 +334,7 @@ export function AccountSettings({ user }: AccountSettingsProps) {
                   <ImagePlus className="size-4" />
                   Выбрать изображение
                   <input
+                    ref={avatarInputRef}
                     id="avatar"
                     type="file"
                     accept="image/png,image/jpeg,image/webp,image/gif"
@@ -307,6 +351,7 @@ export function AccountSettings({ user }: AccountSettingsProps) {
                     setSelectedFile(null);
                     setRemoveAvatar(true);
                     setProfileFeedback(null);
+                    resetAvatarInput();
                   }}
                 >
                   <Trash2 className="size-4" />
@@ -351,9 +396,13 @@ export function AccountSettings({ user }: AccountSettingsProps) {
           Смена пароля
         </h2>
         <p className="mt-3 text-sm leading-7 text-[#8fa59c]">
-          Пароль меняется через Better Auth. После обновления остальные сессии будут
-          автоматически завершены.
+          Пароль можно менять не чаще одного раза в 24 часа. После успешной смены остальные сессии
+          будут автоматически завершены.
         </p>
+
+        <div className="mt-5 rounded-[24px] border border-[#29312d] bg-[#111513] px-4 py-3 text-sm leading-7 text-[#9ab0a6]">
+          {passwordCooldownText}
+        </div>
 
         <form className="mt-8 space-y-5" onSubmit={handlePasswordSubmit}>
           {passwordFeedback ? <FeedbackBanner feedback={passwordFeedback} /> : null}
@@ -418,7 +467,7 @@ export function AccountSettings({ user }: AccountSettingsProps) {
           <Button
             type="submit"
             className="rounded-2xl bg-[#53e6a6] px-5 text-[#09120e] hover:bg-[#46ce93]"
-            disabled={pendingAction === "password"}
+            disabled={pendingAction === "password" || isPasswordLocked}
           >
             {pendingAction === "password" ? (
               <>
@@ -440,8 +489,8 @@ export function AccountSettings({ user }: AccountSettingsProps) {
             Как это хранится
           </div>
           <p>
-            Аватар лежит локально на сервере в каталоге `public/uploads/avatars`, а в
-            таблице пользователя сохраняется только URL в поле `image`.
+            Аватар лежит локально на сервере в каталоге `public/uploads/avatars`, а в таблице пользователя
+            сохраняется только URL в поле `image`.
           </p>
         </div>
       </section>
