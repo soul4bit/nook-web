@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+﻿import { NextRequest, NextResponse } from "next/server";
 import { authHandlers } from "@/lib/auth/handler";
 import { pool } from "@/lib/auth/server";
 
@@ -27,11 +27,22 @@ type GuardRouteConfig<TPayload extends Record<string, unknown>> = {
 
 class AuthGuardError extends Error {
   status: number;
+  code: string;
+  details?: Record<string, unknown>;
 
-  constructor(message: string, status = 400) {
+  constructor(
+    message: string,
+    options?: {
+      status?: number;
+      code?: string;
+      details?: Record<string, unknown>;
+    }
+  ) {
     super(message);
     this.name = "AuthGuardError";
-    this.status = status;
+    this.status = options?.status ?? 400;
+    this.code = options?.code ?? "guard_rejected";
+    this.details = options?.details;
   }
 }
 
@@ -112,7 +123,9 @@ const guardPolicies: Record<AuthGuardAction, GuardPolicy> = {
 
 function asRecord(value: unknown) {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
-    throw new AuthGuardError("Некорректный формат запроса.");
+    throw new AuthGuardError("Некорректный формат запроса.", {
+      code: "invalid_payload",
+    });
   }
 
   return value as Record<string, unknown>;
@@ -126,13 +139,22 @@ function normalizeEmail(value: unknown) {
   return getString(value).toLowerCase();
 }
 
+function getEmailForLog(value: unknown) {
+  const email = normalizeEmail(value);
+  return email || undefined;
+}
+
 function validateEmail(email: string) {
   if (!email) {
-    throw new AuthGuardError("Введите email.");
+    throw new AuthGuardError("Введите email.", {
+      code: "missing_email",
+    });
   }
 
   if (!EMAIL_REGEX.test(email)) {
-    throw new AuthGuardError("Введите корректный email.");
+    throw new AuthGuardError("Введите корректный email.", {
+      code: "invalid_email",
+    });
   }
 
   return email;
@@ -141,13 +163,19 @@ function validateEmail(email: string) {
 function validatePasswordStrength(password: string) {
   if (password.length < 10 || password.length > 128) {
     throw new AuthGuardError(
-      "Пароль должен быть от 10 до 128 символов и содержать буквы и цифры."
+      "Пароль должен быть от 10 до 128 символов и содержать буквы и цифры.",
+      {
+        code: "weak_password_length",
+      }
     );
   }
 
   if (!/\p{L}/u.test(password) || !/\d/.test(password)) {
     throw new AuthGuardError(
-      "Пароль должен быть от 10 до 128 символов и содержать буквы и цифры."
+      "Пароль должен быть от 10 до 128 символов и содержать буквы и цифры.",
+      {
+        code: "weak_password_format",
+      }
     );
   }
 }
@@ -156,11 +184,15 @@ function validateName(value: unknown) {
   const name = getString(value);
 
   if (name.length < 2 || name.length > 60) {
-    throw new AuthGuardError("Имя должно быть длиной от 2 до 60 символов.");
+    throw new AuthGuardError("Имя должно быть длиной от 2 до 60 символов.", {
+      code: "invalid_name_length",
+    });
   }
 
   if (!NAME_REGEX.test(name)) {
-    throw new AuthGuardError("Имя содержит недопустимые символы.");
+    throw new AuthGuardError("Имя содержит недопустимые символы.", {
+      code: "invalid_name_format",
+    });
   }
 
   return name;
@@ -211,6 +243,39 @@ function getClientIp(request: NextRequest) {
   return "unknown";
 }
 
+function getUserAgent(request: NextRequest) {
+  const userAgent = request.headers.get("user-agent") ?? "unknown";
+
+  return userAgent.length > 200 ? `${userAgent.slice(0, 200)}...` : userAgent;
+}
+
+function logAuthGuardBlock({
+  action,
+  ipAddress,
+  email,
+  userAgent,
+  error,
+}: {
+  action: AuthGuardAction;
+  ipAddress: string;
+  email?: string;
+  userAgent: string;
+  error: AuthGuardError;
+}) {
+  console.warn(
+    `[auth-guard:block] ${JSON.stringify({
+      action,
+      code: error.code,
+      reason: error.message,
+      status: error.status,
+      ipAddress,
+      email: email ?? null,
+      userAgent,
+      details: error.details ?? null,
+    })}`
+  );
+}
+
 function validateHumanChallenge(
   body: Record<string, unknown>,
   action: AuthGuardAction
@@ -218,14 +283,19 @@ function validateHumanChallenge(
   const honeypot = getString(body.website);
 
   if (honeypot) {
-    throw new AuthGuardError("Похоже на автоматический запрос. Попробуйте еще раз.");
+    throw new AuthGuardError("Похоже на автоматический запрос. Попробуйте еще раз.", {
+      code: "honeypot_triggered",
+    });
   }
 
   const startedAt = Number(body.startedAt);
 
   if (!Number.isFinite(startedAt)) {
     throw new AuthGuardError(
-      "Не удалось подтвердить запрос. Обновите страницу и попробуйте снова."
+      "Не удалось подтвердить запрос. Обновите страницу и попробуйте снова.",
+      {
+        code: "missing_started_at",
+      }
     );
   }
 
@@ -233,19 +303,31 @@ function validateHumanChallenge(
 
   if (ageMs < -MAX_FUTURE_CLOCK_SKEW_MS) {
     throw new AuthGuardError(
-      "Часы на устройстве сильно отличаются от времени сервера. Проверьте время и попробуйте снова."
+      "Часы на устройстве сильно отличаются от времени сервера. Проверьте время и попробуйте снова.",
+      {
+        code: "client_clock_skew",
+        details: { ageMs },
+      }
     );
   }
 
   if (ageMs > MAX_FORM_AGE_MS) {
-    throw new AuthGuardError(
-      "Форма устарела. Обновите страницу и попробуйте снова."
-    );
+    throw new AuthGuardError("Форма устарела. Обновите страницу и попробуйте снова.", {
+      code: "stale_form",
+      details: { ageMs },
+    });
   }
 
   if (guardPolicies[action].minFillMs > 0 && ageMs < guardPolicies[action].minFillMs) {
     throw new AuthGuardError(
-      "Слишком быстрый запрос. Подождите секунду и попробуйте снова."
+      "Слишком быстрый запрос. Подождите секунду и попробуйте снова.",
+      {
+        code: "submitted_too_fast",
+        details: {
+          ageMs,
+          minFillMs: guardPolicies[action].minFillMs,
+        },
+      }
     );
   }
 }
@@ -323,7 +405,15 @@ async function applyRateLimit({
   const emailCount = Number(row?.email_count ?? 0);
 
   if (ipCount > policy.ipLimit) {
-    throw new AuthGuardError(policy.ipMessage, 429);
+    throw new AuthGuardError(policy.ipMessage, {
+      status: 429,
+      code: "rate_limit_ip",
+      details: {
+        ipCount,
+        ipLimit: policy.ipLimit,
+        ipWindowSec: policy.ipWindowSec,
+      },
+    });
   }
 
   if (
@@ -332,7 +422,15 @@ async function applyRateLimit({
     policy.emailMessage &&
     emailCount > policy.emailLimit
   ) {
-    throw new AuthGuardError(policy.emailMessage, 429);
+    throw new AuthGuardError(policy.emailMessage, {
+      status: 429,
+      code: "rate_limit_email",
+      details: {
+        emailCount,
+        emailLimit: policy.emailLimit,
+        emailWindowSec: policy.emailWindowSec,
+      },
+    });
   }
 }
 
@@ -385,8 +483,13 @@ export async function handleGuardedAuthRequest<TPayload extends Record<string, u
   request: NextRequest,
   config: GuardRouteConfig<TPayload>
 ) {
+  const ipAddress = getClientIp(request);
+  const userAgent = getUserAgent(request);
+  let emailForLog: string | undefined;
+
   try {
     const rawBody = asRecord(await request.json());
+    emailForLog = getEmailForLog(rawBody.email);
 
     validateHumanChallenge(rawBody, config.action);
 
@@ -394,19 +497,39 @@ export async function handleGuardedAuthRequest<TPayload extends Record<string, u
     const email =
       typeof payload.email === "string" && payload.email ? payload.email : undefined;
 
+    if (email) {
+      emailForLog = email;
+    }
+
     await applyRateLimit({
       action: config.action,
-      ipAddress: getClientIp(request),
+      ipAddress,
       email,
     });
 
     return await proxyToBetterAuth(request, config.targetPath, payload);
   } catch (error) {
     if (error instanceof AuthGuardError) {
+      logAuthGuardBlock({
+        action: config.action,
+        ipAddress,
+        email: emailForLog,
+        userAgent,
+        error,
+      });
+
       return NextResponse.json({ message: error.message }, { status: error.status });
     }
 
-    console.error("Auth guard failed", error);
+    console.error(
+      `[auth-guard:error] ${JSON.stringify({
+        action: config.action,
+        ipAddress,
+        email: emailForLog ?? null,
+        userAgent,
+      })}`,
+      error
+    );
 
     return NextResponse.json(
       { message: "Серверная ошибка при авторизации. Проверьте логи сервера." },
@@ -420,7 +543,9 @@ export function validateSignInPayload(body: Record<string, unknown>) {
   const password = getString(body.password);
 
   if (!password) {
-    throw new AuthGuardError("Введите пароль.");
+    throw new AuthGuardError("Введите пароль.", {
+      code: "missing_password",
+    });
   }
 
   return {
@@ -476,7 +601,9 @@ export function validateResetPasswordPayload(body: Record<string, unknown>) {
   const newPassword = getString(body.newPassword);
 
   if (!token) {
-    throw new AuthGuardError("Ссылка для сброса пароля недействительна.");
+    throw new AuthGuardError("Ссылка для сброса пароля недействительна.", {
+      code: "missing_reset_token",
+    });
   }
 
   validatePasswordStrength(newPassword);
