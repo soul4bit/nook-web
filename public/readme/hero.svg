@@ -1,41 +1,72 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
-  <title id="title">Контур Знаний</title>
-  <desc id="desc">Обложка проекта Контур Знаний</desc>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1144" height="600" viewBox="0 0 1144 600" role="img" aria-label="Контур Знаний">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#0f172a"/>
-      <stop offset="100%" stop-color="#1e293b"/>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0A1424"/>
+      <stop offset="100%" stop-color="#0C2A3C"/>
     </linearGradient>
-    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#22d3ee"/>
-      <stop offset="100%" stop-color="#38bdf8"/>
-    </linearGradient>
+    <radialGradient id="glowLeft" cx="0.15" cy="0.85" r="0.65">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowRight" cx="0.85" cy="0.15" r="0.65">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
   </defs>
-  <rect width="1200" height="630" fill="url(#bg)"/>
-  <circle cx="1040" cy="110" r="220" fill="#0ea5e9" opacity="0.14"/>
-  <circle cx="220" cy="520" r="260" fill="#14b8a6" opacity="0.12"/>
-  <g transform="translate(88 90)">
-    <rect x="0" y="0" width="150" height="118" rx="24" fill="#0b1220" stroke="#475569"/>
-    <g transform="translate(23 32)" fill="url(#accent)">
-      <rect x="0" y="18" width="12" height="16" rx="3"/>
-      <path d="M24 0h34v20h-14c-10 0-18 8-18 18v24H2V18c0-10 8-18 18-18z"/>
-      <path d="M62 62H38c0-12 7-19 18-28 11-9 15-14 15-24h22c0 13-5 22-16 31-10 8-15 11-15 21z"/>
-      <path d="M78 62V38c0-10 8-18 18-18h14V0h22v44c0 10-8 18-18 18H78z"/>
-      <rect x="136" y="18" width="12" height="16" rx="3"/>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="1144" height="600" fill="url(#bgGrad)"/>
+  <rect x="0" y="0" width="1144" height="600" fill="url(#glowLeft)"/>
+  <rect x="0" y="0" width="1144" height="600" fill="url(#glowRight)"/>
+
+  <!-- Decorative circles -->
+  <circle cx="205" cy="468" r="330" fill="#0E3C3F" opacity="0.55"/>
+  <circle cx="1006" cy="108" r="300" fill="#1B4F68" opacity="0.62"/>
+
+  <!-- Thin accent line -->
+  <rect x="80" y="180" width="2" height="78" fill="#FFFFFF" opacity="0.1"/>
+
+  <!-- Logo mark -->
+  <g transform="translate(102 72) scale(1.125000)" filter="url(#softShadow)">
+    <g id="kz-mark" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="32" cy="32" r="28" stroke="#F8FAFC" stroke-width="3.5"/>
+      <path d="M 52 32 L 51.993 32.733 L 51.973 33.463 L 51.938 34.19 L 51.89 34.911 L 51.829 35.623 L 51.754 36.326 L 51.665 37.017 L 51.563 37.694 L 51.447 38.356 L 51.319 39 L 51.176 39.625 L 51.021 40.229 L 50.853 40.81 L 50.672 41.368 L 50.478 41.899 L 50.271 42.404 L 50.052 42.88 L 49.82 43.326 L 49.576 43.741 L 49.321 44.124 L 49.053 44.474 L 48.773 44.79 L 48.483 45.07 L 48.18 45.315 L 47.867 45.523 L 47.543 45.694 L 47.208 45.828 L 46.863 45.923 L 46.507 45.981 L 46.142 46 L 45.767 45.981 L 45.383 45.923 L 44.989 45.828 L 44.586 45.694 L 44.175 45.523 L 43.756 45.315 L 43.328 45.07 L 42.893 44.79 L 42.45 44.474 L 42 44.124 L 41.543 43.741 L 41.08 43.326 L 40.61 42.88 L 40.135 42.404 L 39.654 41.899 L 39.167 41.368 L 38.676 40.81 L 38.18 40.229 L 37.68 39.625 L 37.176 39 L 36.669 38.356 L 36.158 37.694 L 35.645 37.017 L 35.129 36.326 L 34.611 35.623 L 34.091 34.911 L 33.569 34.19 L 33.047 33.463 L 32.524 32.733 L 32 32 L 31.476 31.267 L 30.953 30.537 L 30.431 29.81 L 29.909 29.089 L 29.389 28.377 L 28.871 27.674 L 28.355 26.983 L 27.842 26.306 L 27.331 25.644 L 26.824 25 L 26.32 24.375 L 25.82 23.771 L 25.324 23.19 L 24.833 22.632 L 24.346 22.101 L 23.865 21.596 L 23.39 21.12 L 22.92 20.674 L 22.457 20.259 L 22 19.876 L 21.55 19.526 L 21.107 19.21 L 20.672 18.93 L 20.244 18.685 L 19.825 18.477 L 19.414 18.306 L 19.011 18.172 L 18.617 18.077 L 18.233 18.019 L 17.858 18 L 17.493 18.019 L 17.137 18.077 L 16.792 18.172 L 16.457 18.306 L 16.133 18.477 L 15.82 18.685 L 15.517 18.93 L 15.227 19.21 L 14.947 19.526 L 14.679 19.876 L 14.424 20.259 L 14.18 20.674 L 13.948 21.12 L 13.729 21.596 L 13.522 22.101 L 13.328 22.632 L 13.147 23.19 L 12.979 23.771 L 12.824 24.375 L 12.681 25 L 12.553 25.644 L 12.437 26.306 L 12.335 26.983 L 12.246 27.674 L 12.171 28.377 L 12.11 29.089 L 12.062 29.81 L 12.027 30.537 L 12.007 31.267 L 12 32 L 12.007 32.733 L 12.027 33.463 L 12.062 34.19 L 12.11 34.911 L 12.171 35.623 L 12.246 36.326 L 12.335 37.017 L 12.437 37.694 L 12.553 38.356 L 12.681 39 L 12.824 39.625 L 12.979 40.229 L 13.147 40.81 L 13.328 41.368 L 13.522 41.899 L 13.729 42.404 L 13.948 42.88 L 14.18 43.326 L 14.424 43.741 L 14.679 44.124 L 14.947 44.474 L 15.227 44.79 L 15.517 45.07 L 15.82 45.315 L 16.133 45.523 L 16.457 45.694 L 16.792 45.828 L 17.137 45.923 L 17.493 45.981 L 17.858 46 L 18.233 45.981 L 18.617 45.923 L 19.011 45.828 L 19.414 45.694 L 19.825 45.523 L 20.244 45.315 L 20.672 45.07 L 21.107 44.79 L 21.55 44.474 L 22 44.124 L 22.457 43.741 L 22.92 43.326 L 23.39 42.88 L 23.865 42.404 L 24.346 41.899 L 24.833 41.368 L 25.324 40.81 L 25.82 40.229 L 26.32 39.625 L 26.824 39 L 27.331 38.356 L 27.842 37.694 L 28.355 37.017 L 28.871 36.326 L 29.389 35.623 L 29.909 34.911 L 30.431 34.19 L 30.953 33.463 L 31.476 32.733 L 32 32 L 32.524 31.267 L 33.047 30.537 L 33.569 29.81 L 34.091 29.089 L 34.611 28.377 L 35.129 27.674 L 35.645 26.983 L 36.158 26.306 L 36.669 25.644 L 37.176 25 L 37.68 24.375 L 38.18 23.771 L 38.676 23.19 L 39.167 22.632 L 39.654 22.101 L 40.135 21.596 L 40.61 21.12 L 41.08 20.674 L 41.543 20.259 L 42 19.876 L 42.45 19.526 L 42.893 19.21 L 43.328 18.93 L 43.756 18.685 L 44.175 18.477 L 44.586 18.306 L 44.989 18.172 L 45.383 18.077 L 45.767 18.019 L 46.142 18 L 46.507 18.019 L 46.863 18.077 L 47.208 18.172 L 47.543 18.306 L 47.867 18.477 L 48.18 18.685 L 48.483 18.93 L 48.773 19.21 L 49.053 19.526 L 49.321 19.876 L 49.576 20.259 L 49.82 20.674 L 50.052 21.12 L 50.271 21.596 L 50.478 22.101 L 50.672 22.632 L 50.853 23.19 L 51.021 23.771 L 51.176 24.375 L 51.319 25 L 51.447 25.644 L 51.563 26.306 L 51.665 26.983 L 51.754 27.674 L 51.829 28.377 L 51.89 29.089 L 51.938 29.81 L 51.973 30.537 L 51.993 31.267 L 52 32" stroke="#F8FAFC" stroke-width="3.5"/>
+      <circle cx="12" cy="32" r="3.1" fill="#F8FAFC" stroke="none"/>
+      <circle cx="52" cy="32" r="3.1" fill="#F8FAFC" stroke="none"/>
+      <circle cx="32" cy="32" r="3.6" fill="#2DD4BF" stroke="none"/>
+      <circle cx="32" cy="32" r="7.2" stroke="#2DD4BF" stroke-width="1.93" opacity="0.25"/>
     </g>
   </g>
-  <text x="88" y="285" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="72" font-weight="700" fill="#f8fafc">
+
+  <!-- Title -->
+  <text x="102" y="240" fill="#F8FAFC" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, sans-serif" font-size="66" font-weight="800" letter-spacing="-0.5">
     Контур Знаний
   </text>
-  <text x="88" y="340" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="32" fill="#cbd5e1">
+
+  <!-- Subtitle -->
+  <text x="102" y="282" fill="#A9B4C7" font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, sans-serif" font-size="22" font-weight="500">
     Личная DevOps-вики с поиском, wiki-ссылками и умным редактором
   </text>
-  <g transform="translate(88 410)">
-    <rect x="0" y="0" width="284" height="56" rx="14" fill="#0b1220" stroke="#334155"/>
-    <text x="28" y="36" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="24" fill="#67e8f9">Next.js + PostgreSQL</text>
-    <rect x="304" y="0" width="244" height="56" rx="14" fill="#0b1220" stroke="#334155"/>
-    <text x="332" y="36" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="24" fill="#7dd3fc">Better Auth</text>
-    <rect x="568" y="0" width="260" height="56" rx="14" fill="#0b1220" stroke="#334155"/>
-    <text x="596" y="36" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="24" fill="#99f6e4">Tiptap + Markdown</text>
+
+  <!-- Buttons -->
+  <g font-family="Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, sans-serif" font-size="19" font-weight="700">
+    <g filter="url(#softShadow)">
+      <rect x="102" y="336" rx="9" ry="9" width="217" height="39" fill="#0B1220" stroke="#1A2740" stroke-width="2" opacity="0.96"/>
+      <text x="123" y="362" fill="#2DD4BF">Nginx + PostgreSQL</text>
+    </g>
+
+    <g filter="url(#softShadow)">
+      <rect x="341" y="336" rx="9" ry="9" width="137" height="39" fill="#0B1220" stroke="#1A2740" stroke-width="2" opacity="0.96"/>
+      <text x="362" y="362" fill="#CBD5E1">Better Auth</text>
+    </g>
+
+    <g filter="url(#softShadow)">
+      <rect x="500" y="336" rx="9" ry="9" width="205" height="39" fill="#0B1220" stroke="#1A2740" stroke-width="2" opacity="0.96"/>
+      <text x="521" y="362" fill="#2DD4BF">TipTap + Markdown</text>
+    </g>
   </g>
 </svg>

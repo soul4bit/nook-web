@@ -12,6 +12,7 @@ import {
   Plus,
   SearchSlash,
   ServerCog,
+  ShieldCheck,
   Sparkles,
   UserRound,
   UserRoundCog,
@@ -22,7 +23,7 @@ import { ThoughtEditor } from "@/components/editor/thought-editor";
 import { ArticleContent } from "@/components/articles/article-content";
 import { UserAvatar } from "@/components/user/user-avatar";
 import { Button } from "@/components/ui/button";
-import { getCurrentSession } from "@/lib/auth/session";
+import { getCurrentSession, isAdminSession } from "@/lib/auth/session";
 import {
   getArticleById,
   isArticleTopic,
@@ -37,6 +38,7 @@ const copy = {
     "Вся база по Linux, Docker, сетям, Ansible, Kubernetes, Terraform и CI/CD в одном интерфейсе: слева разделы и статьи, справа чтение и редактирование.",
   newArticle: "Новая статья",
   account: "Личный кабинет",
+  admin: "Модерация",
   sections: "Разделы",
   articlesSuffix: "статей",
   noArticlesInSection:
@@ -189,6 +191,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
         : requestedArticle;
 
   const displayName = session.user.name?.trim() || session.user.email;
+  const isAdmin = isAdminSession(session);
   const totalArticles = allArticles.length;
   const visibleArticlesCount = articles.length;
   const hasSearchQuery = Boolean(searchQuery);
@@ -258,6 +261,19 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                   {copy.account}
                 </Link>
               </Button>
+
+              {isAdmin ? (
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-11 w-full rounded-2xl border-slate-600/70 bg-[#162431] text-slate-200 hover:bg-[#182838]"
+                >
+                  <Link href="/app/admin">
+                    <ShieldCheck className="size-4" />
+                    {copy.admin}
+                  </Link>
+                </Button>
+              ) : null}
             </div>
           </div>
 

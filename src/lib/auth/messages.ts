@@ -87,12 +87,25 @@ export function getAuthErrorMessage(message?: string) {
     return message;
   }
 
+  if (message.startsWith("Такой email")) {
+    return message;
+  }
+
+  if (message.startsWith("Telegram registration is not configured on the server.")) {
+    return "Регистрация через Telegram пока не настроена на сервере.";
+  }
+
+  if (message.startsWith("Failed to send request to Telegram:")) {
+    return "Не удалось отправить заявку в Telegram. Проверьте настройки бота.";
+  }
+
   switch (message) {
     case "Invalid email or password":
       return "Неверный email или пароль.";
     case "Invalid password":
       return "Неверный текущий пароль.";
     case "User already exists. Use another email.":
+    case "User with this email already exists.":
       return "Такой email уже зарегистрирован.";
     case "Password is too short":
     case "Password too short":

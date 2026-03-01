@@ -6,3 +6,9 @@ export async function getCurrentSession() {
     headers: await headers(),
   });
 }
+
+export function isAdminSession(
+  session: Awaited<ReturnType<typeof getCurrentSession>> | null
+) {
+  return (session?.user as { role?: unknown } | undefined)?.role === "admin";
+}

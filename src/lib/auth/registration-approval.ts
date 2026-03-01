@@ -1,10 +1,24 @@
 import crypto from "crypto";
 import { NextRequest } from "next/server";
+import type { PoolClient } from "pg";
 import { auth, pool } from "@/lib/auth/server";
 import { getAuthEnv } from "@/lib/auth/env";
+import {
+  sendRegistrationApprovedEmail,
+  sendRegistrationRejectedEmail,
+} from "@/lib/mail/server";
 
 type RegistrationDecision = "approve" | "reject";
 type RegistrationStatus = "pending" | "approved" | "rejected";
+type ReviewTarget =
+  | {
+      kind: "token";
+      token: string;
+    }
+  | {
+      kind: "id";
+      id: string;
+    };
 
 type PendingRegistrationRow = {
   id: string;
@@ -24,6 +38,33 @@ type PendingRegistrationRow = {
   created_user_id: string | null;
   telegram_chat_id: string | null;
   telegram_message_id: string | null;
+};
+
+type PendingRegistrationListRow = {
+  id: string;
+  email: string;
+  name: string;
+  request_ip: string;
+  user_agent: string;
+  requested_at: string;
+};
+
+type ReviewResultResolved = {
+  status: "approved" | "approved_existing" | "rejected";
+  email: string;
+  name: string;
+  notificationSent: boolean;
+};
+
+type ReviewResult = ReviewResultResolved | { status: "not_found" };
+
+export type PendingRegistrationRequest = {
+  id: string;
+  email: string;
+  name: string;
+  requestIp: string;
+  userAgent: string;
+  requestedAt: string;
 };
 
 export class RegistrationApprovalError extends Error {
@@ -76,7 +117,7 @@ function getRegistrationApprovalEnv() {
 
   if (!botToken || !adminChatId) {
     throw new RegistrationApprovalError(
-      "Регистрация через Telegram пока не настроена на сервере.",
+      "Telegram registration is not configured on the server.",
       500,
       "telegram_not_configured"
     );
@@ -169,18 +210,18 @@ async function sendTelegramRegistrationModerationMessage({
       parse_mode: "HTML",
       disable_web_page_preview: true,
       text: [
-        "<b>Новая заявка на регистрацию</b>",
+        "<b>New registration request</b>",
         "",
-        `Имя: <b>${escapeHtml(name)}</b>`,
+        `Name: <b>${escapeHtml(name)}</b>`,
         `Email: <code>${escapeHtml(email)}</code>`,
         `IP: <code>${escapeHtml(requestIp)}</code>`,
-        `Время: <code>${requestedAt.toISOString()}</code>`,
+        `Time: <code>${requestedAt.toISOString()}</code>`,
       ].join("\n"),
       reply_markup: {
         inline_keyboard: [
           [
-            { text: "✅ Одобрить", url: approveUrl },
-            { text: "❌ Отклонить", url: rejectUrl },
+            { text: "Approve", url: approveUrl },
+            { text: "Reject", url: rejectUrl },
           ],
         ],
       },
@@ -195,7 +236,7 @@ async function sendTelegramRegistrationModerationMessage({
 
   if (!response.ok || !result.ok) {
     throw new RegistrationApprovalError(
-      `Не удалось отправить заявку в Telegram: ${result.description ?? "unknown_error"}`,
+      `Failed to send request to Telegram: ${result.description ?? "unknown_error"}`,
       502,
       "telegram_send_failed"
     );
@@ -214,6 +255,265 @@ async function findUserByEmail(email: string) {
   return ctx.internalAdapter.findUserByEmail(email, {
     includeAccounts: true,
   });
+}
+
+async function notifyUserAboutDecision(
+  result: Exclude<ReviewResult, { status: "not_found" }>
+) {
+  const { baseUrl } = getAuthEnv();
+  const authUrl = `${baseUrl.replace(/\/$/, "")}/auth`;
+
+  try {
+    if (result.status === "rejected") {
+      await sendRegistrationRejectedEmail({
+        email: result.email,
+        name: result.name,
+        url: authUrl,
+      });
+      return true;
+    }
+
+    await sendRegistrationApprovedEmail({
+      email: result.email,
+      name: result.name,
+      url: authUrl,
+    });
+    return true;
+  } catch (error) {
+    console.error("[registration-approval:notify:error]", {
+      email: result.email,
+      status: result.status,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return false;
+  }
+}
+
+function mapReviewResult(
+  status: "approved" | "approved_existing" | "rejected",
+  email: string,
+  name: string,
+  notificationSent: boolean
+): ReviewResultResolved {
+  return {
+    status,
+    email,
+    name,
+    notificationSent,
+  };
+}
+
+async function getPendingRegistrationForReview(
+  client: PoolClient,
+  decision: RegistrationDecision,
+  target: ReviewTarget
+) {
+  if (target.kind === "id") {
+    const result = await client.query<PendingRegistrationRow>(
+      `
+        select *
+        from registration_requests
+        where id = $1
+          and status = 'pending'
+        for update
+      `,
+      [target.id]
+    );
+
+    return result.rowCount ? result.rows[0] : null;
+  }
+
+  const tokenHash = hashToken(target.token);
+  const tokenColumn = decision === "approve" ? "approve_token_hash" : "reject_token_hash";
+  const result = await client.query<PendingRegistrationRow>(
+    `
+      select *
+      from registration_requests
+      where status = 'pending'
+        and ${tokenColumn} = $1
+      limit 1
+      for update
+    `,
+    [tokenHash]
+  );
+
+  return result.rowCount ? result.rows[0] : null;
+}
+
+async function approveRegistration(
+  client: PoolClient,
+  registration: PendingRegistrationRow,
+  reviewedBy: string
+): Promise<{
+  status: "approved" | "approved_existing";
+  email: string;
+  name: string;
+}> {
+  const existingUser = await findUserByEmail(registration.email);
+
+  if (existingUser) {
+    await client.query(
+      `
+        update registration_requests
+        set status = 'approved',
+            reviewed_at = now(),
+            reviewed_by = $2,
+            review_note = 'approved_existing_user',
+            created_user_id = $3
+        where id = $1
+      `,
+      [registration.id, reviewedBy, existingUser.user.id]
+    );
+
+    return {
+      status: "approved_existing",
+      email: registration.email,
+      name: registration.name,
+    };
+  }
+
+  const ctx = await auth.$context;
+
+  try {
+    const user = await ctx.internalAdapter.createUser({
+      email: registration.email,
+      name: registration.name,
+      emailVerified: true,
+      role: "user",
+    });
+
+    await ctx.internalAdapter.linkAccount({
+      userId: user.id,
+      providerId: "credential",
+      accountId: user.id,
+      password: registration.password_hash,
+    });
+
+    await client.query(
+      `
+        update registration_requests
+        set status = 'approved',
+            reviewed_at = now(),
+            reviewed_by = $2,
+            review_note = 'approved_created_user',
+            created_user_id = $3
+        where id = $1
+      `,
+      [registration.id, reviewedBy, user.id]
+    );
+
+    return {
+      status: "approved",
+      email: registration.email,
+      name: registration.name,
+    };
+  } catch (error) {
+    const userAfterFailure = await findUserByEmail(registration.email);
+
+    if (!userAfterFailure) {
+      throw error;
+    }
+
+    await client.query(
+      `
+        update registration_requests
+        set status = 'approved',
+            reviewed_at = now(),
+            reviewed_by = $2,
+            review_note = 'approved_existing_after_retry',
+            created_user_id = $3
+        where id = $1
+      `,
+      [registration.id, reviewedBy, userAfterFailure.user.id]
+    );
+
+    return {
+      status: "approved_existing",
+      email: registration.email,
+      name: registration.name,
+    };
+  }
+}
+
+async function rejectRegistration(
+  client: PoolClient,
+  registration: PendingRegistrationRow,
+  reviewedBy: string
+): Promise<{
+  status: "rejected";
+  email: string;
+  name: string;
+}> {
+  await client.query(
+    `
+      update registration_requests
+      set status = 'rejected',
+          reviewed_at = now(),
+          reviewed_by = $2,
+          review_note = 'rejected_by_moderator'
+      where id = $1
+    `,
+    [registration.id, reviewedBy]
+  );
+
+  return {
+    status: "rejected",
+    email: registration.email,
+    name: registration.name,
+  };
+}
+
+async function reviewPendingRegistration({
+  decision,
+  target,
+  reviewedBy,
+}: {
+  decision: RegistrationDecision;
+  target: ReviewTarget;
+  reviewedBy: string;
+}): Promise<ReviewResult> {
+  await ensureRegistrationApprovalSchema();
+
+  const client = await pool.connect();
+
+  try {
+    await client.query("begin");
+
+    const registration = await getPendingRegistrationForReview(client, decision, target);
+
+    if (!registration) {
+      await client.query("rollback");
+      return { status: "not_found" };
+    }
+
+    const decisionResult =
+      decision === "reject"
+        ? await rejectRegistration(client, registration, reviewedBy)
+        : await approveRegistration(client, registration, reviewedBy);
+
+    await client.query("commit");
+
+    const notificationSent = await notifyUserAboutDecision({
+      ...decisionResult,
+      notificationSent: false,
+    });
+
+    return mapReviewResult(
+      decisionResult.status,
+      decisionResult.email,
+      decisionResult.name,
+      notificationSent
+    );
+  } catch (error) {
+    try {
+      await client.query("rollback");
+    } catch {
+      // ignore rollback errors
+    }
+    throw error;
+  } finally {
+    client.release();
+  }
 }
 
 export async function createPendingRegistration({
@@ -236,7 +536,7 @@ export async function createPendingRegistration({
   const existingUser = await findUserByEmail(normalizedEmail);
 
   if (existingUser) {
-    throw new RegistrationApprovalError("Такой email уже зарегистрирован.", 409, "email_exists");
+    throw new RegistrationApprovalError("User with this email already exists.", 409, "email_exists");
   }
 
   const pendingRequest = await pool.query<{ id: string }>(
@@ -331,6 +631,37 @@ export async function createPendingRegistration({
   };
 }
 
+export async function listPendingRegistrationRequests(limit = 100) {
+  await ensureRegistrationApprovalSchema();
+  const safeLimit = Math.max(1, Math.min(limit, 500));
+
+  const result = await pool.query<PendingRegistrationListRow>(
+    `
+      select
+        id,
+        email,
+        name,
+        request_ip,
+        user_agent,
+        requested_at
+      from registration_requests
+      where status = 'pending'
+      order by requested_at asc
+      limit $1
+    `,
+    [safeLimit]
+  );
+
+  return result.rows.map<PendingRegistrationRequest>((row) => ({
+    id: row.id,
+    email: row.email,
+    name: row.name,
+    requestIp: row.request_ip,
+    userAgent: row.user_agent,
+    requestedAt: row.requested_at,
+  }));
+}
+
 export async function reviewPendingRegistrationByToken({
   decision,
   token,
@@ -338,104 +669,32 @@ export async function reviewPendingRegistrationByToken({
   decision: RegistrationDecision;
   token: string;
 }) {
-  await ensureRegistrationApprovalSchema();
-
-  const tokenHash = hashToken(token);
-  const tokenColumn = decision === "approve" ? "approve_token_hash" : "reject_token_hash";
-
-  const requestResult = await pool.query<PendingRegistrationRow>(
-    `
-      select *
-      from registration_requests
-      where status = 'pending'
-        and ${tokenColumn} = $1
-      limit 1
-    `,
-    [tokenHash]
-  );
-
-  if (!requestResult.rowCount) {
-    return {
-      status: "not_found" as const,
-    };
-  }
-
-  const registration = requestResult.rows[0];
-
-  if (decision === "reject") {
-    await pool.query(
-      `
-        update registration_requests
-        set status = 'rejected',
-            reviewed_at = now(),
-            reviewed_by = $2,
-            review_note = 'rejected_from_telegram'
-        where id = $1
-      `,
-      [registration.id, "telegram_moderation"]
-    );
-
-    return {
-      status: "rejected" as const,
-      email: registration.email,
-      name: registration.name,
-    };
-  }
-
-  const existingUser = await findUserByEmail(registration.email);
-
-  if (existingUser) {
-    await pool.query(
-      `
-        update registration_requests
-        set status = 'approved',
-            reviewed_at = now(),
-            reviewed_by = $2,
-            review_note = 'user_already_exists',
-            created_user_id = $3
-        where id = $1
-      `,
-      [registration.id, "telegram_moderation", existingUser.user.id]
-    );
-
-    return {
-      status: "approved_existing" as const,
-      email: registration.email,
-      name: registration.name,
-    };
-  }
-
-  const ctx = await auth.$context;
-  const user = await ctx.internalAdapter.createUser({
-    email: registration.email,
-    name: registration.name,
-    emailVerified: true,
-    role: "user",
+  return reviewPendingRegistration({
+    decision,
+    target: {
+      kind: "token",
+      token,
+    },
+    reviewedBy: "telegram_moderation",
   });
-
-  await ctx.internalAdapter.linkAccount({
-    userId: user.id,
-    providerId: "credential",
-    accountId: user.id,
-    password: registration.password_hash,
-  });
-
-  await pool.query(
-    `
-      update registration_requests
-      set status = 'approved',
-          reviewed_at = now(),
-          reviewed_by = $2,
-          review_note = 'approved_from_telegram',
-          created_user_id = $3
-      where id = $1
-    `,
-    [registration.id, "telegram_moderation", user.id]
-  );
-
-  return {
-    status: "approved" as const,
-    email: registration.email,
-    name: registration.name,
-  };
 }
+
+export async function reviewPendingRegistrationById({
+  decision,
+  id,
+  reviewedBy,
+}: {
+  decision: RegistrationDecision;
+  id: string;
+  reviewedBy: string;
+}) {
+  return reviewPendingRegistration({
+    decision,
+    target: {
+      kind: "id",
+      id,
+    },
+    reviewedBy,
+  });
+}
+

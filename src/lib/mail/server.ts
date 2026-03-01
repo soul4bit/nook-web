@@ -2,6 +2,8 @@
 import { APIError } from "better-call";
 import { getMailEnv } from "./env";
 import {
+  getRegistrationApprovedEmailTemplate,
+  getRegistrationRejectedEmailTemplate,
   getResetPasswordEmailTemplate,
   getVerificationEmailTemplate,
 } from "./templates";
@@ -96,6 +98,36 @@ export async function sendResetPasswordEmail(input: {
   url: string;
 }) {
   const template = getResetPasswordEmailTemplate(input);
+
+  await sendMail({
+    to: input.email,
+    subject: template.subject,
+    text: template.text,
+    html: template.html,
+  });
+}
+
+export async function sendRegistrationApprovedEmail(input: {
+  email: string;
+  name?: string | null;
+  url: string;
+}) {
+  const template = getRegistrationApprovedEmailTemplate(input);
+
+  await sendMail({
+    to: input.email,
+    subject: template.subject,
+    text: template.text,
+    html: template.html,
+  });
+}
+
+export async function sendRegistrationRejectedEmail(input: {
+  email: string;
+  name?: string | null;
+  url: string;
+}) {
+  const template = getRegistrationRejectedEmailTemplate(input);
 
   await sendMail({
     to: input.email,

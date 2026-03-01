@@ -1,9 +1,6 @@
 import { type NextRequest } from "next/server";
 import { NextResponse } from "next/server";
-import {
-  handleGuardedAuthRequest,
-  validateSignUpPayload,
-} from "@/lib/auth/guard";
+import { handleGuardedAuthRequest, validateSignUpPayload } from "@/lib/auth/guard";
 import {
   createPendingRegistration,
   RegistrationApprovalError,
@@ -56,3 +53,4 @@ export async function POST(request: NextRequest) {
     },
   });
 }
+

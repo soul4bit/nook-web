@@ -107,30 +107,30 @@ export async function GET(request: Request, context: RouteContext) {
     });
 
     if (result.status === "not_found") {
-      return renderHtml(
-        "Заявка не найдена",
-        "Токен невалиден или заявка уже обработана.",
-        404
-      );
+      return renderHtml("Заявка не найдена", "Токен невалиден или заявка уже обработана.", 404);
     }
+
+    const emailHint = result.notificationSent
+      ? " Пользователь получил письмо с результатом."
+      : " Письмо пользователю отправить не удалось, проверьте SMTP логи.";
 
     if (result.status === "rejected") {
       return renderHtml(
         "Заявка отклонена",
-        `<span class="warn">Пользователь ${result.name} (${result.email}) отклонен.</span>`
+        `<span class="warn">Пользователь ${result.name} (${result.email}) отклонен.${emailHint}</span>`
       );
     }
 
     if (result.status === "approved_existing") {
       return renderHtml(
         "Заявка обработана",
-        `<span class="warn">Аккаунт для ${result.email} уже существовал, заявка помечена как одобренная.</span>`
+        `<span class="warn">Аккаунт для ${result.email} уже существовал, заявка помечена как одобренная.${emailHint}</span>`
       );
     }
 
     return renderHtml(
       "Заявка одобрена",
-      `<span class="ok">Пользователь ${result.name} (${result.email}) успешно создан.</span>`
+      `<span class="ok">Пользователь ${result.name} (${result.email}) успешно создан.${emailHint}</span>`
     );
   } catch (error) {
     console.error("[registration-moderation:error]", error);
@@ -143,3 +143,4 @@ export async function GET(request: Request, context: RouteContext) {
     );
   }
 }
+

@@ -113,3 +113,61 @@ ${url}
     }),
   };
 }
+
+export function getRegistrationApprovedEmailTemplate({
+  name,
+  email,
+  url,
+}: MailTemplateInput) {
+  const greeting = name?.trim() ? `Привет, ${escapeHtml(name)}.` : "Привет.";
+
+  return {
+    subject: "Заявка одобрена в «Контур Знаний»",
+    text: `${greeting}
+
+Ваша заявка на регистрацию (${email}) одобрена.
+Теперь вы можете войти в «Контур Знаний»:
+${url}
+
+Если это не вы, ответьте на это письмо или свяжитесь с администратором.`,
+    html: buildShell({
+      eyebrow: "Контур Знаний Moderation",
+      title: "Заявка одобрена",
+      body: `${greeting} Ваша заявка для <strong>${escapeHtml(
+        email
+      )}</strong> одобрена. Можно входить и начинать работу с базой знаний.`,
+      actionLabel: "Перейти ко входу",
+      actionUrl: url,
+      footnote:
+        "Если вы не отправляли заявку, ответьте на это письмо или свяжитесь с администратором.",
+    }),
+  };
+}
+
+export function getRegistrationRejectedEmailTemplate({
+  name,
+  email,
+  url,
+}: MailTemplateInput) {
+  const greeting = name?.trim() ? `Привет, ${escapeHtml(name)}.` : "Привет.";
+
+  return {
+    subject: "Заявка отклонена в «Контур Знаний»",
+    text: `${greeting}
+
+Ваша заявка на регистрацию (${email}) отклонена модератором.
+Если это ошибка, отправьте заявку заново или свяжитесь с администратором:
+${url}`,
+    html: buildShell({
+      eyebrow: "Контур Знаний Moderation",
+      title: "Заявка отклонена",
+      body: `${greeting} Заявка для <strong>${escapeHtml(
+        email
+      )}</strong> отклонена. Если это ошибка, можно отправить новую заявку.`,
+      actionLabel: "Открыть страницу входа",
+      actionUrl: url,
+      footnote:
+        "Если вы считаете решение ошибкой, напишите администратору и запросите повторную проверку.",
+    }),
+  };
+}
