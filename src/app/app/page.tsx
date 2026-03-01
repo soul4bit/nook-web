@@ -596,6 +596,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                   string[]
                 >}
                 defaultCategory={selectedCategory}
+                wikiLinks={wikiLinks}
               />
             </div>
           </section>

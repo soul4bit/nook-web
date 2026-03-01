@@ -23,6 +23,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { ArticleContent } from "@/components/articles/article-content";
 import { type ArticleRecord } from "@/lib/articles/server";
 import { type ArticleTopic } from "@/lib/content/devops-library";
 import { NookImage } from "@/lib/editor/nook-image";
@@ -71,6 +72,11 @@ const copy = {
   deleteError: "Не удалось удалить статью.",
   footer:
     "Текст хранится в PostgreSQL и в markdown-представлении, поэтому материалы можно будет выгружать отдельно.",
+  previewTitle: "Предпросмотр в реальном времени",
+  previewDescription:
+    "Блок обновляется сразу при наборе текста, чтобы вы видели итоговый вид статьи до сохранения.",
+  previewSummaryFallback: "Добавьте короткое описание, чтобы оно отображалось в карточке статьи.",
+  previewBodyFallback: "Начните писать статью, и здесь сразу появится живой предпросмотр контента.",
 } as const;
 
 const emptyDocument = {
@@ -99,6 +105,11 @@ type ThoughtEditorProps = {
   defaultTopic: ArticleTopic;
   topicCategories: Record<ArticleTopic, readonly string[]>;
   defaultCategory: string;
+  wikiLinks: Array<{
+    slug: string;
+    title: string;
+    href: string;
+  }>;
 };
 
 type SaveFeedback = {
@@ -198,6 +209,7 @@ export function ThoughtEditor({
   defaultTopic,
   topicCategories,
   defaultCategory,
+  wikiLinks,
 }: ThoughtEditorProps) {
   const router = useRouter();
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -209,6 +221,7 @@ export function ThoughtEditor({
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState(article?.contentHtml ?? emptyHtml);
   const [stats, setStats] = useState({ chars: 0, paragraphs: 0 });
   const availableCategories = useMemo(
     () => topicCategories[topic] ?? [],
@@ -232,6 +245,7 @@ export function ThoughtEditor({
     immediatelyRender: false,
     onCreate: ({ editor: currentEditor }) => {
       const text = currentEditor.getText().trim();
+      setPreviewHtml(currentEditor.getHTML());
       setStats({
         chars: text.length,
         paragraphs: currentEditor.getJSON().content?.length ?? 0,
@@ -239,6 +253,7 @@ export function ThoughtEditor({
     },
     onUpdate: ({ editor: currentEditor }) => {
       const text = currentEditor.getText().trim();
+      setPreviewHtml(currentEditor.getHTML());
       setStats({
         chars: text.length,
         paragraphs: currentEditor.getJSON().content?.length ?? 0,
@@ -258,6 +273,7 @@ export function ThoughtEditor({
     setTopic(article?.topic ?? defaultTopic);
     setCategory(article?.category ?? defaultCategory);
     setFeedback(null);
+    setPreviewHtml(article?.contentHtml ?? emptyHtml);
 
     if (!editor) {
       return;
@@ -569,6 +585,34 @@ export function ThoughtEditor({
       />
 
       <EditorContent editor={editor} />
+
+      <div className="rounded-[22px] border border-slate-700/80 bg-[#0f1a25] p-5">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+          {copy.previewTitle}
+        </p>
+        <p className="mt-2 text-sm leading-6 text-slate-400">{copy.previewDescription}</p>
+
+        <div className="mt-4 rounded-[16px] border border-slate-700/80 bg-[#132231] px-4 py-4">
+          <h3 className="text-xl font-semibold tracking-tight text-slate-100">
+            {title.trim() || copy.emptyTitle}
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-slate-400">
+            {summary.trim() || copy.previewSummaryFallback}
+          </p>
+        </div>
+
+        <div className="mt-4 rounded-[16px] border border-slate-700/80 bg-[#111f2c]/85 p-4">
+          {stats.chars > 0 ? (
+            <ArticleContent
+              html={previewHtml}
+              wikiLinks={wikiLinks}
+              className="max-w-none space-y-4 text-sm leading-7 text-slate-300"
+            />
+          ) : (
+            <p className="text-sm leading-7 text-slate-500">{copy.previewBodyFallback}</p>
+          )}
+        </div>
+      </div>
 
       {feedback ? (
         <div
