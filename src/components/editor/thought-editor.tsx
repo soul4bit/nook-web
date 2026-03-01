@@ -16,6 +16,7 @@ import {
   Minus,
   Quote,
   Save,
+  Trash2,
   Type,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,12 @@ const copy = {
   saveChanges: "\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f",
   createArticle: "\u0421\u043e\u0437\u0434\u0430\u0442\u044c \u0441\u0442\u0430\u0442\u044c\u044e",
   newDraft: "\u041d\u043e\u0432\u044b\u0439 \u0447\u0435\u0440\u043d\u043e\u0432\u0438\u043a",
+  deleteArticle: "\u0423\u0434\u0430\u043b\u0438\u0442\u044c \u0441\u0442\u0430\u0442\u044c\u044e",
+  deleting: "\u0423\u0434\u0430\u043b\u044f\u0435\u043c...",
+  deleteConfirm:
+    "\u0423\u0434\u0430\u043b\u0438\u0442\u044c \u0441\u0442\u0430\u0442\u044c\u044e? \u042d\u0442\u043e \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435 \u043d\u0435\u043b\u044c\u0437\u044f \u043e\u0442\u043c\u0435\u043d\u0438\u0442\u044c.",
+  deleted: "\u0421\u0442\u0430\u0442\u044c\u044f \u0443\u0434\u0430\u043b\u0435\u043d\u0430.",
+  deleteError: "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0443\u0434\u0430\u043b\u0438\u0442\u044c \u0441\u0442\u0430\u0442\u044c\u044e.",
   footer:
     "\u0422\u0435\u043a\u0441\u0442 \u0441\u0442\u0430\u0442\u044c\u0438 \u0445\u0440\u0430\u043d\u0438\u0442\u0441\u044f \u0432 PostgreSQL. \u041a\u0430\u0440\u0442\u0438\u043d\u043a\u0438 \u0434\u043b\u044f \u0441\u0442\u0430\u0442\u0435\u0439 \u043b\u0443\u0447\u0448\u0435 \u0434\u0435\u0440\u0436\u0430\u0442\u044c \u043e\u0442\u0434\u0435\u043b\u044c\u043d\u044b\u043c\u0438 \u0444\u0430\u0439\u043b\u0430\u043c\u0438 \u043d\u0430 \u0441\u0435\u0440\u0432\u0435\u0440\u0435 \u0438 \u0441\u043e\u0445\u0440\u0430\u043d\u044f\u0442\u044c \u0432 \u0431\u0430\u0437\u0435 \u0442\u043e\u043b\u044c\u043a\u043e \u043f\u0443\u0442\u044c \u043a \u043d\u0438\u043c. \u042d\u0442\u043e \u0431\u0443\u0434\u0435\u0442 \u0441\u043b\u0435\u0434\u0443\u044e\u0449\u0438\u043c \u0448\u0430\u0433\u043e\u043c.",
 } as const;
@@ -94,6 +101,10 @@ type SaveFeedback = {
 
 type ArticleResponse = {
   article: ArticleRecord;
+};
+
+type DeleteResponse = {
+  success: boolean;
 };
 
 type EditorButtonProps = {
@@ -139,6 +150,22 @@ async function saveArticleRequest(articleId: string | null, payload: Record<stri
   return result as ArticleResponse;
 }
 
+async function deleteArticleRequest(articleId: string) {
+  const response = await fetch(`/api/articles/${articleId}`, {
+    method: "DELETE",
+    credentials: "include",
+  });
+
+  const result = (await response.json()) as DeleteResponse | { message?: string };
+
+  if (!response.ok) {
+    const message = "message" in result ? result.message : undefined;
+    throw new Error(message ?? copy.deleteError);
+  }
+
+  return result as DeleteResponse;
+}
+
 export function ThoughtEditor({
   article,
   topics,
@@ -153,6 +180,7 @@ export function ThoughtEditor({
   const [category, setCategory] = useState(article?.category ?? defaultCategory);
   const [feedback, setFeedback] = useState<SaveFeedback>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [stats, setStats] = useState({ chars: 0, paragraphs: 0 });
   const availableCategories = useMemo(
     () => topicCategories[topic] ?? [],
@@ -284,6 +312,36 @@ export function ThoughtEditor({
         defaultCategory
       )}&draft=1`
     );
+  }
+
+  async function handleDelete() {
+    if (!article) {
+      return;
+    }
+
+    if (!window.confirm(copy.deleteConfirm)) {
+      return;
+    }
+
+    setIsDeleting(true);
+    setFeedback(null);
+
+    try {
+      await deleteArticleRequest(article.id);
+      router.replace(
+        `/app?topic=${encodeURIComponent(article.topic)}&category=${encodeURIComponent(
+          article.category
+        )}`
+      );
+      router.refresh();
+    } catch (error) {
+      setFeedback({
+        tone: "error",
+        text: error instanceof Error ? error.message : copy.deleteError,
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   }
 
   if (!editor) return null;
@@ -444,7 +502,7 @@ export function ThoughtEditor({
           type="button"
           className="rounded-2xl bg-[#53e6a6] px-5 text-[#09120e] hover:bg-[#46ce93]"
           onClick={handleSave}
-          disabled={isSaving}
+          disabled={isSaving || isDeleting}
         >
           {isSaving ? (
             <>
@@ -464,10 +522,32 @@ export function ThoughtEditor({
           variant="outline"
           className="rounded-2xl border-[#2b3531] bg-[#181e1b] text-white hover:bg-[#1d2521]"
           onClick={handleNewDraft}
-          disabled={isSaving}
+          disabled={isSaving || isDeleting}
         >
           {copy.newDraft}
         </Button>
+
+        {article ? (
+          <Button
+            type="button"
+            variant="outline"
+            className="rounded-2xl border-rose-500/30 bg-rose-500/10 text-rose-200 hover:bg-rose-500/20"
+            onClick={handleDelete}
+            disabled={isSaving || isDeleting}
+          >
+            {isDeleting ? (
+              <>
+                <LoaderCircle className="size-4 animate-spin" />
+                {copy.deleting}
+              </>
+            ) : (
+              <>
+                <Trash2 className="size-4" />
+                {copy.deleteArticle}
+              </>
+            )}
+          </Button>
+        ) : null}
       </div>
 
       <div className="rounded-[24px] border border-[#2b3531] bg-[#181e1b] p-4 text-sm leading-7 text-[#8ca39b]">

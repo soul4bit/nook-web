@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import {
+  deleteArticle,
   isArticleTopic,
   updateArticle,
   type SaveArticleInput,
@@ -68,4 +69,32 @@ export async function PATCH(
   }
 
   return NextResponse.json({ article });
+}
+
+export async function DELETE(
+  request: Request,
+  context: { params: Promise<{ articleId: string }> }
+) {
+  const session = await auth.api.getSession({
+    headers: request.headers,
+  });
+
+  if (!session) {
+    return NextResponse.json(
+      { message: "\u041d\u0443\u0436\u043d\u0430 \u0430\u0432\u0442\u043e\u0440\u0438\u0437\u0430\u0446\u0438\u044f." },
+      { status: 401 }
+    );
+  }
+
+  const { articleId } = await context.params;
+  const deleted = await deleteArticle(session.user.id, articleId);
+
+  if (!deleted) {
+    return NextResponse.json(
+      { message: "\u0421\u0442\u0430\u0442\u044c\u044f \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u0430." },
+      { status: 404 }
+    );
+  }
+
+  return NextResponse.json({ success: true });
 }

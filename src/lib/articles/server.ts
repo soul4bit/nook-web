@@ -276,3 +276,15 @@ export async function updateArticle(articleId: string, input: SaveArticleInput) 
 
   return getArticleById(input.authorId, rows[0].id);
 }
+
+export async function deleteArticle(authorId: string, articleId: string) {
+  const { rowCount } = await pool.query(
+    `
+      delete from articles
+      where id = $1 and author_id = $2
+    `,
+    [articleId, authorId]
+  );
+
+  return (rowCount ?? 0) > 0;
+}
