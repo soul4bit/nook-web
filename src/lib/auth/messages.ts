@@ -67,6 +67,10 @@ export function getAuthErrorMessage(message?: string) {
     return message;
   }
 
+  if (message.startsWith("Часы на устройстве")) {
+    return message;
+  }
+
   switch (message) {
     case "Invalid email or password":
       return "Неверный email или пароль.";

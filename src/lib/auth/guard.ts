@@ -36,7 +36,8 @@ class AuthGuardError extends Error {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const NAME_REGEX = /^[\p{L}\p{N} .,'_-]+$/u;
-const MAX_FORM_AGE_MS = 1000 * 60 * 60 * 2;
+const MAX_FORM_AGE_MS = 1000 * 60 * 60 * 24 * 7;
+const MAX_FUTURE_CLOCK_SKEW_MS = 1000 * 60 * 5;
 
 const guardPolicies: Record<AuthGuardAction, GuardPolicy> = {
   "sign-in": {
@@ -212,7 +213,13 @@ function validateHumanChallenge(
 
   const ageMs = Date.now() - startedAt;
 
-  if (ageMs < 0 || ageMs > MAX_FORM_AGE_MS) {
+  if (ageMs < -MAX_FUTURE_CLOCK_SKEW_MS) {
+    throw new AuthGuardError(
+      "Часы на устройстве сильно отличаются от времени сервера. Проверьте время и попробуйте снова."
+    );
+  }
+
+  if (ageMs > MAX_FORM_AGE_MS) {
     throw new AuthGuardError(
       "Форма устарела. Обновите страницу и попробуйте снова."
     );
