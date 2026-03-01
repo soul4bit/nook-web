@@ -66,10 +66,10 @@ function createGuardState(): GuardState {
 function FeedbackBanner({ feedback }: { feedback: AuthFeedback }) {
   const toneClass =
     feedback.tone === "error"
-      ? "border-rose-200 bg-rose-50 text-rose-700"
+      ? "border-rose-500/40 bg-rose-950/40 text-rose-300"
       : feedback.tone === "success"
-        ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-        : "border-sky-200 bg-sky-50 text-sky-700";
+        ? "border-emerald-500/40 bg-emerald-950/30 text-emerald-300"
+        : "border-cyan-500/40 bg-cyan-950/30 text-cyan-300";
 
   return (
     <div className={`rounded-2xl border px-4 py-3 text-sm leading-6 ${toneClass}`}>
@@ -80,7 +80,7 @@ function FeedbackBanner({ feedback }: { feedback: AuthFeedback }) {
 
 function FieldLabel({ htmlFor, children }: { htmlFor: string; children: string }) {
   return (
-    <label htmlFor={htmlFor} className="text-sm font-medium text-slate-700">
+    <label htmlFor={htmlFor} className="text-sm font-medium text-slate-300">
       {children}
     </label>
   );
@@ -90,7 +90,7 @@ function FormInput(props: ComponentProps<typeof Input>) {
   return (
     <Input
       {...props}
-      className={`h-12 rounded-2xl border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 ${props.className ?? ""}`}
+      className={`h-12 rounded-2xl border-slate-700/80 bg-[#0f1a25] text-slate-100 placeholder:text-slate-500 ${props.className ?? ""}`}
     />
   );
 }
@@ -354,14 +354,14 @@ export function AuthForms() {
   }
 
   return (
-    <div className="w-full rounded-[28px] border border-slate-300 bg-[#f1f5f9] p-5 shadow-[0_24px_70px_rgba(15,23,42,0.12)] sm:p-6">
-      <div className="border-b border-slate-300 pb-6">
-        <div className="inline-flex rounded-full border border-slate-300 bg-[#e6ecf2] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600">
+    <div className="w-full rounded-[28px] border border-slate-700/80 bg-[#111f2c]/85 p-5 shadow-[0_30px_90px_rgba(2,8,15,0.45)] sm:p-6">
+      <div className="border-b border-slate-700/80 pb-6">
+        <div className="inline-flex rounded-full border border-slate-700/80 bg-[#162736] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
           {mode === "sign-in" ? "sign in" : mode === "sign-up" ? "sign up" : "reset access"}
         </div>
         <div className="mt-4 space-y-2">
-          <h2 className="text-2xl font-semibold text-slate-900">{title}</h2>
-          <p className="max-w-md text-sm leading-6 text-slate-600">{description}</p>
+          <h2 className="text-2xl font-semibold text-slate-100">{title}</h2>
+          <p className="max-w-md text-sm leading-6 text-slate-400">{description}</p>
         </div>
       </div>
 
@@ -369,9 +369,9 @@ export function AuthForms() {
         {activeFeedback ? <FeedbackBanner feedback={activeFeedback} /> : null}
 
         {awaitingVerification ? (
-          <div className="rounded-[20px] border border-sky-200 bg-sky-50 p-4 text-sm leading-6 text-sky-800">
+          <div className="rounded-[20px] border border-cyan-500/40 bg-cyan-950/30 p-4 text-sm leading-6 text-cyan-200">
             <div className="flex items-start gap-3">
-              <div className="mt-0.5 flex size-10 items-center justify-center rounded-2xl bg-white text-[#3b82a4]">
+              <div className="mt-0.5 flex size-10 items-center justify-center rounded-2xl bg-[#0f1a25] text-[#49d4b8]">
                 <Mail className="size-4" />
               </div>
               <div className="space-y-3">
@@ -382,7 +382,7 @@ export function AuthForms() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="rounded-2xl border-slate-300 bg-[#f3f6fa] text-slate-800 hover:bg-[#e9eef4]"
+                  className="rounded-2xl border-slate-600/70 bg-[#0f1a25] text-slate-200 hover:bg-[#162431]"
                   onClick={handleResendVerification}
                   disabled={pendingAction === "resend"}
                 >
@@ -432,7 +432,7 @@ export function AuthForms() {
                   <FieldLabel htmlFor="signin-password">Пароль</FieldLabel>
                   <button
                     type="button"
-                    className="text-xs font-medium text-[#3b82a4] hover:text-[#2d6782]"
+                    className="text-xs font-medium text-[#49d4b8] hover:text-[#7ce9d3]"
                     onClick={() => {
                       openMode("reset");
                       setResetEmail(signInForm.email);
@@ -455,9 +455,9 @@ export function AuthForms() {
                 />
               </div>
 
-              <Button
+                <Button
                 type="submit"
-                className="h-11 w-full rounded-2xl bg-[#3b82a4] text-white hover:bg-[#327391]"
+                className="h-11 w-full rounded-2xl bg-[#1e9f86] text-white hover:bg-[#1b8b75]"
                 disabled={pendingAction === "sign-in"}
               >
                 {pendingAction === "sign-in" ? (
@@ -474,15 +474,15 @@ export function AuthForms() {
               </Button>
             </form>
 
-            <div className="rounded-[20px] border border-slate-300 bg-[#e8eff5] p-4">
-              <p className="text-sm font-medium text-slate-900">Нет аккаунта?</p>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
+            <div className="rounded-[20px] border border-slate-700/80 bg-[#132231] p-4">
+              <p className="text-sm font-medium text-slate-100">Нет аккаунта?</p>
+              <p className="mt-2 text-sm leading-6 text-slate-400">
                 Создайте доступ, подтвердите email и после этого входите в Контур Знаний.
               </p>
               <Button
                 type="button"
                 variant="outline"
-                className="mt-4 w-full rounded-2xl border-slate-300 bg-[#f3f6fa] text-slate-800 hover:bg-[#e9eef4]"
+                className="mt-4 w-full rounded-2xl border-slate-600/70 bg-[#0f1a25] text-slate-200 hover:bg-[#162431]"
                 onClick={() => {
                   openMode("sign-up");
                   setSignUpForm((current) => ({
@@ -576,7 +576,7 @@ export function AuthForms() {
 
               <Button
                 type="submit"
-                className="h-11 w-full rounded-2xl bg-[#3b82a4] text-white hover:bg-[#327391]"
+                className="h-11 w-full rounded-2xl bg-[#1e9f86] text-white hover:bg-[#1b8b75]"
                 disabled={pendingAction === "sign-up"}
               >
                 {pendingAction === "sign-up" ? (
@@ -596,7 +596,7 @@ export function AuthForms() {
             <Button
               type="button"
               variant="ghost"
-              className="w-full rounded-2xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              className="w-full rounded-2xl text-slate-400 hover:bg-[#162431] hover:text-slate-100"
               onClick={() => {
                 openMode("sign-in");
                 setSignInForm((current) => ({
@@ -635,7 +635,7 @@ export function AuthForms() {
 
               <Button
                 type="submit"
-                className="h-11 w-full rounded-2xl bg-[#3b82a4] text-white hover:bg-[#327391]"
+                className="h-11 w-full rounded-2xl bg-[#1e9f86] text-white hover:bg-[#1b8b75]"
                 disabled={pendingAction === "reset"}
               >
                 {pendingAction === "reset" ? (
@@ -655,7 +655,7 @@ export function AuthForms() {
             <Button
               type="button"
               variant="ghost"
-              className="w-full rounded-2xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              className="w-full rounded-2xl text-slate-400 hover:bg-[#162431] hover:text-slate-100"
               onClick={() => {
                 openMode("sign-in");
                 setSignInForm((current) => ({

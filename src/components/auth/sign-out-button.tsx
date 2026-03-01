@@ -31,7 +31,7 @@ export function SignOutButton({ className }: SignOutButtonProps) {
       type="button"
       variant="outline"
       className={cn(
-        "rounded-2xl border-slate-300 bg-[#f3f6fa] text-slate-900 hover:bg-[#e5edf4]",
+        "rounded-2xl border-slate-700/80 bg-[#132231] text-slate-200 hover:bg-[#162431]",
         className
       )}
       onClick={handleSignOut}

@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+﻿import { cn } from "@/lib/utils";
 
 type KnowledgeLogoProps = {
   className?: string;
@@ -19,7 +19,7 @@ export function KnowledgeLogo({
     <div className={cn("flex items-center gap-3", className)}>
       <div
         className={cn(
-          "flex h-12 w-16 items-center justify-center rounded-[14px] border border-[#93adbf] bg-[#1f2c38] text-[#4fb7ea]",
+          "flex h-12 w-16 items-center justify-center rounded-[14px] border border-[#324252] bg-[#0c1520] text-[#21c0a1]",
           markClassName
         )}
       >
@@ -49,13 +49,13 @@ export function KnowledgeLogo({
       <div>
         <p
           className={cn(
-            "text-[11px] font-semibold uppercase tracking-[0.24em] text-[#4d697c]",
+            "text-[11px] font-semibold uppercase tracking-[0.24em] text-[#7fa0ba]",
             titleClassName
           )}
         >
           Контур Знаний
         </p>
-        <p className={cn("text-sm text-slate-700", subtitleClassName)}>{subtitle}</p>
+        <p className={cn("text-sm text-slate-400", subtitleClassName)}>{subtitle}</p>
       </div>
     </div>
   );

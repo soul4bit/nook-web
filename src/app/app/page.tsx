@@ -202,16 +202,16 @@ export default async function AppPage({ searchParams }: AppPageProps) {
   }));
 
   return (
-    <div className="min-h-screen px-4 py-4 text-slate-900 sm:px-6 lg:px-8">
-      <div className="mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-[1640px] flex-col overflow-hidden rounded-[32px] border border-slate-300 bg-[#e9edf3]/96 shadow-[0_30px_90px_rgba(15,23,42,0.12)] lg:flex-row">
-        <aside className="flex w-full shrink-0 flex-col border-b border-slate-300 bg-[#dde5ee] p-5 lg:max-w-[340px] lg:border-b-0 lg:border-r">
+    <div className="min-h-screen px-4 py-4 text-slate-100 sm:px-6 lg:px-8">
+      <div className="mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-[1640px] flex-col overflow-hidden rounded-[32px] border border-slate-700/80 bg-[#0a131c]/95 shadow-[0_40px_120px_rgba(2,8,15,0.75)] lg:flex-row">
+        <aside className="flex w-full shrink-0 flex-col border-b border-slate-700/80 bg-[#0f1b27]/90 p-5 lg:max-w-[340px] lg:border-b-0 lg:border-r">
           <div className="flex items-center justify-between gap-3">
             <KnowledgeLogo subtitle="Личная DevOps-вики" />
 
             <SignOutButton />
           </div>
 
-          <div className="mt-7 rounded-[24px] border border-slate-300 bg-[#f3f6fa] p-4">
+          <div className="mt-7 rounded-[24px] border border-slate-700/80 bg-[#111f2c]/85 p-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
               {copy.workspace}
             </p>
@@ -219,22 +219,22 @@ export default async function AppPage({ searchParams }: AppPageProps) {
               <UserAvatar
                 image={session.user.image}
                 name={displayName}
-                className="size-12 rounded-2xl border-slate-200 bg-slate-100"
-                fallbackClassName="text-[#3b82a4]"
+                className="size-12 rounded-2xl border-slate-600/70 bg-[#182838]"
+                fallbackClassName="text-[#49d4b8]"
               />
               <div className="min-w-0">
-                <h1 className="truncate text-2xl font-semibold tracking-tight text-slate-900">
+                <h1 className="truncate text-2xl font-semibold tracking-tight text-slate-100">
                   {displayName}
                 </h1>
                 <p className="mt-1 truncate text-sm text-slate-500">{session.user.email}</p>
               </div>
             </div>
-            <p className="mt-3 text-sm leading-7 text-slate-600">{copy.workspaceText}</p>
+            <p className="mt-3 text-sm leading-7 text-slate-400">{copy.workspaceText}</p>
 
             <div className="mt-5 grid gap-3">
               <Button
                 asChild
-                className="h-11 w-full rounded-2xl bg-[#3b82a4] text-white hover:bg-[#327391]"
+                className="h-11 w-full rounded-2xl bg-[#1e9f86] text-white hover:bg-[#1b8b75]"
               >
                 <Link
                   href={buildAppHref(selectedTopic, {
@@ -251,7 +251,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
               <Button
                 asChild
                 variant="outline"
-                className="h-11 w-full rounded-2xl border-slate-200 bg-[#f8fafc] text-slate-800 hover:bg-slate-100"
+                className="h-11 w-full rounded-2xl border-slate-600/70 bg-[#162431] text-slate-200 hover:bg-[#182838]"
               >
                 <Link href="/app/account">
                   <UserRoundCog className="size-4" />
@@ -261,7 +261,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
             </div>
           </div>
 
-          <div className="mt-5 rounded-[20px] border border-slate-300 bg-[#edf2f7] p-3">
+          <div className="mt-5 rounded-[20px] border border-slate-700/80 bg-[#132231]/85 p-3">
             <form action="/app" method="get" className="space-y-2">
               <input type="hidden" name="topic" value={selectedTopic} />
               <input type="hidden" name="category" value={selectedCategory} />
@@ -271,11 +271,11 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                   name="q"
                   defaultValue={searchQuery}
                   placeholder={copy.searchPlaceholder}
-                  className="h-10 w-full rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:border-[#3b82a4] focus-visible:outline-none"
+                  className="h-10 w-full rounded-xl border border-slate-700/80 bg-[#0f1a25] px-3 text-sm text-slate-100 placeholder:text-slate-500 focus-visible:border-[#49d4b8] focus-visible:outline-none"
                 />
                 <button
                   type="submit"
-                  className="h-10 rounded-xl bg-[#3b82a4] px-3 text-sm font-semibold text-white hover:bg-[#327391]"
+                  className="h-10 rounded-xl bg-[#1e9f86] px-3 text-sm font-semibold text-white hover:bg-[#1b8b75]"
                 >
                   {copy.searchButton}
                 </button>
@@ -283,14 +283,14 @@ export default async function AppPage({ searchParams }: AppPageProps) {
             </form>
             {hasSearchQuery ? (
               <div className="mt-2 flex items-center justify-between">
-                <p className="text-xs text-slate-600">
+                <p className="text-xs text-slate-400">
                   {copy.searchResult}: {visibleArticlesCount}
                 </p>
                 <Link
                   href={buildAppHref(selectedTopic, {
                     category: selectedCategory,
                   })}
-                  className="text-xs font-semibold text-[#2d6782] hover:underline"
+                  className="text-xs font-semibold text-[#49d4b8] hover:underline"
                 >
                   {copy.clearSearch}
                 </Link>
@@ -303,7 +303,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 {copy.sections}
               </p>
-              <span className="rounded-full border border-slate-300 bg-[#eef3f7] px-2.5 py-1 text-xs text-slate-600">
+              <span className="rounded-full border border-slate-700/80 bg-[#132231] px-2.5 py-1 text-xs text-slate-400">
                 {hasSearchQuery ? `${visibleArticlesCount}/${totalArticles}` : totalArticles}{" "}
                 {copy.articlesSuffix}
               </span>
@@ -325,8 +325,8 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                     key={topic.name}
                     className={`rounded-[20px] border transition-colors ${
                       isActive
-                        ? "border-[#b7d0df] bg-[#eaf4fb]"
-                        : "border-slate-200 bg-white"
+                        ? "border-[#2f4356] bg-[#132839]"
+                        : "border-slate-600/70 bg-[#0f1a25]"
                     }`}
                   >
                     <Link
@@ -338,23 +338,23 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                       <div
                         className={`mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl ${
                           isActive
-                            ? "bg-[#3b82a4] text-white"
-                            : "bg-slate-100 text-slate-500"
+                            ? "bg-[#1a3244] text-[#49d4b8]"
+                            : "bg-[#182838] text-slate-500"
                         }`}
                       >
                         <Icon className="size-4" />
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
-                          <h2 className="text-sm font-semibold text-slate-900">{topic.name}</h2>
+                          <h2 className="text-sm font-semibold text-slate-100">{topic.name}</h2>
                           <span className="text-xs text-slate-500">{nestedArticles.length}</span>
                         </div>
-                        <p className="mt-1 text-sm leading-6 text-slate-600">{topic.summary}</p>
+                        <p className="mt-1 text-sm leading-6 text-slate-400">{topic.summary}</p>
                       </div>
                     </Link>
 
                     {isActive ? (
-                      <div className="border-t border-[#d7e5ef] px-3 py-3">
+                      <div className="border-t border-slate-700/80 px-3 py-3">
                         {nestedCategories.length > 0 ? (
                           <div className="space-y-4">
                             {nestedCategories.map((categoryName) => {
@@ -372,8 +372,8 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                                     })}
                                     className={`flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] transition-colors ${
                                       isCategoryActive
-                                        ? "bg-[#d6e9f4] text-[#2b5f79]"
-                                        : "bg-white text-slate-500 hover:bg-slate-50"
+                                        ? "bg-[#1a3244] text-[#49d4b8]"
+                                        : "bg-[#0f1a25] text-slate-500 hover:bg-[#152230]"
                                     }`}
                                   >
                                     <span>{categoryName}</span>
@@ -395,8 +395,8 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                                             })}
                                             className={`block rounded-xl border px-3 py-3 transition-colors ${
                                               isSelected
-                                                ? "border-[#9dc3d6] bg-white text-slate-900 shadow-sm"
-                                                : "border-slate-200 bg-[#f8fafc] text-slate-800 hover:bg-white"
+                                                ? "border-[#2f556d] bg-[#0f1a25] text-slate-100 shadow-sm"
+                                                : "border-slate-600/70 bg-[#162431] text-slate-200 hover:bg-[#0f1a25]"
                                             }`}
                                           >
                                             <div className="flex items-start justify-between gap-3">
@@ -407,7 +407,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                                                 <p
                                                   className={`mt-1 line-clamp-2 text-xs leading-5 ${
                                                     isSelected
-                                                      ? "text-slate-600"
+                                                      ? "text-slate-400"
                                                       : "text-slate-500"
                                                   }`}
                                                 >
@@ -421,7 +421,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                                       })}
                                     </div>
                                   ) : (
-                                    <div className="rounded-xl border border-dashed border-slate-300 bg-[#f8fafc] px-3 py-3 text-sm leading-6 text-slate-500">
+                                    <div className="rounded-xl border border-dashed border-slate-700/80 bg-[#0f1a25] px-3 py-3 text-sm leading-6 text-slate-500">
                                       В этой категории пока нет статей.
                                     </div>
                                   )}
@@ -430,7 +430,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                             })}
                           </div>
                         ) : (
-                          <div className="rounded-xl border border-dashed border-slate-300 bg-[#f8fafc] px-3 py-4 text-sm leading-6 text-slate-500">
+                          <div className="rounded-xl border border-dashed border-slate-700/80 bg-[#0f1a25] px-3 py-4 text-sm leading-6 text-slate-500">
                             {copy.noArticlesInSection}
                           </div>
                         )}
@@ -445,51 +445,51 @@ export default async function AppPage({ searchParams }: AppPageProps) {
 
         <main className="flex min-w-0 flex-1 flex-col gap-5 p-5 lg:p-6">
           <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_290px]">
-            <div className="rounded-[28px] border border-slate-300 bg-[#f3f6fa] p-6">
+            <div className="rounded-[28px] border border-slate-700/80 bg-[#111f2c]/85 p-6">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 {copy.currentSection}
               </p>
               <div className="mt-4 flex flex-wrap items-center gap-3">
-                <span className="inline-flex rounded-full bg-[#d6e9f4] px-3 py-1 text-sm font-semibold text-[#2b5f79]">
+                <span className="inline-flex rounded-full bg-[#1a3244] px-3 py-1 text-sm font-semibold text-[#49d4b8]">
                   {currentTopic.name}
                 </span>
-                <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm font-medium text-slate-700">
+                <span className="inline-flex rounded-full border border-slate-600/70 bg-[#152230] px-3 py-1 text-sm font-medium text-slate-300">
                   {selectedCategory}
                 </span>
                 <span className="text-sm text-slate-500">
                   {categoryArticles.length} {copy.sectionCount}
                 </span>
               </div>
-              <h2 className="mt-5 max-w-3xl text-3xl font-semibold tracking-tight text-slate-900 sm:text-[2.35rem]">
+              <h2 className="mt-5 max-w-3xl text-3xl font-semibold tracking-tight text-slate-100 sm:text-[2.35rem]">
                 {copy.heroTitle}
               </h2>
-              <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-600 sm:text-base">
+              <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-400 sm:text-base">
                 {copy.heroText}
               </p>
             </div>
 
-            <div className="rounded-[28px] border border-slate-300 bg-[#f3f6fa] p-6">
+            <div className="rounded-[28px] border border-slate-700/80 bg-[#111f2c]/85 p-6">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 {copy.snapshot}
               </p>
               <div className="mt-5 grid gap-3">
-                <div className="rounded-[18px] border border-slate-200 bg-[#f8fafc] px-4 py-4">
+                <div className="rounded-[18px] border border-slate-600/70 bg-[#162431] px-4 py-4">
                   <p className="text-xs uppercase tracking-[0.16em] text-slate-500">
                     {copy.allArticles}
                   </p>
-                  <p className="mt-2 text-2xl font-semibold text-slate-900">{totalArticles}</p>
+                  <p className="mt-2 text-2xl font-semibold text-slate-100">{totalArticles}</p>
                 </div>
-                <div className="rounded-[18px] border border-slate-200 bg-[#f8fafc] px-4 py-4">
+                <div className="rounded-[18px] border border-slate-600/70 bg-[#162431] px-4 py-4">
                   <p className="text-xs uppercase tracking-[0.16em] text-slate-500">
                     Категория
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-slate-900">{selectedCategory}</p>
+                  <p className="mt-2 text-sm font-semibold text-slate-100">{selectedCategory}</p>
                 </div>
-                <div className="rounded-[18px] border border-slate-200 bg-[#f8fafc] px-4 py-4">
+                <div className="rounded-[18px] border border-slate-600/70 bg-[#162431] px-4 py-4">
                   <p className="text-xs uppercase tracking-[0.16em] text-slate-500">
                     {copy.lastUpdate}
                   </p>
-                  <p className="mt-2 text-sm font-semibold text-slate-900">
+                  <p className="mt-2 text-sm font-semibold text-slate-100">
                     {articles[0] ? formatDateTime(articles[0].updatedAt) : copy.emptyValue}
                   </p>
                 </div>
@@ -498,14 +498,14 @@ export default async function AppPage({ searchParams }: AppPageProps) {
           </section>
 
           <section className="grid min-h-0 gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-            <div className="rounded-[28px] border border-slate-300 bg-[#f3f6fa] p-6">
+            <div className="rounded-[28px] border border-slate-700/80 bg-[#111f2c]/85 p-6">
               {selectedArticle ? (
                 <>
                   <div className="flex flex-wrap items-center gap-3">
-                    <span className="inline-flex rounded-full bg-[#d6e9f4] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#2b5f79]">
+                    <span className="inline-flex rounded-full bg-[#1a3244] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#49d4b8]">
                       {selectedArticle.topic}
                     </span>
-                    <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600">
+                    <span className="inline-flex rounded-full border border-slate-600/70 bg-[#152230] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
                       {selectedArticle.category}
                     </span>
                     <span className="inline-flex items-center gap-2 text-xs text-slate-500">
@@ -514,20 +514,20 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                     </span>
                   </div>
 
-                  <h2 className="mt-5 text-3xl font-semibold tracking-tight text-slate-900">
+                  <h2 className="mt-5 text-3xl font-semibold tracking-tight text-slate-100">
                     {selectedArticle.title}
                   </h2>
-                  <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600 sm:text-base">
+                  <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-400 sm:text-base">
                     {selectedArticle.summary}
                   </p>
 
                   <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-[18px] border border-slate-200 bg-[#f8fafc] px-4 py-4">
+                    <div className="rounded-[18px] border border-slate-600/70 bg-[#162431] px-4 py-4">
                       <div className="flex items-center gap-2 text-xs uppercase tracking-[0.14em] text-slate-500">
                         <UserRound className="size-3.5" />
                         {copy.author}
                       </div>
-                      <p className="mt-2 text-sm font-semibold text-slate-900">
+                      <p className="mt-2 text-sm font-semibold text-slate-100">
                         {selectedArticle.authorName}
                       </p>
                       <p className="mt-1 text-xs text-slate-500">
@@ -535,12 +535,12 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                       </p>
                     </div>
 
-                    <div className="rounded-[18px] border border-slate-200 bg-[#f8fafc] px-4 py-4">
+                    <div className="rounded-[18px] border border-slate-600/70 bg-[#162431] px-4 py-4">
                       <div className="flex items-center gap-2 text-xs uppercase tracking-[0.14em] text-slate-500">
                         <PenSquare className="size-3.5" />
                         {copy.lastEditor}
                       </div>
-                      <p className="mt-2 text-sm font-semibold text-slate-900">
+                      <p className="mt-2 text-sm font-semibold text-slate-100">
                         {selectedArticle.updatedByName}
                       </p>
                       <p className="mt-1 text-xs text-slate-500">
@@ -549,42 +549,42 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                     </div>
                   </div>
 
-                  <div className="mt-6 rounded-[22px] border border-slate-200 bg-[#fbfcfe] p-5">
-                    <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-700">
-                      <BookOpenText className="size-4 text-[#3b82a4]" />
+                  <div className="mt-6 rounded-[22px] border border-slate-600/70 bg-[#0f1a25] p-5">
+                    <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-300">
+                      <BookOpenText className="size-4 text-[#49d4b8]" />
                       {copy.reading}
                     </div>
                     <ArticleContent
                       html={selectedArticle.contentHtml}
                       wikiLinks={wikiLinks}
-                      className="max-w-none space-y-4 text-sm leading-7 text-slate-700"
+                      className="max-w-none space-y-4 text-sm leading-7 text-slate-300"
                     />
                   </div>
                 </>
               ) : (
-                <div className="flex h-full min-h-[420px] flex-col items-center justify-center rounded-[22px] border border-dashed border-slate-300 bg-[#f8fafc] px-8 text-center">
-                  <div className="flex size-14 items-center justify-center rounded-3xl bg-[#dbeaf4] text-[#3b82a4]">
+                <div className="flex h-full min-h-[420px] flex-col items-center justify-center rounded-[22px] border border-dashed border-slate-700/80 bg-[#0f1a25] px-8 text-center">
+                  <div className="flex size-14 items-center justify-center rounded-3xl bg-[#173145] text-[#49d4b8]">
                     <SearchSlash className="size-6" />
                   </div>
-                  <h2 className="mt-5 text-2xl font-semibold text-slate-900">
+                  <h2 className="mt-5 text-2xl font-semibold text-slate-100">
                     {copy.nothingToRead}
                   </h2>
-                  <p className="mt-3 max-w-md text-sm leading-7 text-slate-600">
+                  <p className="mt-3 max-w-md text-sm leading-7 text-slate-400">
                     {copy.nothingToReadText}
                   </p>
                 </div>
               )}
             </div>
 
-            <div className="rounded-[28px] border border-slate-300 bg-[#f3f6fa] p-6">
+            <div className="rounded-[28px] border border-slate-700/80 bg-[#111f2c]/85 p-6">
               <div className="mb-5">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                   {copy.editor}
                 </p>
-                <h2 className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">
+                <h2 className="mt-3 text-2xl font-semibold tracking-tight text-slate-100">
                   {selectedArticle ? copy.editArticle : copy.newNote}
                 </h2>
-                <p className="mt-3 text-sm leading-7 text-slate-600">{copy.editorText}</p>
+                <p className="mt-3 text-sm leading-7 text-slate-400">{copy.editorText}</p>
               </div>
 
               <ThoughtEditor
@@ -604,5 +604,6 @@ export default async function AppPage({ searchParams }: AppPageProps) {
     </div>
   );
 }
+
 
 
