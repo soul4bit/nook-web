@@ -23,11 +23,11 @@ export default async function AuthPage() {
                 auth
               </span>
               <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
-                Р’С…РѕРґ Рё СЂРµРіРёСЃС‚СЂР°С†РёСЏ Р±РµР· Р»РёС€РЅРёС… С€Р°РіРѕРІ.
+                Вход и регистрация без лишних шагов.
               </h1>
               <p className="max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
-                РћРґРёРЅ СЌРєСЂР°РЅ РґР»СЏ РІС…РѕРґР°, СЂРµРіРёСЃС‚СЂР°С†РёРё Рё РІРѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёСЏ РїР°СЂРѕР»СЏ. РџРѕСЃР»Рµ Р°РІС‚РѕСЂРёР·Р°С†РёРё РІС‹
-                СЃСЂР°Р·Сѓ РїРѕРїР°РґР°РµС‚Рµ РІ СЃРІРѕРё СЃС‚Р°С‚СЊРё Рё РјРѕР¶РµС‚Рµ РїСЂРѕРґРѕР»Р¶Р°С‚СЊ СЂР°Р±РѕС‚Сѓ.
+                Один экран для входа, регистрации и восстановления пароля. После авторизации вы
+                сразу попадаете в свои статьи и можете продолжать работу.
               </p>
             </div>
           </div>
@@ -37,9 +37,9 @@ export default async function AuthPage() {
               <div className="flex size-11 items-center justify-center rounded-2xl bg-[#dbeaf4] text-[#3b82a4]">
                 <NotebookTabs className="size-5" />
               </div>
-              <h2 className="mt-4 text-lg font-semibold text-slate-900">РЎС‚Р°С‚СЊРё РїРѕ С‚РµРјР°Рј</h2>
+              <h2 className="mt-4 text-lg font-semibold text-slate-900">Статьи по темам</h2>
               <p className="mt-2 text-sm leading-7 text-slate-600">
-                Linux, Docker, СЃРµС‚Рё, Terraform Рё РґСЂСѓРіРёРµ СЂР°Р·РґРµР»С‹ СЃРѕР±СЂР°РЅС‹ РІ РµРґРёРЅРѕР№ СЃС‚СЂСѓРєС‚СѓСЂРµ.
+                Linux, Docker, сети, Terraform и другие разделы собраны в единой структуре.
               </p>
             </div>
 
@@ -47,10 +47,10 @@ export default async function AuthPage() {
               <div className="flex size-11 items-center justify-center rounded-2xl bg-[#dbeaf4] text-[#3b82a4]">
                 <BookOpenText className="size-5" />
               </div>
-              <h2 className="mt-4 text-lg font-semibold text-slate-900">Р§С‚РµРЅРёРµ СЂСЏРґРѕРј</h2>
+              <h2 className="mt-4 text-lg font-semibold text-slate-900">Чтение рядом</h2>
               <p className="mt-2 text-sm leading-7 text-slate-600">
-                Р’С‹Р±РёСЂР°РµС‚Рµ СЃС‚Р°С‚СЊСЋ РІ СЃРїРёСЃРєРµ Рё СЃСЂР°Р·Сѓ РІРёРґРёС‚Рµ РєРѕРЅС‚РµРЅС‚, Р±РµР· РїРµСЂРµС…РѕРґРѕРІ РїРѕ РѕС‚РґРµР»СЊРЅС‹Рј
-                СЃС‚СЂР°РЅРёС†Р°Рј.
+                Выбираете статью в списке и сразу видите контент, без переходов по отдельным
+                страницам.
               </p>
             </div>
 
@@ -58,10 +58,10 @@ export default async function AuthPage() {
               <div className="flex size-11 items-center justify-center rounded-2xl bg-[#dbeaf4] text-[#3b82a4]">
                 <ShieldCheck className="size-5" />
               </div>
-              <h2 className="mt-4 text-lg font-semibold text-slate-900">РќР°РґРµР¶РЅС‹Р№ РґРѕСЃС‚СѓРї</h2>
+              <h2 className="mt-4 text-lg font-semibold text-slate-900">Надежный доступ</h2>
               <p className="mt-2 text-sm leading-7 text-slate-600">
-                РђРєРєР°СѓРЅС‚С‹ Рё СЃРµСЃСЃРёРё С…СЂР°РЅСЏС‚СЃСЏ РІ PostgreSQL, РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ email Рё СЃР±СЂРѕСЃ РїР°СЂРѕР»СЏ СѓР¶Рµ
-                РїРѕРґРєР»СЋС‡РµРЅС‹.
+                Аккаунты и сессии хранятся в PostgreSQL, подтверждение email и сброс пароля уже
+                подключены.
               </p>
             </div>
           </div>

@@ -32,37 +32,37 @@ import {
 import { articleTopics } from "@/lib/content/devops-library";
 
 const copy = {
-  workspace: "Р›РёС‡РЅРѕРµ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ",
+  workspace: "Личное пространство",
   workspaceText:
-    "Р’СЃСЏ Р±Р°Р·Р° РїРѕ Linux, Docker, СЃРµС‚СЏРј, Ansible, Kubernetes, Terraform Рё CI/CD РІ РѕРґРЅРѕРј РёРЅС‚РµСЂС„РµР№СЃРµ: СЃР»РµРІР° СЂР°Р·РґРµР»С‹ Рё СЃС‚Р°С‚СЊРё, СЃРїСЂР°РІР° С‡С‚РµРЅРёРµ Рё СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ.",
-  newArticle: "РќРѕРІР°СЏ СЃС‚Р°С‚СЊСЏ",
-  account: "Р›РёС‡РЅС‹Р№ РєР°Р±РёРЅРµС‚",
-  sections: "Р Р°Р·РґРµР»С‹",
-  articlesSuffix: "СЃС‚Р°С‚РµР№",
+    "Вся база по Linux, Docker, сетям, Ansible, Kubernetes, Terraform и CI/CD в одном интерфейсе: слева разделы и статьи, справа чтение и редактирование.",
+  newArticle: "Новая статья",
+  account: "Личный кабинет",
+  sections: "Разделы",
+  articlesSuffix: "статей",
   noArticlesInSection:
-    "Р’ СЌС‚РѕРј СЂР°Р·РґРµР»Рµ РїРѕРєР° РЅРµС‚ СЃС‚Р°С‚РµР№. РЎРѕР·РґР°Р№С‚Рµ РїРµСЂРІСѓСЋ Р·Р°РјРµС‚РєСѓ С‡РµСЂРµР· СЂРµРґР°РєС‚РѕСЂ СЃРїСЂР°РІР°.",
-  currentSection: "РўРµРєСѓС‰РёР№ СЂР°Р·РґРµР»",
-  sectionCount: "СЃС‚Р°С‚РµР№ РІ РєР°С‚РµРіРѕСЂРёРё",
-  heroTitle: "Р‘Р°Р·Р° Р·РЅР°РЅРёР№, РІ РєРѕС‚РѕСЂРѕР№ Р»РµРіРєРѕ РЅР°Р№С‚Рё РЅСѓР¶РЅС‹Р№ РѕС‚РІРµС‚.",
+    "В этом разделе пока нет статей. Создайте первую заметку через редактор справа.",
+  currentSection: "Текущий раздел",
+  sectionCount: "статей в категории",
+  heroTitle: "База знаний, в которой легко найти нужный ответ.",
   heroText:
-    "РћС‚РєСЂРѕР№С‚Рµ С‚РµРјСѓ, РІС‹Р±РµСЂРёС‚Рµ РєР°С‚РµРіРѕСЂРёСЋ Рё С‡РёС‚Р°Р№С‚Рµ СЃС‚Р°С‚СЊСЋ СЂСЏРґРѕРј СЃ СЂРµРґР°РєС‚РѕСЂРѕРј. РњРѕР¶РЅРѕ Р±С‹СЃС‚СЂРѕ РѕР±РЅРѕРІР»СЏС‚СЊ РјР°С‚РµСЂРёР°Р» Рё СЃСЂР°Р·Сѓ РІРёРґРµС‚СЊ РёС‚РѕРіРѕРІС‹Р№ С‚РµРєСЃС‚.",
-  snapshot: "РЎРІРѕРґРєР°",
-  allArticles: "Р’СЃРµРіРѕ СЃС‚Р°С‚РµР№",
-  lastUpdate: "РџРѕСЃР»РµРґРЅРµРµ РѕР±РЅРѕРІР»РµРЅРёРµ",
-  emptyValue: "РџРѕРєР° РЅРµС‚ РґР°РЅРЅС‹С…",
-  updated: "РћР±РЅРѕРІР»РµРЅРѕ",
-  created: "РЎРѕР·РґР°РЅРѕ",
-  author: "РђРІС‚РѕСЂ",
-  lastEditor: "РџРѕСЃР»РµРґРЅРёР№ СЂРµРґР°РєС‚РѕСЂ",
-  reading: "Р§С‚РµРЅРёРµ СЃС‚Р°С‚СЊРё",
-  nothingToRead: "РџРѕРєР° РЅРµС‡РµРіРѕ С‡РёС‚Р°С‚СЊ",
+    "Откройте тему, выберите категорию и читайте статью рядом с редактором. Можно быстро обновлять материал и сразу видеть итоговый текст.",
+  snapshot: "Сводка",
+  allArticles: "Всего статей",
+  lastUpdate: "Последнее обновление",
+  emptyValue: "Пока нет данных",
+  updated: "Обновлено",
+  created: "Создано",
+  author: "Автор",
+  lastEditor: "Последний редактор",
+  reading: "Чтение статьи",
+  nothingToRead: "Пока нечего читать",
   nothingToReadText:
-    "Р’С‹Р±РµСЂРёС‚Рµ РєР°С‚РµРіРѕСЂРёСЋ СЃРѕ СЃС‚Р°С‚СЊСЏРјРё РёР»Рё СЃРѕР·РґР°Р№С‚Рµ РЅРѕРІСѓСЋ Р·Р°РјРµС‚РєСѓ. РљР°Рє С‚РѕР»СЊРєРѕ СЃРѕС…СЂР°РЅРёС‚Рµ РјР°С‚РµСЂРёР°Р», РѕРЅ СЃСЂР°Р·Сѓ РїРѕСЏРІРёС‚СЃСЏ РІ СЃРїРёСЃРєРµ.",
-  editor: "Р РµРґР°РєС‚РѕСЂ",
-  editArticle: "Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ СЃС‚Р°С‚СЊРё",
-  newNote: "РќРѕРІР°СЏ Р·Р°РјРµС‚РєР°",
+    "Выберите категорию со статьями или создайте новую заметку. Как только сохраните материал, он сразу появится в списке.",
+  editor: "Редактор",
+  editArticle: "Редактирование статьи",
+  newNote: "Новая заметка",
   editorText:
-    "РЎРѕС…СЂР°РЅРµРЅРёРµ РёРґРµС‚ РІ PostgreSQL РІ С„РѕСЂРјР°С‚Рµ markdown + html. РџРѕСЃР»Рµ СЃРѕС…СЂР°РЅРµРЅРёСЏ РјР°С‚РµСЂРёР°Р» СЃСЂР°Р·Сѓ РѕС‚РѕР±СЂР°Р¶Р°РµС‚СЃСЏ РІ СЃРїРёСЃРєРµ РєР°С‚РµРіРѕСЂРёРё.",
+    "Сохранение идет в PostgreSQL в формате markdown + html. После сохранения материал сразу отображается в списке категории.",
   searchPlaceholder: "Поиск по заголовку, описанию и тексту",
   searchButton: "Найти",
   clearSearch: "Сброс",
@@ -159,7 +159,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
           ...allArticles
             .filter((article) => article.topic === topic.name)
             .map((article) => article.category),
-          "РћР±С‰РµРµ",
+          "Общее",
         ])
       ),
     ])
@@ -171,7 +171,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
     requestedCategory ??
     topicArticles[0]?.category ??
     currentTopic.categories[0] ??
-    "РћР±С‰РµРµ";
+    "Общее";
   const categoryArticles = topicArticles.filter(
     (article) => article.category === selectedCategory
   );
@@ -422,7 +422,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                                     </div>
                                   ) : (
                                     <div className="rounded-xl border border-dashed border-slate-300 bg-[#f8fafc] px-3 py-3 text-sm leading-6 text-slate-500">
-                                      Р’ СЌС‚РѕР№ РєР°С‚РµРіРѕСЂРёРё РїРѕРєР° РЅРµС‚ СЃС‚Р°С‚РµР№.
+                                      В этой категории пока нет статей.
                                     </div>
                                   )}
                                 </div>
@@ -481,7 +481,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                 </div>
                 <div className="rounded-[18px] border border-slate-200 bg-[#f8fafc] px-4 py-4">
                   <p className="text-xs uppercase tracking-[0.16em] text-slate-500">
-                    РљР°С‚РµРіРѕСЂРёСЏ
+                    Категория
                   </p>
                   <p className="mt-2 text-sm font-semibold text-slate-900">{selectedCategory}</p>
                 </div>

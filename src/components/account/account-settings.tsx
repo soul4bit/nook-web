@@ -79,7 +79,7 @@ async function uploadAvatar(file: File) {
   const result = (await response.json()) as { imageUrl?: string; message?: string };
 
   if (!response.ok || !result.imageUrl) {
-    throw new Error(result.message ?? "РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ Р°РІР°С‚Р°СЂ.");
+    throw new Error(result.message ?? "Не удалось загрузить аватар.");
   }
 
   return result.imageUrl;
@@ -131,10 +131,10 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
 
   const passwordCooldownText = useMemo(() => {
     if (!passwordNextAllowedAt) {
-      return "РџР°СЂРѕР»СЊ РјРѕР¶РЅРѕ РјРµРЅСЏС‚СЊ РЅРµ С‡Р°С‰Рµ РѕРґРЅРѕРіРѕ СЂР°Р·Р° РІ 24 С‡Р°СЃР°.";
+      return "Пароль можно менять не чаще одного раза в 24 часа.";
     }
 
-    return `РЎР»РµРґСѓСЋС‰Р°СЏ СЃРјРµРЅР° РїР°СЂРѕР»СЏ Р±СѓРґРµС‚ РґРѕСЃС‚СѓРїРЅР° ${formatDateTime(passwordNextAllowedAt)}.`;
+    return `Следующая смена пароля будет доступна ${formatDateTime(passwordNextAllowedAt)}.`;
   }, [passwordNextAllowedAt]);
 
   useEffect(() => {
@@ -172,7 +172,7 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
     event.preventDefault();
 
     if (!selectedFile && !removeAvatar) {
-      setProfileFeedback({ tone: "info", text: "РР·РјРµРЅРµРЅРёР№ РґР»СЏ Р°РІР°С‚Р°СЂР° РїРѕРєР° РЅРµС‚." });
+      setProfileFeedback({ tone: "info", text: "Изменений для аватара пока нет." });
       return;
     }
 
@@ -198,7 +198,7 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
       resetAvatarInput();
       setProfileFeedback({
         tone: "success",
-        text: "РђРІР°С‚Р°СЂ РѕР±РЅРѕРІР»РµРЅ.",
+        text: "Аватар обновлен.",
       });
       router.refresh();
     } catch (error) {
@@ -207,7 +207,7 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
         text:
           error instanceof Error
             ? getAuthErrorMessage(error.message)
-            : "РќРµ СѓРґР°Р»РѕСЃСЊ РѕР±РЅРѕРІРёС‚СЊ Р°РІР°С‚Р°СЂ.",
+            : "Не удалось обновить аватар.",
       });
     } finally {
       setPendingAction(null);
@@ -220,23 +220,23 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
     if (isPasswordLocked && passwordNextAllowedAt) {
       setPasswordFeedback({
         tone: "info",
-        text: `РџР°СЂРѕР»СЊ РјРѕР¶РЅРѕ РјРµРЅСЏС‚СЊ РЅРµ С‡Р°С‰Рµ РѕРґРЅРѕРіРѕ СЂР°Р·Р° РІ 24 С‡Р°СЃР°. РЎР»РµРґСѓСЋС‰Р°СЏ СЃРјРµРЅР° Р±СѓРґРµС‚ РґРѕСЃС‚СѓРїРЅР° ${formatDateTime(passwordNextAllowedAt)}.`,
+        text: `Пароль можно менять не чаще одного раза в 24 часа. Следующая смена будет доступна ${formatDateTime(passwordNextAllowedAt)}.`,
       });
       return;
     }
 
     if (!passwordForm.currentPassword || !passwordForm.newPassword || !passwordForm.confirmPassword) {
-      setPasswordFeedback({ tone: "error", text: "Р—Р°РїРѕР»РЅРёС‚Рµ РІСЃРµ РїРѕР»СЏ РґР»СЏ СЃРјРµРЅС‹ РїР°СЂРѕР»СЏ." });
+      setPasswordFeedback({ tone: "error", text: "Заполните все поля для смены пароля." });
       return;
     }
 
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
-      setPasswordFeedback({ tone: "error", text: "РќРѕРІС‹Р№ РїР°СЂРѕР»СЊ Рё РїРѕРІС‚РѕСЂ РЅРµ СЃРѕРІРїР°РґР°СЋС‚." });
+      setPasswordFeedback({ tone: "error", text: "Новый пароль и повтор не совпадают." });
       return;
     }
 
     if (passwordForm.newPassword.length < 8) {
-      setPasswordFeedback({ tone: "error", text: "РќРѕРІС‹Р№ РїР°СЂРѕР»СЊ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РЅРµ РєРѕСЂРѕС‡Рµ 8 СЃРёРјРІРѕР»РѕРІ." });
+      setPasswordFeedback({ tone: "error", text: "Новый пароль должен быть не короче 8 символов." });
       return;
     }
 
@@ -258,7 +258,7 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
       setPasswordNextAllowedAt(result.nextAllowedAt ?? null);
       setPasswordFeedback({
         tone: "success",
-        text: "РџР°СЂРѕР»СЊ РѕР±РЅРѕРІР»РµРЅ. РЎР»РµРґСѓСЋС‰Р°СЏ СЃРјРµРЅР° Р±СѓРґРµС‚ РґРѕСЃС‚СѓРїРЅР° С‡РµСЂРµР· 24 С‡Р°СЃР°.",
+        text: "Пароль обновлен. Следующая смена будет доступна через 24 часа.",
       });
       router.refresh();
     } catch (error) {
@@ -267,7 +267,7 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
         text:
           error instanceof Error
             ? getAuthErrorMessage(error.message)
-            : "РќРµ СѓРґР°Р»РѕСЃСЊ СЃРјРµРЅРёС‚СЊ РїР°СЂРѕР»СЊ.",
+            : "Не удалось сменить пароль.",
       });
     } finally {
       setPendingAction(null);
@@ -280,13 +280,13 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-              РџСЂРѕС„РёР»СЊ
+              Профиль
             </p>
             <h2 className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">
-              Р›РёС‡РЅС‹Р№ РєР°Р±РёРЅРµС‚
+              Личный кабинет
             </h2>
             <p className="mt-3 text-sm leading-7 text-slate-600">
-              Р—РґРµСЃСЊ РјРѕР¶РЅРѕ СѓРїСЂР°РІР»СЏС‚СЊ Р°РІР°С‚Р°СЂРѕРј Рё Р±РµР·РѕРїР°СЃРЅРѕСЃС‚СЊСЋ Р°РєРєР°СѓРЅС‚Р°.
+              Здесь можно управлять аватаром и безопасностью аккаунта.
             </p>
           </div>
 
@@ -296,7 +296,7 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
             className="rounded-2xl border-slate-300 bg-[#f3f6fa] text-slate-700 hover:bg-[#e9eef4]"
           >
             <Link href="/app">
-              <ArrowLeft className="size-4" />Рљ Р·Р°РјРµС‚РєР°Рј
+              <ArrowLeft className="size-4" />К заметкам
             </Link>
           </Button>
         </div>
@@ -310,11 +310,11 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
               fallbackClassName="text-xl text-[#3b82a4]"
             />
             <div>
-              <p className="text-xl font-semibold text-slate-900">{user.name || "Р‘РµР· РёРјРµРЅРё"}</p>
+              <p className="text-xl font-semibold text-slate-900">{user.name || "Без имени"}</p>
               <p className="mt-1 text-sm text-slate-600">{user.email}</p>
               <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-600">
                 <ShieldCheck className="size-3.5 text-[#3b82a4]" />
-                {user.emailVerified ? "РџРѕС‡С‚Р° РїРѕРґС‚РІРµСЂР¶РґРµРЅР°" : "РџРѕС‡С‚Р° РЅРµ РїРѕРґС‚РІРµСЂР¶РґРµРЅР°"}
+                {user.emailVerified ? "Почта подтверждена" : "Почта не подтверждена"}
               </div>
             </div>
           </div>
@@ -325,13 +325,13 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
 
           <div className="space-y-2">
             <label htmlFor="avatar" className="text-sm font-medium text-slate-700">
-              РђРІР°С‚Р°СЂ
+              Аватар
             </label>
             <div className="rounded-[20px] border border-slate-200 bg-[#f8fafc] p-4">
               <div className="flex flex-wrap items-center gap-3">
                 <label className="inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">
                   <ImagePlus className="size-4" />
-                  Р’С‹Р±СЂР°С‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ
+                  Выбрать изображение
                   <input
                     ref={avatarInputRef}
                     id="avatar"
@@ -354,13 +354,13 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
                   }}
                 >
                   <Trash2 className="size-4" />
-                  РЈР±СЂР°С‚СЊ Р°РІР°С‚Р°СЂ
+                  Убрать аватар
                 </Button>
               </div>
 
-              <p className="mt-3 text-sm text-slate-600">JPG, PNG, WEBP РёР»Рё GIF. РњР°РєСЃРёРјСѓРј 2 РњР‘.</p>
+              <p className="mt-3 text-sm text-slate-600">JPG, PNG, WEBP или GIF. Максимум 2 МБ.</p>
               {selectedFile ? (
-                <p className="mt-2 text-xs text-slate-500">Р’С‹Р±СЂР°РЅ С„Р°Р№Р»: {selectedFile.name}</p>
+                <p className="mt-2 text-xs text-slate-500">Выбран файл: {selectedFile.name}</p>
               ) : null}
             </div>
           </div>
@@ -373,12 +373,12 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
             {pendingAction === "profile" ? (
               <>
                 <LoaderCircle className="size-4 animate-spin" />
-                РЎРѕС…СЂР°РЅСЏРµРј Р°РІР°С‚Р°СЂ...
+                Сохраняем аватар...
               </>
             ) : (
               <>
                 <Save className="size-4" />
-                РЎРѕС…СЂР°РЅРёС‚СЊ РїСЂРѕС„РёР»СЊ
+                Сохранить профиль
               </>
             )}
           </Button>
@@ -387,14 +387,14 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
 
       <section className="rounded-[28px] border border-slate-300 bg-[#f3f6fa] p-6">
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-          Р‘РµР·РѕРїР°СЃРЅРѕСЃС‚СЊ
+          Безопасность
         </p>
         <h2 className="mt-3 text-2xl font-semibold tracking-tight text-slate-900">
-          РЎРјРµРЅР° РїР°СЂРѕР»СЏ
+          Смена пароля
         </h2>
         <p className="mt-3 text-sm leading-7 text-slate-600">
-          РџР°СЂРѕР»СЊ РјРѕР¶РЅРѕ РјРµРЅСЏС‚СЊ РЅРµ С‡Р°С‰Рµ РѕРґРЅРѕРіРѕ СЂР°Р·Р° РІ 24 С‡Р°СЃР°. РџРѕСЃР»Рµ СѓСЃРїРµС€РЅРѕР№ СЃРјРµРЅС‹ РѕСЃС‚Р°Р»СЊРЅС‹Рµ
-          СЃРµСЃСЃРёРё Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё Р·Р°РІРµСЂС€Р°СЋС‚СЃСЏ.
+          Пароль можно менять не чаще одного раза в 24 часа. После успешной смены остальные
+          сессии автоматически завершаются.
         </p>
 
         <div className="mt-5 rounded-[18px] border border-slate-200 bg-[#f8fafc] px-4 py-3 text-sm leading-7 text-slate-600">
@@ -406,7 +406,7 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
 
           <div className="space-y-2">
             <label htmlFor="current-password" className="text-sm font-medium text-slate-700">
-              РўРµРєСѓС‰РёР№ РїР°СЂРѕР»СЊ
+              Текущий пароль
             </label>
             <Input
               id="current-password"
@@ -419,13 +419,13 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
                 }))
               }
               className="h-12 rounded-2xl border-slate-200 bg-white text-slate-900 placeholder:text-slate-400"
-              placeholder="Р’РІРµРґРёС‚Рµ С‚РµРєСѓС‰РёР№ РїР°СЂРѕР»СЊ"
+              placeholder="Введите текущий пароль"
             />
           </div>
 
           <div className="space-y-2">
             <label htmlFor="new-password" className="text-sm font-medium text-slate-700">
-              РќРѕРІС‹Р№ РїР°СЂРѕР»СЊ
+              Новый пароль
             </label>
             <Input
               id="new-password"
@@ -438,13 +438,13 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
                 }))
               }
               className="h-12 rounded-2xl border-slate-200 bg-white text-slate-900 placeholder:text-slate-400"
-              placeholder="РњРёРЅРёРјСѓРј 8 СЃРёРјРІРѕР»РѕРІ"
+              placeholder="Минимум 8 символов"
             />
           </div>
 
           <div className="space-y-2">
             <label htmlFor="confirm-password" className="text-sm font-medium text-slate-700">
-              РџРѕРІС‚РѕСЂРёС‚Рµ РЅРѕРІС‹Р№ РїР°СЂРѕР»СЊ
+              Повторите новый пароль
             </label>
             <Input
               id="confirm-password"
@@ -457,7 +457,7 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
                 }))
               }
               className="h-12 rounded-2xl border-slate-200 bg-white text-slate-900 placeholder:text-slate-400"
-              placeholder="РџРѕРІС‚РѕСЂРёС‚Рµ РЅРѕРІС‹Р№ РїР°СЂРѕР»СЊ"
+              placeholder="Повторите новый пароль"
             />
           </div>
 
@@ -469,12 +469,12 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
             {pendingAction === "password" ? (
               <>
                 <LoaderCircle className="size-4 animate-spin" />
-                РњРµРЅСЏРµРј РїР°СЂРѕР»СЊ...
+                Меняем пароль...
               </>
             ) : (
               <>
                 <KeyRound className="size-4" />
-                РЎРјРµРЅРёС‚СЊ РїР°СЂРѕР»СЊ
+                Сменить пароль
               </>
             )}
           </Button>
@@ -483,11 +483,11 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
         <div className="mt-8 rounded-[18px] border border-slate-200 bg-[#f8fafc] p-4 text-sm leading-7 text-slate-600">
           <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-800">
             <UserRoundCog className="size-4 text-[#3b82a4]" />
-            РљР°Рє СЌС‚Рѕ С…СЂР°РЅРёС‚СЃСЏ
+            Как это хранится
           </div>
           <p>
-            РђРІР°С‚Р°СЂ С…СЂР°РЅРёС‚СЃСЏ Р»РѕРєР°Р»СЊРЅРѕ РЅР° СЃРµСЂРІРµСЂРµ, Р° РІ РїСЂРѕС„РёР»Рµ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ СЃРѕС…СЂР°РЅСЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ URL РІ
-            РїРѕР»Рµ `image`.
+            Аватар хранится локально на сервере, а в профиле пользователя сохраняется только URL в
+            поле `image`.
           </p>
         </div>
       </section>
