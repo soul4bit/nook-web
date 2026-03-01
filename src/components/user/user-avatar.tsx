@@ -1,4 +1,6 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 type UserAvatarProps = {
@@ -28,6 +30,8 @@ export function UserAvatar({
   fallbackClassName,
 }: UserAvatarProps) {
   const initials = getInitials(name);
+  const [failedImage, setFailedImage] = useState<string | null>(null);
+  const showImage = Boolean(image) && failedImage !== image;
 
   return (
     <div
@@ -36,14 +40,17 @@ export function UserAvatar({
         className
       )}
     >
-      {image ? (
-        <Image
-          src={image}
-          alt={name ? `Аватар ${name}` : "Аватар"}
-          fill
-          sizes="48px"
-          className={cn("object-cover", imageClassName)}
-        />
+      {showImage ? (
+        <>
+          {/* Для локального превью и файлов из public/uploads обычный img надежнее. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={image ?? undefined}
+            alt={name ? `Аватар ${name}` : "Аватар"}
+            className={cn("h-full w-full object-cover", imageClassName)}
+            onError={() => setFailedImage(image ?? null)}
+          />
+        </>
       ) : (
         <span
           className={cn(

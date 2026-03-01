@@ -97,7 +97,6 @@ function FeedbackBanner({ feedback }: { feedback: AuthFeedback }) {
 
 export function AccountSettings({ user }: AccountSettingsProps) {
   const router = useRouter();
-  const [name, setName] = useState(user.name ?? "");
   const [currentImage, setCurrentImage] = useState(user.image ?? null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [removeAvatar, setRemoveAvatar] = useState(false);
@@ -139,15 +138,8 @@ export function AccountSettings({ user }: AccountSettingsProps) {
   async function handleProfileSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const trimmedName = name.trim();
-
-    if (!trimmedName) {
-      setProfileFeedback({ tone: "error", text: "Укажите имя для профиля." });
-      return;
-    }
-
-    if (!selectedFile && !removeAvatar && trimmedName === (user.name ?? "") && currentImage === (user.image ?? null)) {
-      setProfileFeedback({ tone: "info", text: "Изменений пока нет." });
+    if (!selectedFile && !removeAvatar) {
+      setProfileFeedback({ tone: "info", text: "Изменений для аватара пока нет." });
       return;
     }
 
@@ -162,7 +154,6 @@ export function AccountSettings({ user }: AccountSettingsProps) {
       }
 
       await postJson("/api/auth/update-user", {
-        name: trimmedName,
         image,
       });
 
@@ -171,7 +162,7 @@ export function AccountSettings({ user }: AccountSettingsProps) {
       setRemoveAvatar(false);
       setProfileFeedback({
         tone: "success",
-        text: "Профиль обновлен.",
+        text: "Аватар обновлен.",
       });
       router.refresh();
     } catch (error) {
@@ -180,7 +171,7 @@ export function AccountSettings({ user }: AccountSettingsProps) {
         text:
           error instanceof Error
             ? getAuthErrorMessage(error.message)
-            : "Не удалось обновить профиль.",
+            : "Не удалось обновить аватар.",
       });
     } finally {
       setPendingAction(null);
@@ -249,8 +240,8 @@ export function AccountSettings({ user }: AccountSettingsProps) {
               Личный кабинет
             </h2>
             <p className="mt-3 text-sm leading-7 text-[#8fa59c]">
-              Имя, аватар и основная информация аккаунта. Аватар хранится локально на
-              сервере и в базе сохраняется только путь к нему.
+              Здесь можно управлять аватаром и безопасностью аккаунта. Имя из
+              регистрации остается как есть, без отдельного редактирования.
             </p>
           </div>
 
@@ -268,9 +259,16 @@ export function AccountSettings({ user }: AccountSettingsProps) {
 
         <div className="mt-8 rounded-[28px] border border-[#29312d] bg-[#111513] p-5">
           <div className="flex items-center gap-4">
-            <UserAvatar image={previewImage} name={name || user.email} className="size-20 rounded-[24px]" fallbackClassName="text-xl" />
+            <UserAvatar
+              image={previewImage}
+              name={user.name || user.email}
+              className="size-20 rounded-[24px]"
+              fallbackClassName="text-xl"
+            />
             <div>
-              <p className="text-xl font-semibold text-white">{name || "Без имени"}</p>
+              <p className="text-xl font-semibold text-white">
+                {user.name || "Без имени"}
+              </p>
               <p className="mt-1 text-sm text-[#8fa59c]">{user.email}</p>
               <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-[#2b3531] px-3 py-1 text-xs text-[#a0b6ad]">
                 <ShieldCheck className="size-3.5 text-[#53e6a6]" />
@@ -282,19 +280,6 @@ export function AccountSettings({ user }: AccountSettingsProps) {
 
         <form className="mt-6 space-y-5" onSubmit={handleProfileSubmit}>
           {profileFeedback ? <FeedbackBanner feedback={profileFeedback} /> : null}
-
-          <div className="space-y-2">
-            <label htmlFor="profile-name" className="text-sm font-medium text-white">
-              Имя
-            </label>
-            <Input
-              id="profile-name"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              className="h-12 rounded-2xl border-[#2b3531] bg-[#111513] text-white placeholder:text-[#6f877e]"
-              placeholder="Как вас показывать в Nook"
-            />
-          </div>
 
           <div className="space-y-2">
             <label htmlFor="avatar" className="text-sm font-medium text-white">
@@ -346,7 +331,7 @@ export function AccountSettings({ user }: AccountSettingsProps) {
             {pendingAction === "profile" ? (
               <>
                 <LoaderCircle className="size-4 animate-spin" />
-                Сохраняем профиль...
+                Сохраняем аватар...
               </>
             ) : (
               <>
