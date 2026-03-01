@@ -16,7 +16,7 @@ export default async function AuthPage() {
       <main className="mx-auto grid min-h-[calc(100vh-2rem)] max-w-[1480px] overflow-hidden rounded-[32px] border border-slate-700/80 bg-[#0b141e]/95 shadow-[0_40px_120px_rgba(2,8,15,0.75)] lg:grid-cols-[1.05fr_minmax(0,0.95fr)]">
         <section className="flex flex-col justify-between border-b border-slate-700/80 bg-[#101d2a]/90 p-6 lg:border-b-0 lg:border-r lg:p-8 xl:p-10">
           <div>
-            <KnowledgeLogo subtitle="Вход в личную базу знаний" />
+            <KnowledgeLogo subtitle="Вход в приватную wiki команды" />
 
             <div className="mt-12 space-y-5">
               <span className="inline-flex rounded-full border border-[#2f4458] bg-[#142435] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#8ca9c2]">

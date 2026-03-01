@@ -27,15 +27,15 @@ import { getCurrentSession, isAdminSession } from "@/lib/auth/session";
 import {
   getArticleById,
   isArticleTopic,
-  listArticlesByAuthor,
-  searchArticlesByAuthor,
+  listArticles,
+  searchArticles,
 } from "@/lib/articles/server";
 import { articleTopics } from "@/lib/content/devops-library";
 
 const copy = {
-  workspace: "Профиль",
+  workspace: "Приватная wiki",
   workspaceText:
-    "Здесь собраны ваши материалы по DevOps: разделы, категории, статьи и быстрый редактор в одном интерфейсе.",
+    "Это общая база знаний команды: все авторизованные пользователи работают с единой структурой разделов, категорий и статей.",
   newArticle: "Новая заметка",
   account: "Личный кабинет",
   admin: "Админ-панель",
@@ -47,7 +47,7 @@ const copy = {
   sectionCount: "статей в категории",
   heroTitle: "База знаний, где ответы находятся за секунды.",
   heroText:
-    "Откройте тему, выберите категорию и работайте со статьями в одном окне: слева структура, справа чтение и редактирование.",
+    "Откройте тему, выберите категорию и работайте с общей базой в одном окне: слева структура, справа чтение и редактирование.",
   snapshot: "Состояние",
   allArticles: "Всего статей",
   lastUpdate: "Последнее обновление",
@@ -142,12 +142,12 @@ export default async function AppPage({ searchParams }: AppPageProps) {
   const requestedArticleId = params?.article;
   const draftMode = params?.draft === "1";
   const searchQuery = params?.q?.trim().slice(0, 180) ?? "";
-  const allArticles = await listArticlesByAuthor(session.user.id);
+  const allArticles = await listArticles();
   const articles = searchQuery
-    ? await searchArticlesByAuthor(session.user.id, searchQuery)
+    ? await searchArticles(searchQuery)
     : allArticles;
   const requestedArticle = requestedArticleId
-    ? await getArticleById(session.user.id, requestedArticleId)
+    ? await getArticleById(requestedArticleId)
     : null;
 
   const selectedTopic = requestedArticle?.topic ?? requestedTopic ?? articleTopics[0].name;
@@ -185,7 +185,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
   const selectedArticle =
     selectedArticleSummary &&
     (!requestedArticle || requestedArticle.id !== selectedArticleSummary.id)
-      ? await getArticleById(session.user.id, selectedArticleSummary.id)
+      ? await getArticleById(selectedArticleSummary.id)
       : draftMode
         ? null
         : requestedArticle;
@@ -195,21 +195,31 @@ export default async function AppPage({ searchParams }: AppPageProps) {
   const totalArticles = allArticles.length;
   const visibleArticlesCount = articles.length;
   const hasSearchQuery = Boolean(searchQuery);
-  const wikiLinks = allArticles.map((article) => ({
-    slug: article.slug,
-    title: article.title,
-    href: buildAppHref(article.topic, {
-      articleId: article.id,
-      category: article.category,
-    }),
-  }));
+  const seenSlugs = new Set<string>();
+  const wikiLinks = allArticles
+    .filter((article) => {
+      if (seenSlugs.has(article.slug)) {
+        return false;
+      }
+
+      seenSlugs.add(article.slug);
+      return true;
+    })
+    .map((article) => ({
+      slug: article.slug,
+      title: article.title,
+      href: buildAppHref(article.topic, {
+        articleId: article.id,
+        category: article.category,
+      }),
+    }));
 
   return (
     <div className="min-h-screen px-4 py-4 text-slate-100 sm:px-6 lg:px-8">
       <div className="mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-[1640px] flex-col overflow-hidden rounded-[32px] border border-slate-700/80 bg-[#0b141e]/95 shadow-[0_40px_120px_rgba(2,8,15,0.75)] lg:flex-row">
         <aside className="flex w-full shrink-0 flex-col border-b border-slate-700/80 bg-[#101d2a]/90 p-5 lg:max-w-[340px] lg:border-b-0 lg:border-r">
           <div className="flex items-center justify-between gap-3">
-            <KnowledgeLogo subtitle="Рабочая база DevOps" />
+            <KnowledgeLogo subtitle="Общая DevOps-вики" />
 
             <SignOutButton />
           </div>
@@ -612,6 +622,11 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                   string[]
                 >}
                 defaultCategory={selectedCategory}
+                canDeleteArticle={
+                  selectedArticle
+                    ? selectedArticle.authorId === session.user.id || isAdmin
+                    : false
+                }
                 wikiLinks={wikiLinks}
               />
             </div>

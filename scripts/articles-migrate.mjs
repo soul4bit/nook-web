@@ -53,6 +53,15 @@ const migrationSql = `
   create unique index if not exists articles_author_slug_idx
     on articles(author_id, slug);
 
+  create index if not exists articles_slug_idx
+    on articles(slug);
+
+  create index if not exists articles_updated_idx
+    on articles(updated_at desc);
+
+  create index if not exists articles_topic_category_idx
+    on articles(topic, category, updated_at desc);
+
   create index if not exists articles_author_updated_idx
     on articles(author_id, updated_at desc);
 

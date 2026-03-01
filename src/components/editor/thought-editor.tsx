@@ -105,6 +105,7 @@ type ThoughtEditorProps = {
   defaultTopic: ArticleTopic;
   topicCategories: Record<ArticleTopic, readonly string[]>;
   defaultCategory: string;
+  canDeleteArticle?: boolean;
   wikiLinks: Array<{
     slug: string;
     title: string;
@@ -209,6 +210,7 @@ export function ThoughtEditor({
   defaultTopic,
   topicCategories,
   defaultCategory,
+  canDeleteArticle = false,
   wikiLinks,
 }: ThoughtEditorProps) {
   const router = useRouter();
@@ -657,7 +659,7 @@ export function ThoughtEditor({
           {copy.newDraft}
         </Button>
 
-        {article ? (
+        {article && canDeleteArticle ? (
           <Button
             type="button"
             variant="outline"

@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth/server";
 import {
   createArticle,
   isArticleTopic,
-  type SaveArticleInput,
+  type CreateArticleInput,
 } from "@/lib/articles/server";
 
 function badRequest(message: string) {
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const body = (await request.json()) as Partial<SaveArticleInput>;
+  const body = (await request.json()) as Partial<CreateArticleInput>;
 
   if (!body.title?.trim()) {
     return badRequest("\u0423\u043a\u0430\u0436\u0438\u0442\u0435 \u0437\u0430\u0433\u043e\u043b\u043e\u0432\u043e\u043a \u0441\u0442\u0430\u0442\u044c\u0438.");

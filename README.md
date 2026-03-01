@@ -2,7 +2,7 @@
 
 ![Логотип](./public/branding/logo-lockup.svg)
 
-Личная DevOps-вики на `Next.js + PostgreSQL + Better Auth`.
+Приватная командная DevOps-вики на `Next.js + PostgreSQL + Better Auth`.
 
 - Пишете статьи в редакторе (Tiptap)
 - Храните знания в `markdown + html + json`
@@ -18,6 +18,7 @@
 - Подтверждение email и восстановление пароля
 - Anti-spam guard для auth-эндпоинтов (rate limit + журнал причин в PostgreSQL)
 - Личный кабинет: аватар, смена пароля, ограничение смены пароля по времени
+- Единая приватная база статей для всех авторизованных пользователей
 - CRUD статей
 - Категории и темы: Linux, Docker, Сети, Ansible, K8S, Terraform, CI/CD
 - Хранение статьи в трех видах: `content_markdown`, `content_html`, `content_json`

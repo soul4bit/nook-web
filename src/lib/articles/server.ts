@@ -30,7 +30,9 @@ export type ArticleListItem = {
   topic: ArticleTopic;
   category: string;
   summary: string;
+  authorId: string;
   authorName: string;
+  updatedById: string | null;
   updatedByName: string;
   updatedAt: string;
 };
@@ -45,15 +47,23 @@ export type ArticleRecord = ArticleListItem & {
 };
 
 export type SaveArticleInput = {
-  authorId: string;
-  editorId: string;
-  title: string;
   topic: ArticleTopic;
   category?: string;
   summary: string;
   contentHtml: string;
   contentJson: Record<string, unknown>;
   contentText: string;
+};
+
+export type CreateArticleInput = SaveArticleInput & {
+  authorId: string;
+  editorId: string;
+  title: string;
+};
+
+export type UpdateArticleInput = SaveArticleInput & {
+  editorId: string;
+  title: string;
 };
 
 function articleSearchVectorSql() {
@@ -79,7 +89,9 @@ function mapArticle(row: ArticleRow): ArticleRecord {
     topic: row.topic as ArticleTopic,
     category: row.category,
     summary: row.summary,
+    authorId: row.author_id,
     authorName,
+    updatedById: row.updated_by_id,
     updatedByName,
     contentHtml: row.content_html,
     contentMarkdown: row.content_markdown,
@@ -99,7 +111,9 @@ function toListItem(article: ArticleRecord): ArticleListItem {
     topic: article.topic,
     category: article.category,
     summary: article.summary,
+    authorId: article.authorId,
     authorName: article.authorName,
+    updatedById: article.updatedById,
     updatedByName: article.updatedByName,
     updatedAt: article.updatedAt,
   };
@@ -133,7 +147,7 @@ function slugify(title: string) {
   return slug || "article";
 }
 
-async function createUniqueSlug(authorId: string, title: string, excludeId?: string) {
+async function createUniqueSlug(title: string, excludeId?: string) {
   const baseSlug = slugify(title);
   let slug = baseSlug;
   let suffix = 2;
@@ -143,12 +157,11 @@ async function createUniqueSlug(authorId: string, title: string, excludeId?: str
       `
         select id
         from articles
-        where author_id = $1
-          and slug = $2
-          and ($3::text is null or id <> $3)
+        where slug = $1
+          and ($2::text is null or id <> $2)
         limit 1
       `,
-      [authorId, slug, excludeId ?? null]
+      [slug, excludeId ?? null]
     );
 
     if (rows.length === 0) {
@@ -176,58 +189,55 @@ export function isArticleTopic(value: string): value is ArticleTopic {
   return articleTopicNames.includes(value as ArticleTopic);
 }
 
-export async function listArticlesByAuthor(authorId: string) {
+export async function listArticles() {
   const { rows } = await pool.query<ArticleRow>(
     `
       ${articleSelectSql()}
-      where articles.author_id = $1
       order by articles.updated_at desc
-    `,
-    [authorId]
+    `
   );
 
   return rows.map((row) => toListItem(mapArticle(row)));
 }
 
-export async function searchArticlesByAuthor(authorId: string, query: string) {
+export async function searchArticles(query: string) {
   const normalizedQuery = query.trim().slice(0, 180);
 
   if (!normalizedQuery) {
-    return listArticlesByAuthor(authorId);
+    return listArticles();
   }
 
   const searchVectorSql = articleSearchVectorSql();
   const { rows } = await pool.query<ArticleRow>(
     `
       ${articleSelectSql()}
-      where articles.author_id = $1
-        and ${searchVectorSql} @@ plainto_tsquery('simple', $2)
+      where ${searchVectorSql} @@ plainto_tsquery('simple', $1)
       order by
-        ts_rank(${searchVectorSql}, plainto_tsquery('simple', $2)) desc,
+        ts_rank(${searchVectorSql}, plainto_tsquery('simple', $1)) desc,
         articles.updated_at desc
     `,
-    [authorId, normalizedQuery]
+    [normalizedQuery]
   );
 
   return rows.map((row) => toListItem(mapArticle(row)));
 }
 
-export async function getArticleById(authorId: string, articleId: string) {
+export async function getArticleById(articleId: string) {
   const { rows } = await pool.query<ArticleRow>(
     `
       ${articleSelectSql()}
-      where articles.id = $1 and articles.author_id = $2
+      where articles.id = $1
       limit 1
     `,
-    [articleId, authorId]
+    [articleId]
   );
 
   return rows[0] ? mapArticle(rows[0]) : null;
 }
 
-export async function createArticle(input: SaveArticleInput) {
+export async function createArticle(input: CreateArticleInput) {
   const id = randomUUID();
-  const slug = await createUniqueSlug(input.authorId, input.title);
+  const slug = await createUniqueSlug(input.title);
   const summary = normalizeSummary(input.summary, input.contentText);
   const contentMarkdown = tiptapJsonToMarkdown(input.contentJson, input.contentText);
 
@@ -270,11 +280,11 @@ export async function createArticle(input: SaveArticleInput) {
     ]
   );
 
-  return (await getArticleById(input.authorId, rows[0].id)) as ArticleRecord;
+  return (await getArticleById(rows[0].id)) as ArticleRecord;
 }
 
-export async function updateArticle(articleId: string, input: SaveArticleInput) {
-  const slug = await createUniqueSlug(input.authorId, input.title, articleId);
+export async function updateArticle(articleId: string, input: UpdateArticleInput) {
+  const slug = await createUniqueSlug(input.title, articleId);
   const summary = normalizeSummary(input.summary, input.contentText);
   const contentMarkdown = tiptapJsonToMarkdown(input.contentJson, input.contentText);
 
@@ -282,18 +292,18 @@ export async function updateArticle(articleId: string, input: SaveArticleInput) 
     `
       update articles
       set
-        title = $3,
-        slug = $4,
-        topic = $5,
-        category = $6,
-        summary = $7,
-        content_html = $8,
-        content_markdown = $9,
-        content_json = $10::jsonb,
-        content_text = $11,
-        updated_by_id = $12,
+        title = $2,
+        slug = $3,
+        topic = $4,
+        category = $5,
+        summary = $6,
+        content_html = $7,
+        content_markdown = $8,
+        content_json = $9::jsonb,
+        content_text = $10,
+        updated_by_id = $11,
         updated_at = now()
-      where id = $1 and author_id = $2
+      where id = $1
       returning
         *,
         null::text as author_name,
@@ -301,7 +311,6 @@ export async function updateArticle(articleId: string, input: SaveArticleInput) 
     `,
     [
       articleId,
-      input.authorId,
       input.title.trim(),
       slug,
       input.topic,
@@ -319,17 +328,37 @@ export async function updateArticle(articleId: string, input: SaveArticleInput) 
     return null;
   }
 
-  return getArticleById(input.authorId, rows[0].id);
+  return getArticleById(rows[0].id);
 }
 
-export async function deleteArticle(authorId: string, articleId: string) {
-  const { rowCount } = await pool.query(
+export async function deleteArticle(articleId: string, actorId: string, actorIsAdmin: boolean) {
+  const { rows } = await pool.query<{ author_id: string }>(
     `
-      delete from articles
-      where id = $1 and author_id = $2
+      select author_id
+      from articles
+      where id = $1
+      limit 1
     `,
-    [articleId, authorId]
+    [articleId]
   );
 
-  return (rowCount ?? 0) > 0;
+  const article = rows[0];
+
+  if (!article) {
+    return "not_found" as const;
+  }
+
+  if (!actorIsAdmin && article.author_id !== actorId) {
+    return "forbidden" as const;
+  }
+
+  await pool.query(
+    `
+      delete from articles
+      where id = $1
+    `,
+    [articleId]
+  );
+
+  return "deleted" as const;
 }

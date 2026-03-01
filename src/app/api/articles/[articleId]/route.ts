@@ -4,7 +4,7 @@ import {
   deleteArticle,
   isArticleTopic,
   updateArticle,
-  type SaveArticleInput,
+  type UpdateArticleInput,
 } from "@/lib/articles/server";
 
 function badRequest(message: string) {
@@ -27,7 +27,7 @@ export async function PATCH(
   }
 
   const { articleId } = await context.params;
-  const body = (await request.json()) as Partial<SaveArticleInput>;
+  const body = (await request.json()) as Partial<UpdateArticleInput>;
 
   if (!body.title?.trim()) {
     return badRequest("\u0423\u043a\u0430\u0436\u0438\u0442\u0435 \u0437\u0430\u0433\u043e\u043b\u043e\u0432\u043e\u043a \u0441\u0442\u0430\u0442\u044c\u0438.");
@@ -50,7 +50,6 @@ export async function PATCH(
   }
 
   const article = await updateArticle(articleId, {
-    authorId: session.user.id,
     editorId: session.user.id,
     title: body.title,
     topic: body.topic,
@@ -87,12 +86,26 @@ export async function DELETE(
   }
 
   const { articleId } = await context.params;
-  const deleted = await deleteArticle(session.user.id, articleId);
+  const deleted = await deleteArticle(
+    articleId,
+    session.user.id,
+    (session.user as { role?: string }).role === "admin"
+  );
 
-  if (!deleted) {
+  if (deleted === "not_found") {
     return NextResponse.json(
       { message: "\u0421\u0442\u0430\u0442\u044c\u044f \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u0430." },
       { status: 404 }
+    );
+  }
+
+  if (deleted === "forbidden") {
+    return NextResponse.json(
+      {
+        message:
+          "\u0423\u0434\u0430\u043b\u044f\u0442\u044c \u0441\u0442\u0430\u0442\u044c\u044e \u043c\u043e\u0436\u0435\u0442 \u0442\u043e\u043b\u044c\u043a\u043e \u0430\u0432\u0442\u043e\u0440 \u0438\u043b\u0438 \u0430\u0434\u043c\u0438\u043d.",
+      },
+      { status: 403 }
     );
   }
 
