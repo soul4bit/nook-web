@@ -25,7 +25,7 @@ export default async function AuthPage() {
               </div>
               <div>
                 <p className="text-[11px] font-medium uppercase tracking-[0.34em] text-[#6d8379]">
-                  Nook access
+                  Контур Знаний
                 </p>
                 <p className="text-sm text-[#d7e2dc]">Личный вход в базу знаний</p>
               </div>
@@ -36,7 +36,7 @@ export default async function AuthPage() {
                 auth
               </span>
               <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
-                Вход в Nook без лишнего шума.
+                Вход в «Контур Знаний» без лишнего шума.
               </h1>
               <p className="max-w-2xl text-base leading-8 text-[#8fa59c] sm:text-lg">
                 Один спокойный экран для входа, регистрации и восстановления

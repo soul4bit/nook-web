@@ -150,7 +150,7 @@ export function AuthForms() {
     mode === "sign-in"
       ? "Введите email и пароль, чтобы открыть свои заметки."
       : mode === "sign-up"
-        ? "Создайте аккаунт, подтвердите email и после этого входите в Nook."
+        ? "Создайте аккаунт, подтвердите email и после этого входите в «Контур Знаний»."
         : "Отправим письмо со ссылкой, чтобы вы могли задать новый пароль.";
 
   function updateGuard(action: GuardAction, patch: Partial<GuardState>) {
@@ -477,7 +477,7 @@ export function AuthForms() {
             <div className="rounded-[24px] border border-[#29312d] bg-[#111513] p-4">
               <p className="text-sm font-medium text-white">Нет аккаунта?</p>
               <p className="mt-2 text-sm leading-6 text-[#7f958b]">
-                Создайте отдельный доступ, подтвердите почту и после этого входите в Nook.
+                Создайте отдельный доступ, подтвердите почту и после этого входите в «Контур Знаний».
               </p>
               <Button
                 type="button"

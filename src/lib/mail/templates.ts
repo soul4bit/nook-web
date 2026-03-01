@@ -63,23 +63,23 @@ export function getVerificationEmailTemplate({
   const greeting = name?.trim() ? `Привет, ${escapeHtml(name)}.` : "Привет.";
 
   return {
-    subject: "Подтвердите email для Nook",
+    subject: "Подтвердите email для «Контур Знаний»",
     text: `${greeting}
 
-Подтвердите адрес ${email}, чтобы активировать аккаунт в Nook:
+Подтвердите адрес ${email}, чтобы активировать аккаунт в «Контур Знаний»:
 ${url}
 
 Если вы не создавали аккаунт, просто проигнорируйте это письмо.`,
     html: buildShell({
-      eyebrow: "Nook Auth",
+      eyebrow: "Контур Знаний Auth",
       title: "Подтвердите ваш email",
-      body: `${greeting} Для входа в Nook нужно подтвердить адрес <strong>${escapeHtml(
+      body: `${greeting} Для входа в «Контур Знаний» нужно подтвердить адрес <strong>${escapeHtml(
         email
       )}</strong>. После подтверждения вы сразу попадете в рабочее пространство.`,
       actionLabel: "Подтвердить email",
       actionUrl: url,
       footnote:
-        "Если вы не создавали аккаунт в Nook, просто проигнорируйте это письмо.",
+        "Если вы не создавали аккаунт в «Контур Знаний», просто проигнорируйте это письмо.",
     }),
   };
 }
@@ -92,7 +92,7 @@ export function getResetPasswordEmailTemplate({
   const greeting = name?.trim() ? `Привет, ${escapeHtml(name)}.` : "Привет.";
 
   return {
-    subject: "Сброс пароля для Nook",
+    subject: "Сброс пароля для «Контур Знаний»",
     text: `${greeting}
 
 Мы получили запрос на смену пароля для ${email}.
@@ -101,7 +101,7 @@ ${url}
 
 Если это были не вы, просто проигнорируйте письмо.`,
     html: buildShell({
-      eyebrow: "Nook Security",
+      eyebrow: "Контур Знаний Security",
       title: "Сброс пароля",
       body: `${greeting} Мы получили запрос на смену пароля для <strong>${escapeHtml(
         email

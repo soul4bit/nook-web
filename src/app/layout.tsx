@@ -14,8 +14,8 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nook",
-  description: "Personal second brain with thought cards",
+  title: "Контур Знаний",
+  description: "Личная база знаний с карточками мыслей",
 };
 
 export default function RootLayout({

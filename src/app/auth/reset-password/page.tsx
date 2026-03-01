@@ -27,7 +27,7 @@ export default async function ResetPasswordPage({
               </h1>
               <p className="max-w-2xl text-base leading-8 text-[#8fa59c] sm:text-lg">
                 Ссылка из письма ведет сразу на экран смены пароля. После
-                сохранения ты возвращаешься ко входу и продолжаешь работу в Nook.
+                сохранения ты возвращаешься ко входу и продолжаешь работу в «Контур Знаний».
               </p>
             </div>
           </div>
