@@ -38,10 +38,27 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const NAME_REGEX = /^[\p{L}\p{N} .,'_-]+$/u;
 const MAX_FORM_AGE_MS = 1000 * 60 * 60 * 24 * 7;
 const MAX_FUTURE_CLOCK_SKEW_MS = 1000 * 60 * 5;
+const AUTH_GUARD_SCHEMA_SQL = `
+  create table if not exists auth_guard_events (
+    id bigserial primary key,
+    action text not null,
+    ip_address text not null,
+    email text,
+    created_at timestamptz not null default now()
+  );
+
+  create index if not exists auth_guard_events_action_ip_created_idx
+    on auth_guard_events(action, ip_address, created_at desc);
+
+  create index if not exists auth_guard_events_action_email_created_idx
+    on auth_guard_events(action, email, created_at desc);
+`;
+
+let authGuardSchemaPromise: Promise<void> | null = null;
 
 const guardPolicies: Record<AuthGuardAction, GuardPolicy> = {
   "sign-in": {
-    minFillMs: 400,
+    minFillMs: 0,
     ipLimit: 20,
     ipWindowSec: 60 * 15,
     ipMessage: "Слишком много попыток входа. Подождите 15 минут и попробуйте снова.",
@@ -225,10 +242,23 @@ function validateHumanChallenge(
     );
   }
 
-  if (ageMs < guardPolicies[action].minFillMs) {
+  if (guardPolicies[action].minFillMs > 0 && ageMs < guardPolicies[action].minFillMs) {
     throw new AuthGuardError(
       "Слишком быстрый запрос. Подождите секунду и попробуйте снова."
     );
+  }
+}
+
+async function ensureAuthGuardSchema() {
+  if (!authGuardSchemaPromise) {
+    authGuardSchemaPromise = pool.query(AUTH_GUARD_SCHEMA_SQL).then(() => undefined);
+  }
+
+  try {
+    await authGuardSchemaPromise;
+  } catch (error) {
+    authGuardSchemaPromise = null;
+    throw error;
   }
 }
 
@@ -242,6 +272,7 @@ async function applyRateLimit({
   email?: string;
 }) {
   const policy = guardPolicies[action];
+  await ensureAuthGuardSchema();
 
   if (Math.random() < 0.03) {
     await pool.query(

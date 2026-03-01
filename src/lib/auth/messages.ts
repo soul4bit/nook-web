@@ -71,6 +71,10 @@ export function getAuthErrorMessage(message?: string) {
     return message;
   }
 
+  if (message.startsWith("Серверная ошибка при авторизации.")) {
+    return message;
+  }
+
   switch (message) {
     case "Invalid email or password":
       return "Неверный email или пароль.";
