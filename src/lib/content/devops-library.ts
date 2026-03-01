@@ -1,16 +1,16 @@
 export const articleTopics = [
   {
     name: "Linux",
-    summary: "systemd, journald, users, disks, troubleshooting",
+    summary: "systemd, journald, пользователи, диски, troubleshooting",
     categories: ["Общее", "systemd", "Файловая система", "Сеть", "Безопасность"],
   },
   {
     name: "Docker",
-    summary: "images, compose, registries, layer cache",
+    summary: "images, compose, registry, cache, troubleshooting",
     categories: ["Общее", "Images", "Compose", "Registry", "Troubleshooting"],
   },
   {
-    name: "\u0421\u0435\u0442\u0438",
+    name: "Сети",
     summary: "dns, routing, nat, tcpdump, vpn",
     categories: ["Общее", "DNS", "Routing", "VPN", "Диагностика"],
   },

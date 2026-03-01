@@ -29,48 +29,48 @@ import { NookImage } from "@/lib/editor/nook-image";
 import { cn } from "@/lib/utils";
 
 const copy = {
-  emptyTitle: "\u041d\u043e\u0432\u0430\u044f \u0441\u0442\u0430\u0442\u044c\u044f",
+  emptyTitle: "Новая статья",
   emptyBody:
-    "\u0417\u0430\u0444\u0438\u043a\u0441\u0438\u0440\u0443\u0439 \u0440\u0430\u0437\u0431\u043e\u0440, \u043a\u043e\u043c\u0430\u043d\u0434\u044b, \u0432\u044b\u0432\u043e\u0434\u044b \u0438 \u043a\u043e\u0440\u043e\u0442\u043a\u0438\u0435 \u043f\u0440\u0430\u043a\u0442\u0438\u0447\u0435\u0441\u043a\u0438\u0435 \u0437\u0430\u043c\u0435\u0442\u043a\u0438 \u043f\u043e \u0437\u0430\u0434\u0430\u0447\u0435.",
+    "Зафиксируйте разбор, команды и практические выводы, чтобы потом быстро вернуться к ним.",
   placeholder:
-    "\u041f\u0438\u0448\u0438 \u0440\u0430\u0437\u0431\u043e\u0440, \u0448\u043f\u0430\u0440\u0433\u0430\u043b\u043a\u0443, \u043a\u043e\u043c\u0430\u043d\u0434\u044b, \u0432\u044b\u0432\u043e\u0434\u044b \u0438 \u0441\u0432\u043e\u0438 \u0437\u0430\u043c\u0435\u0442\u043a\u0438 \u043f\u043e \u0437\u0430\u0434\u0430\u0447\u0435...",
-  saveError: "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u0441\u0442\u0430\u0442\u044c\u044e.",
-  titleRequired: "\u0423\u043a\u0430\u0436\u0438\u0442\u0435 \u0437\u0430\u0433\u043e\u043b\u043e\u0432\u043e\u043a \u0441\u0442\u0430\u0442\u044c\u0438.",
-  bodyRequired: "\u0421\u0442\u0430\u0442\u044c\u044f \u043d\u0435 \u043c\u043e\u0436\u0435\u0442 \u0431\u044b\u0442\u044c \u043f\u0443\u0441\u0442\u043e\u0439.",
-  updated: "\u0421\u0442\u0430\u0442\u044c\u044f \u043e\u0431\u043d\u043e\u0432\u043b\u0435\u043d\u0430.",
-  created: "\u0421\u0442\u0430\u0442\u044c\u044f \u0441\u043e\u0437\u0434\u0430\u043d\u0430.",
-  titleLabel: "\u0417\u0430\u0433\u043e\u043b\u043e\u0432\u043e\u043a \u0441\u0442\u0430\u0442\u044c\u0438",
-  titlePlaceholder: "\u041d\u0430\u043f\u0440\u0438\u043c\u0435\u0440: Kubernetes probes without pain",
-  draft: "\u0427\u0435\u0440\u043d\u043e\u0432\u0438\u043a",
-  blocks: "\u0431\u043b\u043e\u043a\u043e\u0432",
-  chars: "\u0441\u0438\u043c\u0432\u043e\u043b\u043e\u0432",
-  topicLabel: "\u0420\u0430\u0437\u0434\u0435\u043b",
-  summaryLabel: "\u041a\u043e\u0440\u043e\u0442\u043a\u043e\u0435 \u043e\u043f\u0438\u0441\u0430\u043d\u0438\u0435",
+    "Пишите пошаговый разбор, команды, примеры конфигов и короткие выводы по задаче...",
+  saveError: "Не удалось сохранить статью.",
+  titleRequired: "Укажите заголовок статьи.",
+  bodyRequired: "Статья не может быть пустой.",
+  updated: "Статья обновлена.",
+  created: "Статья создана.",
+  titleLabel: "Заголовок статьи",
+  titlePlaceholder: "Например: Kubernetes probes без боли",
+  draft: "Черновик",
+  blocks: "блоков",
+  chars: "символов",
+  topicLabel: "Раздел",
+  categoryLabel: "Категория",
+  categoryPlaceholder: "Например: systemd",
+  summaryLabel: "Короткое описание",
   summaryPlaceholder:
-    "\u041f\u0430\u0440\u0430 \u0441\u0442\u0440\u043e\u043a, \u0447\u0442\u043e\u0431\u044b \u0432 \u0441\u043f\u0438\u0441\u043a\u0435 \u0431\u044b\u043b\u043e \u043f\u043e\u043d\u044f\u0442\u043d\u043e, \u043e \u0447\u0435\u043c \u0441\u0442\u0430\u0442\u044c\u044f",
-  bold: "\u0416\u0438\u0440\u043d\u044b\u0439",
-  list: "\u0421\u043f\u0438\u0441\u043e\u043a",
-  ordered: "\u041d\u0443\u043c\u0435\u0440\u0430\u0446\u0438\u044f",
-  quote: "\u0426\u0438\u0442\u0430\u0442\u0430",
-  code: "\u041a\u043e\u0434",
-  divider: "\u0420\u0430\u0437\u0434\u0435\u043b\u0438\u0442\u0435\u043b\u044c",
-  reset: "\u0421\u0431\u0440\u043e\u0441",
-  saving: "\u0421\u043e\u0445\u0440\u0430\u043d\u044f\u0435\u043c...",
-  saveChanges: "\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c \u0438\u0437\u043c\u0435\u043d\u0435\u043d\u0438\u044f",
-  createArticle: "\u0421\u043e\u0437\u0434\u0430\u0442\u044c \u0441\u0442\u0430\u0442\u044c\u044e",
-  newDraft: "\u041d\u043e\u0432\u044b\u0439 \u0447\u0435\u0440\u043d\u043e\u0432\u0438\u043a",
-  image: "\u041a\u0430\u0440\u0442\u0438\u043d\u043a\u0430",
-  uploadingImage: "\u0413\u0440\u0443\u0437\u0438\u043c \u043a\u0430\u0440\u0442\u0438\u043d\u043a\u0443...",
-  imageUploaded: "\u041a\u0430\u0440\u0442\u0438\u043d\u043a\u0430 \u0434\u043e\u0431\u0430\u0432\u043b\u0435\u043d\u0430 \u0432 \u0441\u0442\u0430\u0442\u044c\u044e.",
-  imageUploadError: "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0437\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c \u043a\u0430\u0440\u0442\u0438\u043d\u043a\u0443.",
-  deleteArticle: "\u0423\u0434\u0430\u043b\u0438\u0442\u044c \u0441\u0442\u0430\u0442\u044c\u044e",
-  deleting: "\u0423\u0434\u0430\u043b\u044f\u0435\u043c...",
-  deleteConfirm:
-    "\u0423\u0434\u0430\u043b\u0438\u0442\u044c \u0441\u0442\u0430\u0442\u044c\u044e? \u042d\u0442\u043e \u0434\u0435\u0439\u0441\u0442\u0432\u0438\u0435 \u043d\u0435\u043b\u044c\u0437\u044f \u043e\u0442\u043c\u0435\u043d\u0438\u0442\u044c.",
-  deleted: "\u0421\u0442\u0430\u0442\u044c\u044f \u0443\u0434\u0430\u043b\u0435\u043d\u0430.",
-  deleteError: "\u041d\u0435 \u0443\u0434\u0430\u043b\u043e\u0441\u044c \u0443\u0434\u0430\u043b\u0438\u0442\u044c \u0441\u0442\u0430\u0442\u044c\u044e.",
+    "2-3 предложения, чтобы в списке было понятно, о чем статья",
+  bold: "Жирный",
+  list: "Список",
+  ordered: "Нумерация",
+  quote: "Цитата",
+  code: "Код",
+  divider: "Разделитель",
+  reset: "Сброс",
+  saving: "Сохраняем...",
+  saveChanges: "Сохранить изменения",
+  createArticle: "Создать статью",
+  newDraft: "Новый черновик",
+  image: "Картинка",
+  uploadingImage: "Загружаем картинку...",
+  imageUploaded: "Картинка добавлена в статью.",
+  imageUploadError: "Не удалось загрузить картинку.",
+  deleteArticle: "Удалить статью",
+  deleting: "Удаляем...",
+  deleteConfirm: "Удалить статью? Это действие нельзя отменить.",
+  deleteError: "Не удалось удалить статью.",
   footer:
-    "\u0422\u0435\u043a\u0441\u0442 \u0441\u0442\u0430\u0442\u044c\u0438 \u0445\u0440\u0430\u043d\u0438\u0442\u0441\u044f \u0432 PostgreSQL. \u041a\u0430\u0440\u0442\u0438\u043d\u043a\u0438 \u0434\u043b\u044f \u0441\u0442\u0430\u0442\u0435\u0439 \u043b\u0443\u0447\u0448\u0435 \u0434\u0435\u0440\u0436\u0430\u0442\u044c \u043e\u0442\u0434\u0435\u043b\u044c\u043d\u044b\u043c\u0438 \u0444\u0430\u0439\u043b\u0430\u043c\u0438 \u043d\u0430 \u0441\u0435\u0440\u0432\u0435\u0440\u0435 \u0438 \u0441\u043e\u0445\u0440\u0430\u043d\u044f\u0442\u044c \u0432 \u0431\u0430\u0437\u0435 \u0442\u043e\u043b\u044c\u043a\u043e \u043f\u0443\u0442\u044c \u043a \u043d\u0438\u043c. \u042d\u0442\u043e \u0431\u0443\u0434\u0435\u0442 \u0441\u043b\u0435\u0434\u0443\u044e\u0449\u0438\u043c \u0448\u0430\u0433\u043e\u043c.",
+    "Текст хранится в PostgreSQL и в markdown-представлении, поэтому материалы можно будет выгружать отдельно.",
 } as const;
 
 const emptyDocument = {
@@ -127,8 +127,8 @@ function EditorButton({ active = false, onClick, children }: EditorButtonProps) 
       size="sm"
       variant="outline"
       className={cn(
-        "rounded-xl border-[#2b3531] bg-[#111513] text-[#dce6e0] hover:bg-[#1a201d]",
-        active && "border-[#53e6a6] bg-[#53e6a6] text-[#09120e] hover:bg-[#53e6a6]"
+        "rounded-xl border-slate-200 bg-white text-slate-700 hover:bg-slate-100",
+        active && "border-[#3b82a4] bg-[#dbeaf4] text-[#2d6782] hover:bg-[#dbeaf4]"
       )}
       onClick={onClick}
     >
@@ -247,7 +247,7 @@ export function ThoughtEditor({
     editorProps: {
       attributes: {
         class:
-          "nook-editor min-h-80 rounded-[28px] border border-[#2b3531] bg-[#111513] px-5 py-4 text-[15px] leading-7 text-[#edf4f0] focus-visible:outline-none",
+          "nook-editor min-h-80 rounded-[22px] border border-slate-200 bg-[#fbfcfe] px-5 py-4 text-[15px] leading-7 text-slate-700 focus-visible:outline-none",
       },
     },
   });
@@ -355,14 +355,18 @@ export function ThoughtEditor({
 
     try {
       const imageUrl = await uploadArticleImage(file);
-      editor.chain().focus().insertContent({
-        type: "nookImage",
-        attrs: {
-          src: imageUrl,
-          alt: title.trim() || "Article image",
-          title: title.trim() || undefined,
-        },
-      }).run();
+      editor
+        .chain()
+        .focus()
+        .insertContent({
+          type: "nookImage",
+          attrs: {
+            src: imageUrl,
+            alt: title.trim() || "Article image",
+            title: title.trim() || undefined,
+          },
+        })
+        .run();
       setFeedback({
         tone: "success",
         text: copy.imageUploaded,
@@ -416,7 +420,7 @@ export function ThoughtEditor({
     <div className="space-y-5">
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px]">
         <div className="space-y-2">
-          <label htmlFor="article-title" className="text-sm font-medium text-white">
+          <label htmlFor="article-title" className="text-sm font-medium text-slate-700">
             {copy.titleLabel}
           </label>
           <Input
@@ -424,12 +428,12 @@ export function ThoughtEditor({
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder={copy.titlePlaceholder}
-            className="h-12 rounded-2xl border-[#2b3531] bg-[#111513] text-white placeholder:text-[#6f877e]"
+            className="h-12 rounded-2xl border-slate-200 bg-white text-slate-900 placeholder:text-slate-400"
           />
         </div>
 
-        <div className="rounded-[24px] border border-[#2b3531] bg-[#181e1b] px-4 py-3 text-sm leading-6 text-[#8ca39b]">
-          <p className="font-medium text-white">{copy.draft}</p>
+        <div className="rounded-[18px] border border-slate-200 bg-[#f8fafc] px-4 py-3 text-sm leading-6 text-slate-600">
+          <p className="font-semibold text-slate-800">{copy.draft}</p>
           <p className="mt-2">
             {stats.paragraphs} {copy.blocks}
           </p>
@@ -441,14 +445,14 @@ export function ThoughtEditor({
 
       <div className="grid gap-4 lg:grid-cols-[220px_220px]">
         <div className="space-y-2">
-          <label htmlFor="article-topic" className="text-sm font-medium text-white">
+          <label htmlFor="article-topic" className="text-sm font-medium text-slate-700">
             {copy.topicLabel}
           </label>
           <select
             id="article-topic"
             value={topic}
             onChange={(event) => setTopic(event.target.value as ArticleTopic)}
-            className="h-12 w-full rounded-2xl border border-[#2b3531] bg-[#181e1b] px-4 text-sm text-white outline-none focus-visible:border-[#53e6a6]"
+            className="h-12 w-full rounded-2xl border border-slate-200 bg-white px-4 text-sm text-slate-900 outline-none focus-visible:border-[#3b82a4]"
           >
             {topics.map((item) => (
               <option key={item} value={item}>
@@ -459,16 +463,16 @@ export function ThoughtEditor({
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="article-category" className="text-sm font-medium text-white">
-            Категория
+          <label htmlFor="article-category" className="text-sm font-medium text-slate-700">
+            {copy.categoryLabel}
           </label>
           <Input
             id="article-category"
             list="article-category-list"
             value={category}
             onChange={(event) => setCategory(event.target.value)}
-            placeholder="Например: systemd"
-            className="h-12 rounded-2xl border-[#2b3531] bg-[#181e1b] text-white placeholder:text-[#6f877e]"
+            placeholder={copy.categoryPlaceholder}
+            className="h-12 rounded-2xl border-slate-200 bg-white text-slate-900 placeholder:text-slate-400"
           />
           <datalist id="article-category-list">
             {availableCategories.map((item) => (
@@ -479,7 +483,7 @@ export function ThoughtEditor({
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="article-summary" className="text-sm font-medium text-white">
+        <label htmlFor="article-summary" className="text-sm font-medium text-slate-700">
           {copy.summaryLabel}
         </label>
         <Textarea
@@ -488,12 +492,15 @@ export function ThoughtEditor({
           onChange={(event) => setSummary(event.target.value)}
           placeholder={copy.summaryPlaceholder}
           rows={3}
-          className="min-h-12 rounded-2xl border-[#2b3531] bg-[#181e1b] text-white placeholder:text-[#6f877e]"
+          className="min-h-12 rounded-2xl border-slate-200 bg-white text-slate-900 placeholder:text-slate-400"
         />
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <EditorButton active={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()}>
+        <EditorButton
+          active={editor.isActive("bold")}
+          onClick={() => editor.chain().focus().toggleBold().run()}
+        >
           <Bold />
           {copy.bold}
         </EditorButton>
@@ -566,10 +573,10 @@ export function ThoughtEditor({
       {feedback ? (
         <div
           className={cn(
-            "rounded-[24px] border px-4 py-3 text-sm leading-6",
+            "rounded-[18px] border px-4 py-3 text-sm leading-6",
             feedback.tone === "success"
-              ? "border-[#245945] bg-[#14241d] text-[#53e6a6]"
-              : "border-rose-500/30 bg-rose-500/10 text-rose-200"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+              : "border-rose-200 bg-rose-50 text-rose-700"
           )}
         >
           {feedback.text}
@@ -579,7 +586,7 @@ export function ThoughtEditor({
       <div className="flex flex-wrap items-center gap-3">
         <Button
           type="button"
-          className="rounded-2xl bg-[#53e6a6] px-5 text-[#09120e] hover:bg-[#46ce93]"
+          className="rounded-2xl bg-[#3b82a4] px-5 text-white hover:bg-[#327391]"
           onClick={handleSave}
           disabled={isSaving || isDeleting || isUploadingImage}
         >
@@ -599,7 +606,7 @@ export function ThoughtEditor({
         <Button
           type="button"
           variant="outline"
-          className="rounded-2xl border-[#2b3531] bg-[#181e1b] text-white hover:bg-[#1d2521]"
+          className="rounded-2xl border-slate-200 bg-white text-slate-700 hover:bg-slate-100"
           onClick={handleNewDraft}
           disabled={isSaving || isDeleting || isUploadingImage}
         >
@@ -610,7 +617,7 @@ export function ThoughtEditor({
           <Button
             type="button"
             variant="outline"
-            className="rounded-2xl border-rose-500/30 bg-rose-500/10 text-rose-200 hover:bg-rose-500/20"
+            className="rounded-2xl border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100"
             onClick={handleDelete}
             disabled={isSaving || isDeleting || isUploadingImage}
           >
@@ -629,7 +636,7 @@ export function ThoughtEditor({
         ) : null}
       </div>
 
-      <div className="rounded-[24px] border border-[#2b3531] bg-[#181e1b] p-4 text-sm leading-7 text-[#8ca39b]">
+      <div className="rounded-[18px] border border-slate-200 bg-[#f8fafc] p-4 text-sm leading-7 text-slate-600">
         {copy.footer}
       </div>
     </div>

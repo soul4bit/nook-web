@@ -14,44 +14,44 @@ export default async function ResetPasswordPage({
   const params = await searchParams;
 
   return (
-    <div className="min-h-screen bg-[#121514] px-4 py-4 text-[#f3f7f4] sm:px-6 lg:px-8">
-      <main className="mx-auto grid min-h-[calc(100vh-2rem)] max-w-[1480px] overflow-hidden rounded-[36px] border border-[#29312d] bg-[radial-gradient(circle_at_top_left,rgba(83,230,166,0.16),transparent_28%),linear-gradient(180deg,#181c1a_0%,#111413_100%)] shadow-[0_30px_120px_rgba(0,0,0,0.45)] lg:grid-cols-[1.05fr_minmax(0,0.95fr)]">
-        <section className="flex flex-col justify-between border-b border-[#29312d] p-6 lg:border-b-0 lg:border-r lg:p-8 xl:p-10">
+    <div className="min-h-screen px-4 py-4 text-slate-900 sm:px-6 lg:px-8">
+      <main className="mx-auto grid min-h-[calc(100vh-2rem)] max-w-[1480px] overflow-hidden rounded-[32px] border border-slate-200 bg-[#f7f9fb]/95 shadow-[0_24px_90px_rgba(15,23,42,0.08)] lg:grid-cols-[1.05fr_minmax(0,0.95fr)]">
+        <section className="flex flex-col justify-between border-b border-slate-200 bg-[#f2f6fa] p-6 lg:border-b-0 lg:border-r lg:p-8 xl:p-10">
           <div>
-            <span className="inline-flex rounded-full border border-[#31413a] bg-[#171c19] px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#91b4a3]">
+            <span className="inline-flex rounded-full border border-[#bfd3df] bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[#4c7390]">
               password reset
             </span>
             <div className="mt-8 space-y-5">
-              <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
+              <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
                 Новый пароль без лишних шагов.
               </h1>
-              <p className="max-w-2xl text-base leading-8 text-[#8fa59c] sm:text-lg">
-                Ссылка из письма ведет сразу на экран смены пароля. После
-                сохранения ты возвращаешься ко входу и продолжаешь работу в «Контур Знаний».
+              <p className="max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
+                Ссылка из письма ведет сразу на форму смены пароля. После сохранения вы
+                возвращаетесь ко входу и продолжаете работу в Контуре Знаний.
               </p>
             </div>
           </div>
 
           <div className="mt-10 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-[28px] border border-[#29312d] bg-[#171c19] p-5">
-              <div className="flex size-11 items-center justify-center rounded-2xl bg-[#111513] text-[#53e6a6]">
+            <div className="rounded-[22px] border border-slate-200 bg-white p-5">
+              <div className="flex size-11 items-center justify-center rounded-2xl bg-[#dbeaf4] text-[#3b82a4]">
                 <LockKeyhole className="size-5" />
               </div>
-              <h2 className="mt-4 text-lg font-semibold text-white">Одноразовая ссылка</h2>
-              <p className="mt-2 text-sm leading-7 text-[#8fa59c]">
-                Письмо ведет на этот экран и быстро истекает, чтобы восстановление
-                было безопасным.
+              <h2 className="mt-4 text-lg font-semibold text-slate-900">Одноразовая ссылка</h2>
+              <p className="mt-2 text-sm leading-7 text-slate-600">
+                Письмо ведет на этот экран и быстро истекает, чтобы восстановление оставалось
+                безопасным.
               </p>
             </div>
 
-            <div className="rounded-[28px] border border-[#29312d] bg-[#171c19] p-5">
-              <div className="flex size-11 items-center justify-center rounded-2xl bg-[#111513] text-[#53e6a6]">
+            <div className="rounded-[22px] border border-slate-200 bg-white p-5">
+              <div className="flex size-11 items-center justify-center rounded-2xl bg-[#dbeaf4] text-[#3b82a4]">
                 <ShieldCheck className="size-5" />
               </div>
-              <h2 className="mt-4 text-lg font-semibold text-white">Возврат к входу</h2>
-              <p className="mt-2 text-sm leading-7 text-[#8fa59c]">
-                Как только пароль сохранен, можно сразу входить под своим
-                аккаунтом и возвращаться к статьям.
+              <h2 className="mt-4 text-lg font-semibold text-slate-900">Возврат ко входу</h2>
+              <p className="mt-2 text-sm leading-7 text-slate-600">
+                После смены пароля можно сразу зайти под своим аккаунтом и продолжить работу со
+                статьями.
               </p>
             </div>
           </div>
