@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { normalizeAvatarUrl } from "@/lib/account/avatar";
 import { cn } from "@/lib/utils";
 
 type UserAvatarProps = {
@@ -30,8 +31,9 @@ export function UserAvatar({
   fallbackClassName,
 }: UserAvatarProps) {
   const initials = getInitials(name);
+  const normalizedImage = useMemo(() => normalizeAvatarUrl(image), [image]);
   const [failedImage, setFailedImage] = useState<string | null>(null);
-  const showImage = Boolean(image) && failedImage !== image;
+  const showImage = Boolean(normalizedImage) && failedImage !== normalizedImage;
 
   return (
     <div
@@ -42,13 +44,14 @@ export function UserAvatar({
     >
       {showImage ? (
         <>
-          {/* Для локального превью и файлов из public/uploads обычный img надежнее. */}
+          {/* Для локального превью и файлов из аккаунта обычный img здесь надежнее. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={image ?? undefined}
+            key={normalizedImage}
+            src={normalizedImage ?? undefined}
             alt={name ? `Аватар ${name}` : "Аватар"}
             className={cn("h-full w-full object-cover", imageClassName)}
-            onError={() => setFailedImage(image ?? null)}
+            onError={() => setFailedImage(normalizedImage ?? null)}
           />
         </>
       ) : (

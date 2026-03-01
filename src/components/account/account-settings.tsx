@@ -16,6 +16,7 @@ import {
 import { UserAvatar } from "@/components/user/user-avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { normalizeAvatarUrl, withAvatarVersion } from "@/lib/account/avatar";
 import {
   extractAuthErrorMessage,
   getAuthErrorMessage,
@@ -109,7 +110,7 @@ function FeedbackBanner({ feedback }: { feedback: AuthFeedback }) {
 export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) {
   const router = useRouter();
   const avatarInputRef = useRef<HTMLInputElement>(null);
-  const [currentImage, setCurrentImage] = useState(user.image ?? null);
+  const [currentImage, setCurrentImage] = useState(normalizeAvatarUrl(user.image));
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [removeAvatar, setRemoveAvatar] = useState(false);
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
@@ -120,7 +121,7 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
     newPassword: "",
     confirmPassword: "",
   });
-  const [previewImage, setPreviewImage] = useState<string | null>(user.image ?? null);
+  const [previewImage, setPreviewImage] = useState<string | null>(normalizeAvatarUrl(user.image));
   const [passwordNextAllowedAt, setPasswordNextAllowedAt] = useState<string | null>(
     passwordStatus.nextAllowedAt
   );
@@ -179,7 +180,7 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
     setProfileFeedback(null);
 
     try {
-      let image = removeAvatar ? null : currentImage;
+      let image = removeAvatar ? null : normalizeAvatarUrl(currentImage);
 
       if (selectedFile) {
         image = await uploadAvatar(selectedFile);
@@ -189,7 +190,9 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
         image,
       });
 
-      setCurrentImage(image);
+      const displayImage = withAvatarVersion(image);
+
+      setCurrentImage(displayImage);
       setSelectedFile(null);
       setRemoveAvatar(false);
       resetAvatarInput();
@@ -489,8 +492,7 @@ export function AccountSettings({ user, passwordStatus }: AccountSettingsProps) 
             Как это хранится
           </div>
           <p>
-            Аватар лежит локально на сервере в каталоге `public/uploads/avatars`, а в таблице пользователя
-            сохраняется только URL в поле `image`.
+            Аватар лежит локально на сервере, а в таблице пользователя сохраняется только URL в поле `image`.
           </p>
         </div>
       </section>

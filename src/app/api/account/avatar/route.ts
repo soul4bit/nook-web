@@ -57,6 +57,6 @@ export async function POST(request: Request) {
   await writeFile(fullPath, fileBuffer);
 
   return NextResponse.json({
-    imageUrl: `/uploads/avatars/${fileName}`,
+    imageUrl: `/api/account/avatar/${fileName}`,
   });
 }
