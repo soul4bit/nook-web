@@ -132,14 +132,14 @@ export function ResetPasswordForm({ token, error }: ResetPasswordFormProps) {
   }
 
   return (
-    <div className="w-full rounded-[28px] border border-slate-700/80 bg-[#111f2c]/85 p-5 shadow-[0_30px_90px_rgba(2,8,15,0.45)] sm:p-6">
+    <div className="w-full rounded-[28px] border border-slate-700/80 bg-[#132230]/85 p-5 shadow-[0_30px_90px_rgba(2,8,15,0.45)] sm:p-6">
       <div className="border-b border-slate-700/80 pb-6">
-        <div className="flex size-12 items-center justify-center rounded-2xl bg-[#173145] text-[#49d4b8]">
+        <div className="flex size-12 items-center justify-center rounded-2xl bg-[#1a3348] text-[#56e3c2]">
           <KeyRound className="size-5" />
         </div>
         <h2 className="mt-4 text-2xl font-semibold text-slate-100">Новый пароль</h2>
         <p className="mt-2 max-w-md text-sm leading-6 text-slate-400">
-          Задайте новый пароль для аккаунта и затем вернитесь к обычному входу.
+          Укажите новый пароль для аккаунта и вернитесь к обычному входу.
         </p>
       </div>
 
@@ -157,7 +157,7 @@ export function ResetPasswordForm({ token, error }: ResetPasswordFormProps) {
             <Button
               asChild
               variant="outline"
-              className="w-full rounded-2xl border-slate-600/70 bg-[#0f1a25] text-slate-300 hover:bg-[#162431]"
+              className="w-full rounded-2xl border-slate-600/70 bg-[#0f1b28] text-slate-300 hover:bg-[#18293b]"
             >
               <Link href="/auth?mode=reset">Вернуться к форме сброса</Link>
             </Button>
@@ -187,7 +187,7 @@ export function ResetPasswordForm({ token, error }: ResetPasswordFormProps) {
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 placeholder="Минимум 10 символов"
-                className="h-12 rounded-2xl border-slate-700/80 bg-[#0f1a25] text-slate-100 placeholder:text-slate-500"
+                className="h-12 rounded-2xl border-slate-700/80 bg-[#0f1b28] text-slate-100 placeholder:text-slate-500"
                 required
               />
             </div>
@@ -204,14 +204,14 @@ export function ResetPasswordForm({ token, error }: ResetPasswordFormProps) {
                 value={confirmPassword}
                 onChange={(event) => setConfirmPassword(event.target.value)}
                 placeholder="Повторите пароль"
-                className="h-12 rounded-2xl border-slate-700/80 bg-[#0f1a25] text-slate-100 placeholder:text-slate-500"
+                className="h-12 rounded-2xl border-slate-700/80 bg-[#0f1b28] text-slate-100 placeholder:text-slate-500"
                 required
               />
             </div>
 
             <Button
               type="submit"
-              className="h-11 w-full rounded-2xl bg-[#1e9f86] text-white hover:bg-[#1b8b75]"
+              className="h-11 w-full rounded-2xl bg-[#21ab8f] text-white hover:bg-[#1b947d]"
               disabled={isPending}
             >
               {isPending ? (
@@ -228,7 +228,7 @@ export function ResetPasswordForm({ token, error }: ResetPasswordFormProps) {
               asChild
               type="button"
               variant="ghost"
-              className="w-full rounded-2xl text-slate-400 hover:bg-[#162431] hover:text-slate-100"
+              className="w-full rounded-2xl text-slate-400 hover:bg-[#18293b] hover:text-slate-100"
             >
               <Link href="/auth">
                 <ArrowLeft className="size-4" />

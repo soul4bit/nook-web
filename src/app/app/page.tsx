@@ -33,22 +33,22 @@ import {
 import { articleTopics } from "@/lib/content/devops-library";
 
 const copy = {
-  workspace: "Личное пространство",
+  workspace: "Профиль",
   workspaceText:
-    "Вся база по Linux, Docker, сетям, Ansible, Kubernetes, Terraform и CI/CD в одном интерфейсе: слева разделы и статьи, справа чтение и редактирование.",
-  newArticle: "Новая статья",
+    "Здесь собраны ваши материалы по DevOps: разделы, категории, статьи и быстрый редактор в одном интерфейсе.",
+  newArticle: "Новая заметка",
   account: "Личный кабинет",
-  admin: "Модерация",
+  admin: "Админ-панель",
   sections: "Разделы",
   articlesSuffix: "статей",
   noArticlesInSection:
-    "В этом разделе пока нет статей. Создайте первую заметку через редактор справа.",
-  currentSection: "Текущий раздел",
+    "В этой категории пока нет материалов. Создайте первую заметку через редактор справа.",
+  currentSection: "Текущий контур",
   sectionCount: "статей в категории",
-  heroTitle: "База знаний, в которой легко найти нужный ответ.",
+  heroTitle: "База знаний, где ответы находятся за секунды.",
   heroText:
-    "Откройте тему, выберите категорию и читайте статью рядом с редактором. Можно быстро обновлять материал и сразу видеть итоговый текст.",
-  snapshot: "Сводка",
+    "Откройте тему, выберите категорию и работайте со статьями в одном окне: слева структура, справа чтение и редактирование.",
+  snapshot: "Состояние",
   allArticles: "Всего статей",
   lastUpdate: "Последнее обновление",
   emptyValue: "Пока нет данных",
@@ -56,15 +56,15 @@ const copy = {
   created: "Создано",
   author: "Автор",
   lastEditor: "Последний редактор",
-  reading: "Чтение статьи",
-  nothingToRead: "Пока нечего читать",
+  reading: "Просмотр статьи",
+  nothingToRead: "Статья не выбрана",
   nothingToReadText:
-    "Выберите категорию со статьями или создайте новую заметку. Как только сохраните материал, он сразу появится в списке.",
+    "Выберите материал в списке слева или создайте новый. После сохранения он сразу появится в нужной категории.",
   editor: "Редактор",
   editArticle: "Редактирование статьи",
-  newNote: "Новая заметка",
+  newNote: "Создание статьи",
   editorText:
-    "Сохранение идет в PostgreSQL в формате markdown + html. После сохранения материал сразу отображается в списке категории.",
+    "Материал сохраняется в PostgreSQL в формате markdown + html и сразу становится доступен в списке категории.",
   searchPlaceholder: "Поиск по заголовку, описанию и тексту",
   searchButton: "Найти",
   clearSearch: "Сброс",
@@ -206,15 +206,15 @@ export default async function AppPage({ searchParams }: AppPageProps) {
 
   return (
     <div className="min-h-screen px-4 py-4 text-slate-100 sm:px-6 lg:px-8">
-      <div className="mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-[1640px] flex-col overflow-hidden rounded-[32px] border border-slate-700/80 bg-[#0a131c]/95 shadow-[0_40px_120px_rgba(2,8,15,0.75)] lg:flex-row">
-        <aside className="flex w-full shrink-0 flex-col border-b border-slate-700/80 bg-[#0f1b27]/90 p-5 lg:max-w-[340px] lg:border-b-0 lg:border-r">
+      <div className="mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-[1640px] flex-col overflow-hidden rounded-[32px] border border-slate-700/80 bg-[#0b141e]/95 shadow-[0_40px_120px_rgba(2,8,15,0.75)] lg:flex-row">
+        <aside className="flex w-full shrink-0 flex-col border-b border-slate-700/80 bg-[#101d2a]/90 p-5 lg:max-w-[340px] lg:border-b-0 lg:border-r">
           <div className="flex items-center justify-between gap-3">
-            <KnowledgeLogo subtitle="Личная DevOps-вики" />
+            <KnowledgeLogo subtitle="Рабочая база DevOps" />
 
             <SignOutButton />
           </div>
 
-          <div className="mt-7 rounded-[24px] border border-slate-700/80 bg-[#111f2c]/85 p-4">
+          <div className="mt-7 rounded-[24px] border border-slate-700/80 bg-[#132230]/85 p-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
               {copy.workspace}
             </p>
@@ -222,8 +222,8 @@ export default async function AppPage({ searchParams }: AppPageProps) {
               <UserAvatar
                 image={session.user.image}
                 name={displayName}
-                className="size-12 rounded-2xl border-slate-600/70 bg-[#182838]"
-                fallbackClassName="text-[#49d4b8]"
+                className="size-12 rounded-2xl border-slate-600/70 bg-[#1c3044]"
+                fallbackClassName="text-[#56e3c2]"
               />
               <div className="min-w-0">
                 <h1 className="truncate text-2xl font-semibold tracking-tight text-slate-100">
@@ -237,7 +237,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
             <div className="mt-5 grid gap-3">
               <Button
                 asChild
-                className="h-11 w-full rounded-2xl bg-[#1e9f86] text-white hover:bg-[#1b8b75]"
+                className="h-11 w-full rounded-2xl bg-[#21ab8f] text-white hover:bg-[#1b947d]"
               >
                 <Link
                   href={buildAppHref(selectedTopic, {
@@ -254,7 +254,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
               <Button
                 asChild
                 variant="outline"
-                className="h-11 w-full rounded-2xl border-slate-600/70 bg-[#162431] text-slate-200 hover:bg-[#182838]"
+                className="h-11 w-full rounded-2xl border-slate-600/70 bg-[#172a3b] text-slate-200 hover:bg-[#1c3044]"
               >
                 <Link href="/app/account">
                   <UserRoundCog className="size-4" />
@@ -266,7 +266,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                 <Button
                   asChild
                   variant="outline"
-                  className="h-11 w-full rounded-2xl border-slate-600/70 bg-[#162431] text-slate-200 hover:bg-[#182838]"
+                  className="h-11 w-full rounded-2xl border-slate-600/70 bg-[#172a3b] text-slate-200 hover:bg-[#1c3044]"
                 >
                   <Link href="/app/admin">
                     <ShieldCheck className="size-4" />
@@ -277,7 +277,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
             </div>
           </div>
 
-          <div className="mt-5 rounded-[20px] border border-slate-700/80 bg-[#132231]/85 p-3">
+          <div className="mt-5 rounded-[20px] border border-slate-700/80 bg-[#152638]/85 p-3">
             <form action="/app" method="get" className="space-y-2">
               <input type="hidden" name="topic" value={selectedTopic} />
               <input type="hidden" name="category" value={selectedCategory} />
@@ -287,11 +287,11 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                   name="q"
                   defaultValue={searchQuery}
                   placeholder={copy.searchPlaceholder}
-                  className="h-10 w-full rounded-xl border border-slate-700/80 bg-[#0f1a25] px-3 text-sm text-slate-100 placeholder:text-slate-500 focus-visible:border-[#49d4b8] focus-visible:outline-none"
+                  className="h-10 w-full rounded-xl border border-slate-700/80 bg-[#0f1b28] px-3 text-sm text-slate-100 placeholder:text-slate-500 focus-visible:border-[#56e3c2] focus-visible:outline-none"
                 />
                 <button
                   type="submit"
-                  className="h-10 rounded-xl bg-[#1e9f86] px-3 text-sm font-semibold text-white hover:bg-[#1b8b75]"
+                  className="h-10 rounded-xl bg-[#21ab8f] px-3 text-sm font-semibold text-white hover:bg-[#1b947d]"
                 >
                   {copy.searchButton}
                 </button>
@@ -306,7 +306,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                   href={buildAppHref(selectedTopic, {
                     category: selectedCategory,
                   })}
-                  className="text-xs font-semibold text-[#49d4b8] hover:underline"
+                  className="text-xs font-semibold text-[#56e3c2] hover:underline"
                 >
                   {copy.clearSearch}
                 </Link>
@@ -319,7 +319,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 {copy.sections}
               </p>
-              <span className="rounded-full border border-slate-700/80 bg-[#132231] px-2.5 py-1 text-xs text-slate-400">
+              <span className="rounded-full border border-slate-700/80 bg-[#152638] px-2.5 py-1 text-xs text-slate-400">
                 {hasSearchQuery ? `${visibleArticlesCount}/${totalArticles}` : totalArticles}{" "}
                 {copy.articlesSuffix}
               </span>
@@ -341,8 +341,8 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                     key={topic.name}
                     className={`rounded-[20px] border transition-colors ${
                       isActive
-                        ? "border-[#2f4356] bg-[#132839]"
-                        : "border-slate-600/70 bg-[#0f1a25]"
+                        ? "border-[#31495f] bg-[#132839]"
+                        : "border-slate-600/70 bg-[#0f1b28]"
                     }`}
                   >
                     <Link
@@ -354,8 +354,8 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                       <div
                         className={`mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl ${
                           isActive
-                            ? "bg-[#1a3244] text-[#49d4b8]"
-                            : "bg-[#182838] text-slate-500"
+                            ? "bg-[#1c3850] text-[#56e3c2]"
+                            : "bg-[#1c3044] text-slate-500"
                         }`}
                       >
                         <Icon className="size-4" />
@@ -388,8 +388,8 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                                     })}
                                     className={`flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] transition-colors ${
                                       isCategoryActive
-                                        ? "bg-[#1a3244] text-[#49d4b8]"
-                                        : "bg-[#0f1a25] text-slate-500 hover:bg-[#152230]"
+                                        ? "bg-[#1c3850] text-[#56e3c2]"
+                                        : "bg-[#0f1b28] text-slate-500 hover:bg-[#152230]"
                                     }`}
                                   >
                                     <span>{categoryName}</span>
@@ -411,8 +411,8 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                                             })}
                                             className={`block rounded-xl border px-3 py-3 transition-colors ${
                                               isSelected
-                                                ? "border-[#2f556d] bg-[#0f1a25] text-slate-100 shadow-sm"
-                                                : "border-slate-600/70 bg-[#162431] text-slate-200 hover:bg-[#0f1a25]"
+                                                ? "border-[#355b73] bg-[#0f1b28] text-slate-100 shadow-sm"
+                                                : "border-slate-600/70 bg-[#172a3b] text-slate-200 hover:bg-[#0f1b28]"
                                             }`}
                                           >
                                             <div className="flex items-start justify-between gap-3">
@@ -437,7 +437,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                                       })}
                                     </div>
                                   ) : (
-                                    <div className="rounded-xl border border-dashed border-slate-700/80 bg-[#0f1a25] px-3 py-3 text-sm leading-6 text-slate-500">
+                                    <div className="rounded-xl border border-dashed border-slate-700/80 bg-[#0f1b28] px-3 py-3 text-sm leading-6 text-slate-500">
                                       В этой категории пока нет статей.
                                     </div>
                                   )}
@@ -446,7 +446,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                             })}
                           </div>
                         ) : (
-                          <div className="rounded-xl border border-dashed border-slate-700/80 bg-[#0f1a25] px-3 py-4 text-sm leading-6 text-slate-500">
+                          <div className="rounded-xl border border-dashed border-slate-700/80 bg-[#0f1b28] px-3 py-4 text-sm leading-6 text-slate-500">
                             {copy.noArticlesInSection}
                           </div>
                         )}
@@ -461,12 +461,12 @@ export default async function AppPage({ searchParams }: AppPageProps) {
 
         <main className="flex min-w-0 flex-1 flex-col gap-5 p-5 lg:p-6">
           <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_290px]">
-            <div className="rounded-[28px] border border-slate-700/80 bg-[#111f2c]/85 p-6">
+            <div className="rounded-[28px] border border-slate-700/80 bg-[#132230]/85 p-6">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 {copy.currentSection}
               </p>
               <div className="mt-4 flex flex-wrap items-center gap-3">
-                <span className="inline-flex rounded-full bg-[#1a3244] px-3 py-1 text-sm font-semibold text-[#49d4b8]">
+                <span className="inline-flex rounded-full bg-[#1c3850] px-3 py-1 text-sm font-semibold text-[#56e3c2]">
                   {currentTopic.name}
                 </span>
                 <span className="inline-flex rounded-full border border-slate-600/70 bg-[#152230] px-3 py-1 text-sm font-medium text-slate-300">
@@ -484,24 +484,24 @@ export default async function AppPage({ searchParams }: AppPageProps) {
               </p>
             </div>
 
-            <div className="rounded-[28px] border border-slate-700/80 bg-[#111f2c]/85 p-6">
+            <div className="rounded-[28px] border border-slate-700/80 bg-[#132230]/85 p-6">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                 {copy.snapshot}
               </p>
               <div className="mt-5 grid gap-3">
-                <div className="rounded-[18px] border border-slate-600/70 bg-[#162431] px-4 py-4">
+                <div className="rounded-[18px] border border-slate-600/70 bg-[#172a3b] px-4 py-4">
                   <p className="text-xs uppercase tracking-[0.16em] text-slate-500">
                     {copy.allArticles}
                   </p>
                   <p className="mt-2 text-2xl font-semibold text-slate-100">{totalArticles}</p>
                 </div>
-                <div className="rounded-[18px] border border-slate-600/70 bg-[#162431] px-4 py-4">
+                <div className="rounded-[18px] border border-slate-600/70 bg-[#172a3b] px-4 py-4">
                   <p className="text-xs uppercase tracking-[0.16em] text-slate-500">
                     Категория
                   </p>
                   <p className="mt-2 text-sm font-semibold text-slate-100">{selectedCategory}</p>
                 </div>
-                <div className="rounded-[18px] border border-slate-600/70 bg-[#162431] px-4 py-4">
+                <div className="rounded-[18px] border border-slate-600/70 bg-[#172a3b] px-4 py-4">
                   <p className="text-xs uppercase tracking-[0.16em] text-slate-500">
                     {copy.lastUpdate}
                   </p>
@@ -514,11 +514,11 @@ export default async function AppPage({ searchParams }: AppPageProps) {
           </section>
 
           <section className="grid min-h-0 gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-            <div className="rounded-[28px] border border-slate-700/80 bg-[#111f2c]/85 p-6">
+            <div className="rounded-[28px] border border-slate-700/80 bg-[#132230]/85 p-6">
               {selectedArticle ? (
                 <>
                   <div className="flex flex-wrap items-center gap-3">
-                    <span className="inline-flex rounded-full bg-[#1a3244] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#49d4b8]">
+                    <span className="inline-flex rounded-full bg-[#1c3850] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#56e3c2]">
                       {selectedArticle.topic}
                     </span>
                     <span className="inline-flex rounded-full border border-slate-600/70 bg-[#152230] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
@@ -538,7 +538,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                   </p>
 
                   <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-[18px] border border-slate-600/70 bg-[#162431] px-4 py-4">
+                    <div className="rounded-[18px] border border-slate-600/70 bg-[#172a3b] px-4 py-4">
                       <div className="flex items-center gap-2 text-xs uppercase tracking-[0.14em] text-slate-500">
                         <UserRound className="size-3.5" />
                         {copy.author}
@@ -551,7 +551,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                       </p>
                     </div>
 
-                    <div className="rounded-[18px] border border-slate-600/70 bg-[#162431] px-4 py-4">
+                    <div className="rounded-[18px] border border-slate-600/70 bg-[#172a3b] px-4 py-4">
                       <div className="flex items-center gap-2 text-xs uppercase tracking-[0.14em] text-slate-500">
                         <PenSquare className="size-3.5" />
                         {copy.lastEditor}
@@ -565,9 +565,9 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                     </div>
                   </div>
 
-                  <div className="mt-6 rounded-[22px] border border-slate-600/70 bg-[#0f1a25] p-5">
+                  <div className="mt-6 rounded-[22px] border border-slate-600/70 bg-[#0f1b28] p-5">
                     <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-300">
-                      <BookOpenText className="size-4 text-[#49d4b8]" />
+                      <BookOpenText className="size-4 text-[#56e3c2]" />
                       {copy.reading}
                     </div>
                     <ArticleContent
@@ -578,8 +578,8 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                   </div>
                 </>
               ) : (
-                <div className="flex h-full min-h-[420px] flex-col items-center justify-center rounded-[22px] border border-dashed border-slate-700/80 bg-[#0f1a25] px-8 text-center">
-                  <div className="flex size-14 items-center justify-center rounded-3xl bg-[#173145] text-[#49d4b8]">
+                <div className="flex h-full min-h-[420px] flex-col items-center justify-center rounded-[22px] border border-dashed border-slate-700/80 bg-[#0f1b28] px-8 text-center">
+                  <div className="flex size-14 items-center justify-center rounded-3xl bg-[#1a3348] text-[#56e3c2]">
                     <SearchSlash className="size-6" />
                   </div>
                   <h2 className="mt-5 text-2xl font-semibold text-slate-100">
@@ -592,7 +592,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
               )}
             </div>
 
-            <div className="rounded-[28px] border border-slate-700/80 bg-[#111f2c]/85 p-6">
+            <div className="rounded-[28px] border border-slate-700/80 bg-[#132230]/85 p-6">
               <div className="mb-5">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
                   {copy.editor}
@@ -621,6 +621,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
     </div>
   );
 }
+
 
 
 

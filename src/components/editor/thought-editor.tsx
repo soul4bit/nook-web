@@ -32,17 +32,17 @@ import { cn } from "@/lib/utils";
 const copy = {
   emptyTitle: "Новая статья",
   emptyBody:
-    "Зафиксируйте разбор, команды и практические выводы, чтобы потом быстро вернуться к ним.",
+    "Опишите задачу, команды и итоговые выводы, чтобы быстро вернуться к решению позже.",
   placeholder:
-    "Пишите пошаговый разбор, команды, примеры конфигов и короткие выводы по задаче...",
+    "Пишите пошагово: контекст, команды, конфиги и итог по задаче...",
   saveError: "Не удалось сохранить статью.",
   titleRequired: "Укажите заголовок статьи.",
   bodyRequired: "Статья не может быть пустой.",
-  updated: "Статья обновлена.",
+  updated: "Изменения сохранены.",
   created: "Статья создана.",
   titleLabel: "Заголовок статьи",
   titlePlaceholder: "Например: Kubernetes probes без боли",
-  draft: "Черновик",
+  draft: "Статистика",
   blocks: "блоков",
   chars: "символов",
   topicLabel: "Раздел",
@@ -50,7 +50,7 @@ const copy = {
   categoryPlaceholder: "Например: systemd",
   summaryLabel: "Короткое описание",
   summaryPlaceholder:
-    "2-3 предложения, чтобы в списке было понятно, о чем статья",
+    "2-3 предложения, чтобы сразу понимать суть материала",
   bold: "Жирный",
   list: "Список",
   ordered: "Нумерация",
@@ -71,12 +71,12 @@ const copy = {
   deleteConfirm: "Удалить статью? Это действие нельзя отменить.",
   deleteError: "Не удалось удалить статью.",
   footer:
-    "Текст хранится в PostgreSQL и в markdown-представлении, поэтому материалы можно будет выгружать отдельно.",
+    "Контент хранится в PostgreSQL и параллельно в markdown-представлении, поэтому статьи можно экспортировать отдельно.",
   previewTitle: "Предпросмотр в реальном времени",
   previewDescription:
-    "Блок обновляется сразу при наборе текста, чтобы вы видели итоговый вид статьи до сохранения.",
-  previewSummaryFallback: "Добавьте короткое описание, чтобы оно отображалось в карточке статьи.",
-  previewBodyFallback: "Начните писать статью, и здесь сразу появится живой предпросмотр контента.",
+    "Превью обновляется сразу во время набора, чтобы вы видели итоговый вид статьи до сохранения.",
+  previewSummaryFallback: "Добавьте короткое описание, и оно появится в карточке статьи.",
+  previewBodyFallback: "Начните писать, и здесь сразу появится живой предпросмотр контента.",
 } as const;
 
 const emptyDocument = {
@@ -138,8 +138,8 @@ function EditorButton({ active = false, onClick, children }: EditorButtonProps) 
       size="sm"
       variant="outline"
       className={cn(
-        "rounded-xl border-slate-700/80 bg-[#0f1a25] text-slate-300 hover:bg-[#162431]",
-        active && "border-[#2f556d] bg-[#163245] text-[#49d4b8] hover:bg-[#1b3b52]"
+        "rounded-xl border-slate-700/80 bg-[#0f1b28] text-slate-300 hover:bg-[#18293b]",
+        active && "border-[#355b73] bg-[#1d3b52] text-[#56e3c2] hover:bg-[#224561]"
       )}
       onClick={onClick}
     >
@@ -262,7 +262,7 @@ export function ThoughtEditor({
     editorProps: {
       attributes: {
         class:
-          "nook-editor min-h-80 rounded-[22px] border border-slate-700/80 bg-[#0f1a25] px-5 py-4 text-[15px] leading-7 text-slate-300 focus-visible:outline-none",
+          "nook-editor min-h-80 rounded-[22px] border border-slate-700/80 bg-[#0f1b28] px-5 py-4 text-[15px] leading-7 text-slate-300 focus-visible:outline-none",
       },
     },
   });
@@ -444,11 +444,11 @@ export function ThoughtEditor({
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder={copy.titlePlaceholder}
-            className="h-12 rounded-2xl border-slate-700/80 bg-[#0f1a25] text-slate-100 placeholder:text-slate-500"
+            className="h-12 rounded-2xl border-slate-700/80 bg-[#0f1b28] text-slate-100 placeholder:text-slate-500"
           />
         </div>
 
-        <div className="rounded-[18px] border border-slate-700/80 bg-[#132231] px-4 py-3 text-sm leading-6 text-slate-400">
+        <div className="rounded-[18px] border border-slate-700/80 bg-[#152638] px-4 py-3 text-sm leading-6 text-slate-400">
           <p className="font-semibold text-slate-200">{copy.draft}</p>
           <p className="mt-2">
             {stats.paragraphs} {copy.blocks}
@@ -468,7 +468,7 @@ export function ThoughtEditor({
             id="article-topic"
             value={topic}
             onChange={(event) => setTopic(event.target.value as ArticleTopic)}
-            className="h-12 w-full rounded-2xl border border-slate-700/80 bg-[#0f1a25] px-4 text-sm text-slate-100 outline-none focus-visible:border-[#49d4b8]"
+            className="h-12 w-full rounded-2xl border border-slate-700/80 bg-[#0f1b28] px-4 text-sm text-slate-100 outline-none focus-visible:border-[#56e3c2]"
           >
             {topics.map((item) => (
               <option key={item} value={item}>
@@ -488,7 +488,7 @@ export function ThoughtEditor({
             value={category}
             onChange={(event) => setCategory(event.target.value)}
             placeholder={copy.categoryPlaceholder}
-            className="h-12 rounded-2xl border-slate-700/80 bg-[#0f1a25] text-slate-100 placeholder:text-slate-500"
+            className="h-12 rounded-2xl border-slate-700/80 bg-[#0f1b28] text-slate-100 placeholder:text-slate-500"
           />
           <datalist id="article-category-list">
             {availableCategories.map((item) => (
@@ -508,7 +508,7 @@ export function ThoughtEditor({
           onChange={(event) => setSummary(event.target.value)}
           placeholder={copy.summaryPlaceholder}
           rows={3}
-          className="min-h-12 rounded-2xl border-slate-700/80 bg-[#0f1a25] text-slate-100 placeholder:text-slate-500"
+          className="min-h-12 rounded-2xl border-slate-700/80 bg-[#0f1b28] text-slate-100 placeholder:text-slate-500"
         />
       </div>
 
@@ -586,13 +586,13 @@ export function ThoughtEditor({
 
       <EditorContent editor={editor} />
 
-      <div className="rounded-[22px] border border-slate-700/80 bg-[#0f1a25] p-5">
+      <div className="rounded-[22px] border border-slate-700/80 bg-[#0f1b28] p-5">
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
           {copy.previewTitle}
         </p>
         <p className="mt-2 text-sm leading-6 text-slate-400">{copy.previewDescription}</p>
 
-        <div className="mt-4 rounded-[16px] border border-slate-700/80 bg-[#132231] px-4 py-4">
+        <div className="mt-4 rounded-[16px] border border-slate-700/80 bg-[#152638] px-4 py-4">
           <h3 className="text-xl font-semibold tracking-tight text-slate-100">
             {title.trim() || copy.emptyTitle}
           </h3>
@@ -601,7 +601,7 @@ export function ThoughtEditor({
           </p>
         </div>
 
-        <div className="mt-4 rounded-[16px] border border-slate-700/80 bg-[#111f2c]/85 p-4">
+        <div className="mt-4 rounded-[16px] border border-slate-700/80 bg-[#132230]/85 p-4">
           {stats.chars > 0 ? (
             <ArticleContent
               html={previewHtml}
@@ -630,7 +630,7 @@ export function ThoughtEditor({
       <div className="flex flex-wrap items-center gap-3">
         <Button
           type="button"
-          className="rounded-2xl bg-[#1e9f86] px-5 text-white hover:bg-[#1b8b75]"
+          className="rounded-2xl bg-[#21ab8f] px-5 text-white hover:bg-[#1b947d]"
           onClick={handleSave}
           disabled={isSaving || isDeleting || isUploadingImage}
         >
@@ -650,7 +650,7 @@ export function ThoughtEditor({
         <Button
           type="button"
           variant="outline"
-          className="rounded-2xl border-slate-700/80 bg-[#0f1a25] text-slate-300 hover:bg-[#162431]"
+          className="rounded-2xl border-slate-700/80 bg-[#0f1b28] text-slate-300 hover:bg-[#18293b]"
           onClick={handleNewDraft}
           disabled={isSaving || isDeleting || isUploadingImage}
         >
@@ -661,7 +661,7 @@ export function ThoughtEditor({
           <Button
             type="button"
             variant="outline"
-            className="rounded-2xl border-rose-500/40 bg-rose-950/40 text-rose-300 hover:bg-rose-100"
+            className="rounded-2xl border-rose-500/40 bg-rose-950/30 text-rose-300 hover:bg-rose-900/60"
             onClick={handleDelete}
             disabled={isSaving || isDeleting || isUploadingImage}
           >
@@ -680,11 +680,12 @@ export function ThoughtEditor({
         ) : null}
       </div>
 
-      <div className="rounded-[18px] border border-slate-700/80 bg-[#132231] p-4 text-sm leading-7 text-slate-400">
+      <div className="rounded-[18px] border border-slate-700/80 bg-[#152638] p-4 text-sm leading-7 text-slate-400">
         {copy.footer}
       </div>
     </div>
   );
 }
+
 
 

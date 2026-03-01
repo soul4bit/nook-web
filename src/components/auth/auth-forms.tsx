@@ -95,7 +95,7 @@ function FormInput(props: ComponentProps<typeof Input>) {
   return (
     <Input
       {...props}
-      className={`h-12 rounded-2xl border-slate-700/80 bg-[#0f1a25] text-slate-100 placeholder:text-slate-500 ${props.className ?? ""}`}
+      className={`h-12 rounded-2xl border-slate-700/80 bg-[#0f1b28] text-slate-100 placeholder:text-slate-500 ${props.className ?? ""}`}
     />
   );
 }
@@ -153,10 +153,10 @@ export function AuthForms() {
         : "Сброс пароля";
   const description =
     mode === "sign-in"
-      ? "Введите email и пароль, чтобы открыть свои статьи."
+      ? "Введите email и пароль, чтобы открыть рабочую область."
       : mode === "sign-up"
-        ? "Создайте заявку на доступ. Администратор получит ее в Telegram и вручную одобрит или отклонит."
-        : "Отправим письмо со ссылкой для установки нового пароля.";
+        ? "Оставьте заявку на доступ. Администратор проверит ее в Telegram и отправит решение на почту."
+        : "Отправим письмо со ссылкой для безопасного сброса пароля.";
 
   function updateGuard(action: GuardAction, patch: Partial<GuardState>) {
     setGuardState((current) => ({
@@ -361,10 +361,10 @@ export function AuthForms() {
   }
 
   return (
-    <div className="w-full rounded-[28px] border border-slate-700/80 bg-[#111f2c]/85 p-5 shadow-[0_30px_90px_rgba(2,8,15,0.45)] sm:p-6">
+    <div className="w-full rounded-[28px] border border-slate-700/80 bg-[#132230]/85 p-5 shadow-[0_30px_90px_rgba(2,8,15,0.45)] sm:p-6">
       <div className="border-b border-slate-700/80 pb-6">
-        <div className="inline-flex rounded-full border border-slate-700/80 bg-[#162736] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-          {mode === "sign-in" ? "sign in" : mode === "sign-up" ? "sign up" : "reset access"}
+        <div className="inline-flex rounded-full border border-slate-700/80 bg-[#172a3b] px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+          {mode === "sign-in" ? "вход" : mode === "sign-up" ? "заявка" : "сброс"}
         </div>
         <div className="mt-4 space-y-2">
           <h2 className="text-2xl font-semibold text-slate-100">{title}</h2>
@@ -378,7 +378,7 @@ export function AuthForms() {
         {awaitingVerification ? (
           <div className="rounded-[20px] border border-cyan-500/40 bg-cyan-950/30 p-4 text-sm leading-6 text-cyan-200">
             <div className="flex items-start gap-3">
-              <div className="mt-0.5 flex size-10 items-center justify-center rounded-2xl bg-[#0f1a25] text-[#49d4b8]">
+              <div className="mt-0.5 flex size-10 items-center justify-center rounded-2xl bg-[#0f1b28] text-[#56e3c2]">
                 <Mail className="size-4" />
               </div>
               <div className="space-y-3">
@@ -389,7 +389,7 @@ export function AuthForms() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="rounded-2xl border-slate-600/70 bg-[#0f1a25] text-slate-200 hover:bg-[#162431]"
+                  className="rounded-2xl border-slate-600/70 bg-[#0f1b28] text-slate-200 hover:bg-[#18293b]"
                   onClick={handleResendVerification}
                   disabled={pendingAction === "resend"}
                 >
@@ -439,7 +439,7 @@ export function AuthForms() {
                   <FieldLabel htmlFor="signin-password">Пароль</FieldLabel>
                   <button
                     type="button"
-                    className="text-xs font-medium text-[#49d4b8] hover:text-[#7ce9d3]"
+                    className="text-xs font-medium text-[#56e3c2] hover:text-[#87efd7]"
                     onClick={() => {
                       openMode("reset");
                       setResetEmail(signInForm.email);
@@ -464,7 +464,7 @@ export function AuthForms() {
 
               <Button
                 type="submit"
-                className="h-11 w-full rounded-2xl bg-[#1e9f86] text-white hover:bg-[#1b8b75]"
+                className="h-11 w-full rounded-2xl bg-[#21ab8f] text-white hover:bg-[#1b947d]"
                 disabled={pendingAction === "sign-in"}
               >
                 {pendingAction === "sign-in" ? (
@@ -481,15 +481,15 @@ export function AuthForms() {
               </Button>
             </form>
 
-            <div className="rounded-[20px] border border-slate-700/80 bg-[#132231] p-4">
+            <div className="rounded-[20px] border border-slate-700/80 bg-[#152638] p-4">
               <p className="text-sm font-medium text-slate-100">Нет аккаунта?</p>
               <p className="mt-2 text-sm leading-6 text-slate-400">
-                Отправьте заявку, а администратор рассмотрит ее в Telegram и примет решение.
+                Отправьте заявку, и после одобрения вам придет письмо с подтверждением доступа.
               </p>
               <Button
                 type="button"
                 variant="outline"
-                className="mt-4 w-full rounded-2xl border-slate-600/70 bg-[#0f1a25] text-slate-200 hover:bg-[#162431]"
+                className="mt-4 w-full rounded-2xl border-slate-600/70 bg-[#0f1b28] text-slate-200 hover:bg-[#18293b]"
                 onClick={() => {
                   openMode("sign-up");
                   setSignUpForm((current) => ({
@@ -499,7 +499,7 @@ export function AuthForms() {
                 }}
               >
                 <UserPlus className="size-4" />
-                Отправить заявку
+                Перейти к регистрации
               </Button>
             </div>
           </>
@@ -583,7 +583,7 @@ export function AuthForms() {
 
               <Button
                 type="submit"
-                className="h-11 w-full rounded-2xl bg-[#1e9f86] text-white hover:bg-[#1b8b75]"
+                className="h-11 w-full rounded-2xl bg-[#21ab8f] text-white hover:bg-[#1b947d]"
                 disabled={pendingAction === "sign-up"}
               >
                 {pendingAction === "sign-up" ? (
@@ -594,7 +594,7 @@ export function AuthForms() {
                 ) : (
                   <>
                     <UserPlus className="size-4" />
-                    Отправить заявку
+                    Отправить запрос
                   </>
                 )}
               </Button>
@@ -603,7 +603,7 @@ export function AuthForms() {
             <Button
               type="button"
               variant="ghost"
-              className="w-full rounded-2xl text-slate-400 hover:bg-[#162431] hover:text-slate-100"
+              className="w-full rounded-2xl text-slate-400 hover:bg-[#18293b] hover:text-slate-100"
               onClick={() => {
                 openMode("sign-in");
                 setSignInForm((current) => ({
@@ -642,7 +642,7 @@ export function AuthForms() {
 
               <Button
                 type="submit"
-                className="h-11 w-full rounded-2xl bg-[#1e9f86] text-white hover:bg-[#1b8b75]"
+                className="h-11 w-full rounded-2xl bg-[#21ab8f] text-white hover:bg-[#1b947d]"
                 disabled={pendingAction === "reset"}
               >
                 {pendingAction === "reset" ? (
@@ -662,7 +662,7 @@ export function AuthForms() {
             <Button
               type="button"
               variant="ghost"
-              className="w-full rounded-2xl text-slate-400 hover:bg-[#162431] hover:text-slate-100"
+              className="w-full rounded-2xl text-slate-400 hover:bg-[#18293b] hover:text-slate-100"
               onClick={() => {
                 openMode("sign-in");
                 setSignInForm((current) => ({

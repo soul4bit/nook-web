@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
@@ -77,6 +77,7 @@ function buildAdminHref(notice: string, tone: NoticeTone) {
     notice,
     tone,
   });
+
   return `/app/admin?${params.toString()}`;
 }
 
@@ -102,7 +103,7 @@ function getAdminActionError(error: unknown) {
     return "Пользователь не найден.";
   }
 
-  return "Не удалось выполнить админ-действие. Проверьте логи сервера.";
+  return "Не удалось выполнить админ-действие. Проверьте серверные логи.";
 }
 
 async function reviewPendingRequestAction(formData: FormData) {
@@ -121,8 +122,7 @@ async function reviewPendingRequestAction(formData: FormData) {
   const rawRequestId = formData.get("requestId");
   const rawDecision = formData.get("decision");
   const requestId = typeof rawRequestId === "string" ? rawRequestId.trim() : "";
-  const decision =
-    rawDecision === "approve" || rawDecision === "reject" ? rawDecision : null;
+  const decision = rawDecision === "approve" || rawDecision === "reject" ? rawDecision : null;
 
   if (!requestId || !decision) {
     redirect(buildAdminHref("Некорректные параметры заявки.", "error"));
@@ -142,7 +142,7 @@ async function reviewPendingRequestAction(formData: FormData) {
     }
 
     const notificationPart = result.notificationSent
-      ? " Пользователь получил письмо."
+      ? " Пользователь получил письмо с решением."
       : " Письмо отправить не удалось, проверьте SMTP.";
     const actionText = decision === "approve" ? "Заявка одобрена." : "Заявка отклонена.";
 
@@ -175,7 +175,10 @@ async function manageUserAction(formData: FormData) {
     redirect(buildAdminHref("Некорректные параметры пользователя.", "error"));
   }
 
-  if (userId === session.user.id && (action === "delete" || action === "demote" || action === "ban")) {
+  if (
+    userId === session.user.id &&
+    (action === "delete" || action === "demote" || action === "ban")
+  ) {
     redirect(buildAdminHref("Это действие нельзя применять к своему аккаунту.", "error"));
   }
 
@@ -183,7 +186,7 @@ async function manageUserAction(formData: FormData) {
     switch (action) {
       case "promote":
         await adminSetUserRole(userId, "admin");
-        redirect(buildAdminHref("Роль пользователя изменена на admin.", "success"));
+        redirect(buildAdminHref("Пользователь получил роль admin.", "success"));
       case "demote":
         await adminSetUserRole(userId, "user");
         redirect(buildAdminHref("Права администратора сняты.", "success"));
@@ -229,7 +232,7 @@ export default async function AdminRegistrationPage({ searchParams }: AdminPageP
 
   return (
     <div className="min-h-screen px-4 py-4 text-slate-100 sm:px-6 lg:px-8">
-      <main className="mx-auto min-h-[calc(100vh-2rem)] max-w-[1480px] rounded-[32px] border border-slate-700/80 bg-[#0a131c]/95 p-5 shadow-[0_40px_120px_rgba(2,8,15,0.75)] lg:p-6 xl:p-8">
+      <main className="mx-auto min-h-[calc(100vh-2rem)] max-w-[1480px] rounded-[32px] border border-slate-700/80 bg-[#0b141e]/95 p-5 shadow-[0_40px_120px_rgba(2,8,15,0.75)] lg:p-6 xl:p-8">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
@@ -247,7 +250,7 @@ export default async function AdminRegistrationPage({ searchParams }: AdminPageP
           <Button
             asChild
             variant="outline"
-            className="rounded-2xl border-slate-700/80 bg-[#132231] text-slate-300 hover:bg-[#162431]"
+            className="rounded-2xl border-slate-700/80 bg-[#152638] text-slate-300 hover:bg-[#172a3b]"
           >
             <Link href="/app">
               <ArrowLeft className="size-4" />
@@ -262,14 +265,14 @@ export default async function AdminRegistrationPage({ searchParams }: AdminPageP
           </div>
         ) : null}
 
-        <section className="mt-6 rounded-[24px] border border-slate-700/80 bg-[#111f2c]/85 p-4 sm:p-5">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-slate-700/80 bg-[#132231] px-3 py-1 text-xs text-slate-400">
-            <Clock3 className="size-3.5 text-[#49d4b8]" />
-            Pending заявок: {pendingRequests.length}
+        <section className="mt-6 rounded-[24px] border border-slate-700/80 bg-[#132230]/85 p-4 sm:p-5">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-slate-700/80 bg-[#152638] px-3 py-1 text-xs text-slate-400">
+            <Clock3 className="size-3.5 text-[#56e3c2]" />
+            Заявок в очереди: {pendingRequests.length}
           </div>
 
           {pendingRequests.length === 0 ? (
-            <div className="rounded-[20px] border border-dashed border-slate-700/80 bg-[#0f1a25] px-5 py-10 text-center">
+            <div className="rounded-[20px] border border-dashed border-slate-700/80 bg-[#0f1b28] px-5 py-10 text-center">
               <ShieldAlert className="mx-auto size-10 text-slate-500" />
               <h2 className="mt-4 text-xl font-semibold text-slate-100">Открытых заявок нет</h2>
               <p className="mt-2 text-sm leading-7 text-slate-400">
@@ -281,13 +284,13 @@ export default async function AdminRegistrationPage({ searchParams }: AdminPageP
               {pendingRequests.map((request) => (
                 <article
                   key={request.id}
-                  className="rounded-[20px] border border-slate-700/80 bg-[#132231]/80 p-4 sm:p-5"
+                  className="rounded-[20px] border border-slate-700/80 bg-[#152638]/80 p-4 sm:p-5"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div>
                       <h2 className="text-lg font-semibold text-slate-100">{request.name}</h2>
                       <p className="mt-1 inline-flex items-center gap-2 text-sm text-slate-300">
-                        <Mail className="size-4 text-[#49d4b8]" />
+                        <Mail className="size-4 text-[#56e3c2]" />
                         {request.email}
                       </p>
                     </div>
@@ -295,11 +298,11 @@ export default async function AdminRegistrationPage({ searchParams }: AdminPageP
                   </div>
 
                   <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-                    <div className="rounded-xl border border-slate-700/80 bg-[#0f1a25] px-3 py-2">
+                    <div className="rounded-xl border border-slate-700/80 bg-[#0f1b28] px-3 py-2">
                       <p className="text-xs uppercase tracking-[0.12em] text-slate-500">IP</p>
                       <p className="mt-1 text-slate-300">{request.requestIp}</p>
                     </div>
-                    <div className="rounded-xl border border-slate-700/80 bg-[#0f1a25] px-3 py-2">
+                    <div className="rounded-xl border border-slate-700/80 bg-[#0f1b28] px-3 py-2">
                       <p className="text-xs uppercase tracking-[0.12em] text-slate-500">
                         User-Agent
                       </p>
@@ -313,7 +316,7 @@ export default async function AdminRegistrationPage({ searchParams }: AdminPageP
                       <input type="hidden" name="decision" value="approve" />
                       <Button
                         type="submit"
-                        className="rounded-xl bg-[#1e9f86] text-white hover:bg-[#1b8b75]"
+                        className="rounded-xl bg-[#21ab8f] text-white hover:bg-[#1b947d]"
                       >
                         <CheckCircle2 className="size-4" />
                         Одобрить
@@ -335,9 +338,9 @@ export default async function AdminRegistrationPage({ searchParams }: AdminPageP
           )}
         </section>
 
-        <section className="mt-6 rounded-[24px] border border-slate-700/80 bg-[#111f2c]/85 p-4 sm:p-5">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-slate-700/80 bg-[#132231] px-3 py-1 text-xs text-slate-400">
-            <UserCog className="size-3.5 text-[#49d4b8]" />
+        <section className="mt-6 rounded-[24px] border border-slate-700/80 bg-[#132230]/85 p-4 sm:p-5">
+          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-slate-700/80 bg-[#152638] px-3 py-1 text-xs text-slate-400">
+            <UserCog className="size-3.5 text-[#56e3c2]" />
             Пользователей: {total}
           </div>
 
@@ -349,21 +352,21 @@ export default async function AdminRegistrationPage({ searchParams }: AdminPageP
               return (
                 <article
                   key={user.id}
-                  className="rounded-[20px] border border-slate-700/80 bg-[#132231]/80 p-4 sm:p-5"
+                  className="rounded-[20px] border border-slate-700/80 bg-[#152638]/80 p-4 sm:p-5"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="flex items-start gap-3">
                       <UserAvatar
                         image={user.image}
                         name={user.name}
-                        className="size-12 rounded-xl border-slate-600/70 bg-[#0f1a25]"
-                        fallbackClassName="text-[#49d4b8]"
+                        className="size-12 rounded-xl border-slate-600/70 bg-[#0f1b28]"
+                        fallbackClassName="text-[#56e3c2]"
                       />
                       <div>
                         <p className="text-lg font-semibold text-slate-100">{user.name}</p>
                         <p className="text-sm text-slate-300">{user.email}</p>
                         <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                          <span className="rounded-full border border-slate-600/70 bg-[#0f1a25] px-2.5 py-1 text-slate-300">
+                          <span className="rounded-full border border-slate-600/70 bg-[#0f1b28] px-2.5 py-1 text-slate-300">
                             role: {user.role}
                           </span>
                           <span
@@ -385,7 +388,7 @@ export default async function AdminRegistrationPage({ searchParams }: AdminPageP
                             </span>
                           )}
                           {isCurrentUser ? (
-                            <span className="rounded-full border border-[#49d4b8]/40 bg-[#49d4b8]/10 px-2.5 py-1 text-[#49d4b8]">
+                            <span className="rounded-full border border-[#56e3c2]/40 bg-[#56e3c2]/10 px-2.5 py-1 text-[#56e3c2]">
                               вы
                             </span>
                           ) : null}
@@ -395,23 +398,23 @@ export default async function AdminRegistrationPage({ searchParams }: AdminPageP
                   </div>
 
                   <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
-                    <div className="rounded-xl border border-slate-700/80 bg-[#0f1a25] px-3 py-2">
+                    <div className="rounded-xl border border-slate-700/80 bg-[#0f1b28] px-3 py-2">
                       <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Создан</p>
                       <p className="mt-1 text-slate-300">{formatDateTime(user.createdAt)}</p>
                     </div>
-                    <div className="rounded-xl border border-slate-700/80 bg-[#0f1a25] px-3 py-2">
+                    <div className="rounded-xl border border-slate-700/80 bg-[#0f1b28] px-3 py-2">
                       <p className="text-xs uppercase tracking-[0.12em] text-slate-500">
                         Последний актив
                       </p>
                       <p className="mt-1 text-slate-300">{formatDateTime(user.lastActiveAt)}</p>
                     </div>
-                    <div className="rounded-xl border border-slate-700/80 bg-[#0f1a25] px-3 py-2">
+                    <div className="rounded-xl border border-slate-700/80 bg-[#0f1b28] px-3 py-2">
                       <p className="text-xs uppercase tracking-[0.12em] text-slate-500">
                         Активных сессий
                       </p>
                       <p className="mt-1 text-slate-300">{user.activeSessions}</p>
                     </div>
-                    <div className="rounded-xl border border-slate-700/80 bg-[#0f1a25] px-3 py-2">
+                    <div className="rounded-xl border border-slate-700/80 bg-[#0f1b28] px-3 py-2">
                       <p className="text-xs uppercase tracking-[0.12em] text-slate-500">ID</p>
                       <p className="mt-1 break-all text-slate-300">{user.id}</p>
                     </div>
@@ -431,7 +434,7 @@ export default async function AdminRegistrationPage({ searchParams }: AdminPageP
                         <Button
                           type="submit"
                           variant="outline"
-                          className="rounded-xl border-slate-600/70 bg-[#162431] text-slate-200 hover:bg-[#182838]"
+                          className="rounded-xl border-slate-600/70 bg-[#172a3b] text-slate-200 hover:bg-[#1c3044]"
                           disabled={isCurrentUser}
                         >
                           <ShieldOff className="size-4" />
@@ -445,7 +448,7 @@ export default async function AdminRegistrationPage({ searchParams }: AdminPageP
                         <Button
                           type="submit"
                           variant="outline"
-                          className="rounded-xl border-slate-600/70 bg-[#162431] text-slate-200 hover:bg-[#182838]"
+                          className="rounded-xl border-slate-600/70 bg-[#172a3b] text-slate-200 hover:bg-[#1c3044]"
                         >
                           <ShieldCheck className="size-4" />
                           Сделать admin
@@ -460,7 +463,7 @@ export default async function AdminRegistrationPage({ searchParams }: AdminPageP
                         <Button
                           type="submit"
                           variant="outline"
-                          className="rounded-xl border-slate-600/70 bg-[#162431] text-slate-200 hover:bg-[#182838]"
+                          className="rounded-xl border-slate-600/70 bg-[#172a3b] text-slate-200 hover:bg-[#1c3044]"
                         >
                           <CheckCircle2 className="size-4" />
                           Разблокировать
@@ -473,7 +476,7 @@ export default async function AdminRegistrationPage({ searchParams }: AdminPageP
                         <Button
                           type="submit"
                           variant="outline"
-                          className="rounded-xl border-slate-600/70 bg-[#162431] text-slate-200 hover:bg-[#182838]"
+                          className="rounded-xl border-slate-600/70 bg-[#172a3b] text-slate-200 hover:bg-[#1c3044]"
                           disabled={isCurrentUser}
                         >
                           <Ban className="size-4" />
@@ -488,7 +491,7 @@ export default async function AdminRegistrationPage({ searchParams }: AdminPageP
                       <Button
                         type="submit"
                         variant="outline"
-                        className="rounded-xl border-slate-600/70 bg-[#162431] text-slate-200 hover:bg-[#182838]"
+                        className="rounded-xl border-slate-600/70 bg-[#172a3b] text-slate-200 hover:bg-[#1c3044]"
                       >
                         <RefreshCcw className="size-4" />
                         Завершить сессии
@@ -514,11 +517,9 @@ export default async function AdminRegistrationPage({ searchParams }: AdminPageP
             })}
 
             {users.length === 0 ? (
-              <div className="rounded-[20px] border border-dashed border-slate-700/80 bg-[#0f1a25] px-5 py-10 text-center">
+              <div className="rounded-[20px] border border-dashed border-slate-700/80 bg-[#0f1b28] px-5 py-10 text-center">
                 <UserRound className="mx-auto size-10 text-slate-500" />
-                <h2 className="mt-4 text-xl font-semibold text-slate-100">
-                  Пользователи не найдены
-                </h2>
+                <h2 className="mt-4 text-xl font-semibold text-slate-100">Пользователи не найдены</h2>
                 <p className="mt-2 text-sm leading-7 text-slate-400">
                   Пока в системе нет зарегистрированных пользователей.
                 </p>
@@ -530,4 +531,3 @@ export default async function AdminRegistrationPage({ searchParams }: AdminPageP
     </div>
   );
 }
-
