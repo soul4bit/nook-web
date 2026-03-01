@@ -64,6 +64,32 @@ const AUTH_GUARD_SCHEMA_SQL = `
 
   create index if not exists auth_guard_events_action_email_created_idx
     on auth_guard_events(action, email, created_at desc);
+
+  create table if not exists auth_guard_logs (
+    id bigserial primary key,
+    event_type text not null,
+    action text not null,
+    code text not null,
+    reason text not null,
+    status integer not null,
+    ip_address text not null,
+    email text,
+    user_agent text not null,
+    details jsonb,
+    created_at timestamptz not null default now()
+  );
+
+  create index if not exists auth_guard_logs_created_idx
+    on auth_guard_logs(created_at desc);
+
+  create index if not exists auth_guard_logs_action_created_idx
+    on auth_guard_logs(action, created_at desc);
+
+  create index if not exists auth_guard_logs_email_created_idx
+    on auth_guard_logs(email, created_at desc);
+
+  create index if not exists auth_guard_logs_ip_created_idx
+    on auth_guard_logs(ip_address, created_at desc);
 `;
 
 let authGuardSchemaPromise: Promise<void> | null = null;
@@ -274,6 +300,84 @@ function logAuthGuardBlock({
       details: error.details ?? null,
     })}`
   );
+}
+
+function getSerializableDetails(details?: Record<string, unknown>) {
+  if (!details) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(JSON.stringify(details)) as Record<string, unknown>;
+  } catch {
+    return {
+      serializationError: true,
+    };
+  }
+}
+
+async function persistAuthGuardLog({
+  eventType,
+  action,
+  code,
+  reason,
+  status,
+  ipAddress,
+  email,
+  userAgent,
+  details,
+}: {
+  eventType: "block" | "error";
+  action: AuthGuardAction;
+  code: string;
+  reason: string;
+  status: number;
+  ipAddress: string;
+  email?: string;
+  userAgent: string;
+  details?: Record<string, unknown>;
+}) {
+  try {
+    await ensureAuthGuardSchema();
+    await pool.query(
+      `
+        insert into auth_guard_logs (
+          event_type,
+          action,
+          code,
+          reason,
+          status,
+          ip_address,
+          email,
+          user_agent,
+          details
+        )
+        values ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb)
+      `,
+      [
+        eventType,
+        action,
+        code,
+        reason,
+        status,
+        ipAddress,
+        email ?? null,
+        userAgent,
+        JSON.stringify(getSerializableDetails(details)),
+      ]
+    );
+  } catch (persistError) {
+    console.error(
+      `[auth-guard:log-error] ${JSON.stringify({
+        eventType,
+        action,
+        code,
+        ipAddress,
+        email: email ?? null,
+      })}`,
+      persistError
+    );
+  }
 }
 
 function validateHumanChallenge(
@@ -518,8 +622,32 @@ export async function handleGuardedAuthRequest<TPayload extends Record<string, u
         error,
       });
 
+      await persistAuthGuardLog({
+        eventType: "block",
+        action: config.action,
+        code: error.code,
+        reason: error.message,
+        status: error.status,
+        ipAddress,
+        email: emailForLog,
+        userAgent,
+        details: error.details,
+      });
+
       return NextResponse.json({ message: error.message }, { status: error.status });
     }
+
+    const unexpectedReason =
+      error instanceof Error ? error.message : "Unknown auth guard error";
+    const unexpectedDetails =
+      error instanceof Error
+        ? {
+            errorName: error.name,
+            stack: error.stack?.split("\n").slice(0, 4).join("\n") ?? null,
+          }
+        : {
+            rawError: String(error),
+          };
 
     console.error(
       `[auth-guard:error] ${JSON.stringify({
@@ -530,6 +658,18 @@ export async function handleGuardedAuthRequest<TPayload extends Record<string, u
       })}`,
       error
     );
+
+    await persistAuthGuardLog({
+      eventType: "error",
+      action: config.action,
+      code: "unexpected_error",
+      reason: unexpectedReason,
+      status: 500,
+      ipAddress,
+      email: emailForLog,
+      userAgent,
+      details: unexpectedDetails,
+    });
 
     return NextResponse.json(
       { message: "Серверная ошибка при авторизации. Проверьте логи сервера." },
