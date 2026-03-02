@@ -11,7 +11,7 @@ const name = getArg("--name") ?? (email ? email.split("@")[0] : undefined);
 
 if (!email || !password) {
   throw new Error(
-    'Usage: npm run admin:create -- --email=nook@wiki-soul4bit.ru --password=CHANGE_ME --name="Nook Admin"'
+    'Usage: npm run admin:create -- --email=kontur-znaniy@xn----8sbuffbvcbexxn.xn--p1ai --password=CHANGE_ME --name="Kontur Admin"'
   );
 }
 

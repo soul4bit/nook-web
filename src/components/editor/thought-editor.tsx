@@ -139,8 +139,8 @@ function EditorButton({ active = false, onClick, children }: EditorButtonProps) 
       size="sm"
       variant="outline"
       className={cn(
-        "rounded-xl border-slate-500/45 bg-[#0f1d2d] text-slate-200 hover:bg-[#173047]",
-        active && "border-[#4d7391] bg-[#21425e] text-[#79ebcf] hover:bg-[#28506f]"
+        "rounded-xl border-slate-300 bg-white text-slate-700 hover:bg-slate-100",
+        active && "border-sky-300 bg-sky-50 text-sky-700 hover:bg-sky-100"
       )}
       onClick={onClick}
     >
@@ -264,7 +264,7 @@ export function ThoughtEditor({
     editorProps: {
       attributes: {
         class:
-          "nook-editor min-h-80 rounded-[22px] border border-slate-500/45 bg-[#0f1d2d] px-5 py-4 text-[15px] leading-7 text-slate-200 focus-visible:outline-none",
+          "nook-editor nook-editor-light min-h-80 rounded-[22px] border border-slate-300 bg-white px-5 py-4 text-[15px] leading-7 text-slate-800 focus-visible:outline-none",
       },
     },
   });
@@ -438,7 +438,7 @@ export function ThoughtEditor({
     <div className="space-y-5">
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_220px]">
         <div className="space-y-2">
-          <label htmlFor="article-title" className="text-sm font-medium text-slate-300">
+          <label htmlFor="article-title" className="text-sm font-medium text-slate-700">
             {copy.titleLabel}
           </label>
           <Input
@@ -446,12 +446,12 @@ export function ThoughtEditor({
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder={copy.titlePlaceholder}
-            className="h-12 rounded-2xl border-slate-500/45 bg-[#0f1d2d] text-slate-100 placeholder:text-slate-500"
+            className="h-12 rounded-2xl border-slate-300 bg-white text-slate-900 placeholder:text-slate-400"
           />
         </div>
 
-        <div className="rounded-[18px] border border-slate-500/45 bg-[#15293d] px-4 py-3 text-sm leading-6 text-slate-300">
-          <p className="font-semibold text-slate-100">{copy.draft}</p>
+        <div className="rounded-[18px] border border-slate-300 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-700">
+          <p className="font-semibold text-slate-900">{copy.draft}</p>
           <p className="mt-2">
             {stats.paragraphs} {copy.blocks}
           </p>
@@ -463,14 +463,14 @@ export function ThoughtEditor({
 
       <div className="grid gap-4 lg:grid-cols-[220px_220px]">
         <div className="space-y-2">
-          <label htmlFor="article-topic" className="text-sm font-medium text-slate-300">
+          <label htmlFor="article-topic" className="text-sm font-medium text-slate-700">
             {copy.topicLabel}
           </label>
           <select
             id="article-topic"
             value={topic}
             onChange={(event) => setTopic(event.target.value as ArticleTopic)}
-            className="h-12 w-full rounded-2xl border border-slate-500/45 bg-[#0f1d2d] px-4 text-sm text-slate-100 outline-none focus-visible:border-[#79ebcf] focus-visible:ring-2 focus-visible:ring-[#79ebcf]/35"
+            className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none focus-visible:border-sky-300 focus-visible:ring-2 focus-visible:ring-sky-200"
           >
             {topics.map((item) => (
               <option key={item} value={item}>
@@ -481,7 +481,7 @@ export function ThoughtEditor({
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="article-category" className="text-sm font-medium text-slate-300">
+          <label htmlFor="article-category" className="text-sm font-medium text-slate-700">
             {copy.categoryLabel}
           </label>
           <Input
@@ -490,7 +490,7 @@ export function ThoughtEditor({
             value={category}
             onChange={(event) => setCategory(event.target.value)}
             placeholder={copy.categoryPlaceholder}
-            className="h-12 rounded-2xl border-slate-500/45 bg-[#0f1d2d] text-slate-100 placeholder:text-slate-500"
+            className="h-12 rounded-2xl border-slate-300 bg-white text-slate-900 placeholder:text-slate-400"
           />
           <datalist id="article-category-list">
             {availableCategories.map((item) => (
@@ -501,7 +501,7 @@ export function ThoughtEditor({
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="article-summary" className="text-sm font-medium text-slate-300">
+        <label htmlFor="article-summary" className="text-sm font-medium text-slate-700">
           {copy.summaryLabel}
         </label>
         <Textarea
@@ -510,7 +510,7 @@ export function ThoughtEditor({
           onChange={(event) => setSummary(event.target.value)}
           placeholder={copy.summaryPlaceholder}
           rows={3}
-          className="min-h-12 rounded-2xl border-slate-500/45 bg-[#0f1d2d] text-slate-100 placeholder:text-slate-500"
+          className="min-h-12 rounded-2xl border-slate-300 bg-white text-slate-900 placeholder:text-slate-400"
         />
       </div>
 
@@ -588,30 +588,30 @@ export function ThoughtEditor({
 
       <EditorContent editor={editor} />
 
-      <div className="rounded-[22px] border border-slate-500/45 bg-[#0f1d2d] p-5">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+      <div className="rounded-[22px] border border-slate-300 bg-white p-5">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
           {copy.previewTitle}
         </p>
-        <p className="mt-2 text-sm leading-6 text-slate-300">{copy.previewDescription}</p>
+        <p className="mt-2 text-sm leading-6 text-slate-600">{copy.previewDescription}</p>
 
-        <div className="mt-4 rounded-[16px] border border-slate-500/45 bg-[#15293d] px-4 py-4">
-          <h3 className="text-xl font-semibold tracking-tight text-slate-100">
+        <div className="mt-4 rounded-[16px] border border-slate-300 bg-slate-50 px-4 py-4">
+          <h3 className="text-xl font-semibold tracking-tight text-slate-900">
             {title.trim() || copy.emptyTitle}
           </h3>
-          <p className="mt-2 text-sm leading-6 text-slate-300">
+          <p className="mt-2 text-sm leading-6 text-slate-600">
             {summary.trim() || copy.previewSummaryFallback}
           </p>
         </div>
 
-        <div className="mt-4 rounded-[16px] border border-slate-500/45 bg-[#122335]/88 p-4">
+        <div className="mt-4 rounded-[16px] border border-slate-300 bg-white p-4">
           {stats.chars > 0 ? (
             <ArticleContent
               html={previewHtml}
               wikiLinks={wikiLinks}
-              className="max-w-none space-y-4 text-sm leading-7 text-slate-300"
+              className="nook-editor-light max-w-none space-y-4 text-sm leading-7 text-slate-700"
             />
           ) : (
-            <p className="text-sm leading-7 text-slate-400">{copy.previewBodyFallback}</p>
+            <p className="text-sm leading-7 text-slate-500">{copy.previewBodyFallback}</p>
           )}
         </div>
       </div>
@@ -621,8 +621,8 @@ export function ThoughtEditor({
           className={cn(
             "rounded-[18px] border px-4 py-3 text-sm leading-6",
             feedback.tone === "success"
-              ? "border-emerald-400/45 bg-emerald-950/30 text-emerald-200"
-              : "border-rose-400/45 bg-rose-950/35 text-rose-200"
+              ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+              : "border-rose-200 bg-rose-50 text-rose-700"
           )}
         >
           {feedback.text}
@@ -652,7 +652,7 @@ export function ThoughtEditor({
         <Button
           type="button"
           variant="outline"
-          className="rounded-2xl border-slate-500/45 bg-[#112131] text-slate-100 hover:bg-[#183049]"
+          className="rounded-2xl border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
           onClick={handleNewDraft}
           disabled={isSaving || isDeleting || isUploadingImage}
         >
@@ -663,7 +663,7 @@ export function ThoughtEditor({
           <Button
             type="button"
             variant="outline"
-            className="rounded-2xl border-rose-400/45 bg-rose-950/30 text-rose-200 hover:bg-rose-900/60"
+            className="rounded-2xl border-rose-300 bg-white text-rose-700 hover:bg-rose-50"
             onClick={handleDelete}
             disabled={isSaving || isDeleting || isUploadingImage}
           >
@@ -682,7 +682,7 @@ export function ThoughtEditor({
         ) : null}
       </div>
 
-      <div className="rounded-[18px] border border-slate-500/45 bg-[#15293d] p-4 text-sm leading-7 text-slate-300">
+      <div className="rounded-[18px] border border-slate-300 bg-slate-50 p-4 text-sm leading-7 text-slate-600">
         {copy.footer}
       </div>
     </div>

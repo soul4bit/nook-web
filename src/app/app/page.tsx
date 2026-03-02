@@ -10,6 +10,7 @@ import {
   HardDriveUpload,
   PenSquare,
   Plus,
+  Search,
   SearchSlash,
   ServerCog,
   ShieldCheck,
@@ -35,7 +36,7 @@ import { articleTopics } from "@/lib/content/devops-library";
 const copy = {
   workspace: "Приватная wiki",
   workspaceText:
-    "Это общая база знаний команды: все авторизованные пользователи работают с единой структурой разделов, категорий и статей.",
+    "Общая база знаний команды: единая структура разделов, категорий и статей для всех авторизованных пользователей.",
   newArticle: "Новая заметка",
   account: "Личный кабинет",
   admin: "Админ-панель",
@@ -45,9 +46,9 @@ const copy = {
     "В этой категории пока нет материалов. Создайте первую заметку через редактор справа.",
   currentSection: "Текущий контур",
   sectionCount: "статей в категории",
-  heroTitle: "База знаний, где ответы находятся за секунды.",
+  heroTitle: "База знаний в формате Habr-style workspace.",
   heroText:
-    "Откройте тему, выберите категорию и работайте с общей базой в одном окне: слева структура, справа чтение и редактирование.",
+    "Слева иерархия тем, в центре чтение статьи, справа редактирование и действия. Логика построена так, чтобы быстрее находить и обновлять знания.",
   snapshot: "Состояние",
   allArticles: "Всего статей",
   lastUpdate: "Последнее обновление",
@@ -59,12 +60,12 @@ const copy = {
   reading: "Просмотр статьи",
   nothingToRead: "Статья не выбрана",
   nothingToReadText:
-    "Выберите материал в списке слева или создайте новый. После сохранения он сразу появится в нужной категории.",
+    "Выберите материал в навигации слева или создайте новый. После сохранения он сразу появится в нужной категории.",
   editor: "Редактор",
   editArticle: "Редактирование статьи",
   newNote: "Создание статьи",
   editorText:
-    "Материал сохраняется в PostgreSQL в формате markdown + html и сразу становится доступен в списке категории.",
+    "Изменения сохраняются в PostgreSQL и сразу отображаются в структуре разделов.",
   searchPlaceholder: "Поиск по заголовку, описанию и тексту",
   searchButton: "Найти",
   clearSearch: "Сброс",
@@ -74,7 +75,7 @@ const copy = {
 const topicIcons = {
   Linux: ServerCog,
   Docker: Boxes,
-  "\u0421\u0435\u0442\u0438": Cable,
+  "Сети": Cable,
   Ansible: FolderKanban,
   K8S: HardDriveUpload,
   Terraform: FolderKanban,
@@ -143,9 +144,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
   const draftMode = params?.draft === "1";
   const searchQuery = params?.q?.trim().slice(0, 180) ?? "";
   const allArticles = await listArticles();
-  const articles = searchQuery
-    ? await searchArticles(searchQuery)
-    : allArticles;
+  const articles = searchQuery ? await searchArticles(searchQuery) : allArticles;
   const requestedArticle = requestedArticleId
     ? await getArticleById(requestedArticleId)
     : null;
@@ -215,401 +214,390 @@ export default async function AppPage({ searchParams }: AppPageProps) {
     }));
 
   return (
-    <div className="min-h-screen px-3 py-4 text-slate-100 sm:px-6 lg:px-8">
-      <div className="nook-shell nook-reveal mx-auto flex min-h-[calc(100vh-2rem)] w-full max-w-[1720px] flex-col overflow-hidden rounded-[34px] lg:flex-row">
-        <aside className="flex w-full shrink-0 flex-col border-b border-slate-600/65 p-5 lg:max-w-[370px] lg:border-b-0 lg:border-r lg:p-6">
-          <div className="flex items-center justify-between gap-3">
-            <KnowledgeLogo subtitle="Общая DevOps-вики" />
+    <div className="min-h-screen bg-[#edf1f4] text-slate-900">
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
+        <div className="mx-auto flex max-w-[1700px] flex-wrap items-center gap-3 px-3 py-3 sm:px-6 lg:px-8">
+          <Link href={buildAppHref(selectedTopic, { category: selectedCategory })}>
+            <KnowledgeLogo
+              subtitle="Командная база знаний"
+              titleClassName="text-slate-700"
+              subtitleClassName="text-slate-500"
+              markClassName="border-slate-300 bg-slate-100 shadow-none"
+            />
+          </Link>
 
-            <SignOutButton />
-          </div>
-
-          <div className="nook-surface mt-7 rounded-[24px] p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-              {copy.workspace}
-            </p>
-            <div className="mt-4 flex items-center gap-4">
-              <UserAvatar
-                image={session.user.image}
-                name={displayName}
-                className="size-12 rounded-2xl border-slate-500/45 bg-[#1d3348]"
-                fallbackClassName="text-[#79ebcf]"
+          <form
+            action="/app"
+            method="get"
+            className="order-3 flex w-full items-center gap-2 md:order-none md:flex-1"
+          >
+            <input type="hidden" name="topic" value={selectedTopic} />
+            <input type="hidden" name="category" value={selectedCategory} />
+            <div className="relative w-full">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+              <input
+                type="search"
+                name="q"
+                defaultValue={searchQuery}
+                placeholder={copy.searchPlaceholder}
+                className="h-10 w-full rounded-xl border border-slate-300 bg-white pl-9 pr-3 text-sm text-slate-800 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-200"
               />
-              <div className="min-w-0">
-                <h1 className="truncate text-2xl font-semibold tracking-tight text-slate-100">
-                  {displayName}
-                </h1>
-                <p className="mt-1 truncate text-sm text-slate-400">{session.user.email}</p>
-              </div>
             </div>
-            <p className="mt-3 text-sm leading-7 text-slate-300">{copy.workspaceText}</p>
+            <button
+              type="submit"
+              className="h-10 rounded-xl bg-sky-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-sky-700"
+            >
+              {copy.searchButton}
+            </button>
+            {hasSearchQuery ? (
+              <Link
+                href={buildAppHref(selectedTopic, { category: selectedCategory })}
+                className="hidden text-sm font-semibold text-sky-700 hover:underline md:inline"
+              >
+                {copy.clearSearch}
+              </Link>
+            ) : null}
+          </form>
 
-            <div className="mt-5 grid gap-3">
-              <Button asChild className="h-11 w-full rounded-2xl">
-                <Link
-                  href={buildAppHref(selectedTopic, {
-                    draft: true,
-                    category: selectedCategory,
-                    query: searchQuery || undefined,
-                  })}
-                >
-                  <Plus className="size-4" />
-                  {copy.newArticle}
-                </Link>
-              </Button>
+          <div className="ml-auto flex items-center gap-2">
+            <Button asChild size="sm" className="h-9 rounded-lg bg-sky-600 hover:bg-sky-700">
+              <Link
+                href={buildAppHref(selectedTopic, {
+                  draft: true,
+                  category: selectedCategory,
+                  query: searchQuery || undefined,
+                })}
+              >
+                <Plus className="size-4" />
+                {copy.newArticle}
+              </Link>
+            </Button>
 
+            <Button
+              asChild
+              size="sm"
+              variant="outline"
+              className="h-9 rounded-lg border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+            >
+              <Link href="/app/account">
+                <UserRoundCog className="size-4" />
+                {copy.account}
+              </Link>
+            </Button>
+
+            {isAdmin ? (
               <Button
                 asChild
+                size="sm"
                 variant="outline"
-                className="h-11 w-full rounded-2xl border-slate-500/45 bg-[#132436] text-slate-100 hover:bg-[#1a3148]"
+                className="h-9 rounded-lg border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
               >
-                <Link href="/app/account">
-                  <UserRoundCog className="size-4" />
-                  {copy.account}
+                <Link href="/app/admin">
+                  <ShieldCheck className="size-4" />
+                  {copy.admin}
                 </Link>
               </Button>
-
-              {isAdmin ? (
-                <Button
-                  asChild
-                  variant="outline"
-                  className="h-11 w-full rounded-2xl border-slate-500/45 bg-[#132436] text-slate-100 hover:bg-[#1a3148]"
-                >
-                  <Link href="/app/admin">
-                    <ShieldCheck className="size-4" />
-                    {copy.admin}
-                  </Link>
-                </Button>
-              ) : null}
-            </div>
-          </div>
-
-          <div className="nook-surface-soft mt-5 rounded-[20px] p-3">
-            <form action="/app" method="get" className="space-y-2">
-              <input type="hidden" name="topic" value={selectedTopic} />
-              <input type="hidden" name="category" value={selectedCategory} />
-              <div className="flex items-center gap-2">
-                <input
-                  type="search"
-                  name="q"
-                  defaultValue={searchQuery}
-                  placeholder={copy.searchPlaceholder}
-                  className="h-10 w-full rounded-xl border border-slate-500/45 bg-[#0e1d2c] px-3 text-sm text-slate-100 placeholder:text-slate-500 focus-visible:border-[#79ebcf] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#79ebcf]/35"
-                />
-                <button
-                  type="submit"
-                  className="h-10 rounded-xl bg-[#2ebd9d] px-3 text-sm font-semibold text-white transition-colors hover:bg-[#27a688]"
-                >
-                  {copy.searchButton}
-                </button>
-              </div>
-            </form>
-            {hasSearchQuery ? (
-              <div className="mt-2 flex items-center justify-between">
-                <p className="text-xs text-slate-400">
-                  {copy.searchResult}: {visibleArticlesCount}
-                </p>
-                <Link
-                  href={buildAppHref(selectedTopic, {
-                    category: selectedCategory,
-                  })}
-                  className="text-xs font-semibold text-[#79ebcf] hover:underline"
-                >
-                  {copy.clearSearch}
-                </Link>
-              </div>
             ) : null}
-          </div>
 
-          <div className="nook-scroll mt-6 flex-1 overflow-y-auto pr-1">
+            <SignOutButton className="h-9 rounded-lg border-slate-300 bg-white px-3 text-slate-700 hover:bg-slate-100" />
+
+            <UserAvatar
+              image={session.user.image}
+              name={displayName}
+              className="size-9 rounded-lg border border-slate-300 bg-slate-100"
+              fallbackClassName="text-sky-700"
+            />
+          </div>
+        </div>
+      </header>
+
+      <div className="mx-auto grid max-w-[1700px] gap-4 px-3 py-4 sm:px-6 lg:grid-cols-[300px_minmax(0,1fr)_430px] lg:px-8">
+        <aside className="order-2 space-y-4 lg:order-1">
+          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
             <div className="mb-3 flex items-center justify-between">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
                 {copy.sections}
               </p>
-              <span className="rounded-full border border-slate-500/45 bg-[#122537] px-2.5 py-1 text-xs text-slate-300">
-                {hasSearchQuery ? `${visibleArticlesCount}/${totalArticles}` : totalArticles}{" "}
+              <span className="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-600">
+                {hasSearchQuery ? `${visibleArticlesCount}/${totalArticles}` : totalArticles} {" "}
                 {copy.articlesSuffix}
               </span>
             </div>
+            {hasSearchQuery ? (
+              <div className="rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-800">
+                {copy.searchResult}: {visibleArticlesCount}
+              </div>
+            ) : null}
+          </section>
 
-            <nav className="space-y-3">
-              {articleTopics.map((topic) => {
-                const Icon = topicIcons[topic.name];
-                const isActive = topic.name === selectedTopic;
-                const nestedArticles = articles.filter(
-                  (article) => article.topic === topic.name
-                );
-                const nestedCategories = Array.from(
-                  new Set([...topic.categories, ...nestedArticles.map((article) => article.category)])
-                );
+          <nav className="max-h-[calc(100vh-190px)] space-y-3 overflow-y-auto pr-1">
+            {articleTopics.map((topic) => {
+              const Icon = topicIcons[topic.name];
+              const isActive = topic.name === selectedTopic;
+              const nestedArticles = articles.filter((article) => article.topic === topic.name);
+              const nestedCategories = Array.from(
+                new Set([...topic.categories, ...nestedArticles.map((article) => article.category)])
+              );
 
-                return (
-                  <div
-                    key={topic.name}
-                    className={`rounded-[20px] border transition-colors ${
-                      isActive
-                        ? "border-[#466784] bg-[#142c42]"
-                        : "border-slate-600/55 bg-[#0d1b2a]/88"
-                    }`}
+              return (
+                <article
+                  key={topic.name}
+                  className={`rounded-2xl border bg-white shadow-sm ${
+                    isActive ? "border-sky-300" : "border-slate-200"
+                  }`}
+                >
+                  <Link
+                    href={buildAppHref(topic.name, {
+                      query: searchQuery || undefined,
+                    })}
+                    className="flex items-start gap-3 px-4 py-4"
                   >
-                    <Link
-                      href={buildAppHref(topic.name, {
-                        query: searchQuery || undefined,
-                      })}
-                      className="flex items-start gap-3 px-4 py-4"
+                    <div
+                      className={`mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl ${
+                        isActive ? "bg-sky-100 text-sky-700" : "bg-slate-100 text-slate-500"
+                      }`}
                     >
-                      <div
-                        className={`mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl ${
-                          isActive
-                            ? "bg-[#21425e] text-[#79ebcf]"
-                            : "bg-[#1a3045] text-slate-400"
-                        }`}
-                      >
-                        <Icon className="size-4" />
+                      <Icon className="size-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-sm font-semibold text-slate-900">{topic.name}</h2>
+                        <span className="text-xs text-slate-500">{nestedArticles.length}</span>
                       </div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <h2 className="text-sm font-semibold text-slate-100">{topic.name}</h2>
-                          <span className="text-xs text-slate-400">{nestedArticles.length}</span>
-                        </div>
-                        <p className="mt-1 text-sm leading-6 text-slate-300">{topic.summary}</p>
-                      </div>
-                    </Link>
+                      <p className="mt-1 text-xs leading-5 text-slate-600">{topic.summary}</p>
+                    </div>
+                  </Link>
 
-                    {isActive ? (
-                      <div className="border-t border-slate-600/65 px-3 py-3">
-                        {nestedCategories.length > 0 ? (
-                          <div className="space-y-4">
-                            {nestedCategories.map((categoryName) => {
-                              const groupedArticles = nestedArticles.filter(
-                                (article) => article.category === categoryName
-                              );
-                              const isCategoryActive = categoryName === selectedCategory;
+                  {isActive ? (
+                    <div className="border-t border-slate-200 px-3 py-3">
+                      {nestedCategories.length > 0 ? (
+                        <div className="space-y-4">
+                          {nestedCategories.map((categoryName) => {
+                            const groupedArticles = nestedArticles.filter(
+                              (article) => article.category === categoryName
+                            );
+                            const isCategoryActive = categoryName === selectedCategory;
 
-                              return (
-                                <div key={categoryName} className="space-y-2">
-                                  <Link
-                                    href={buildAppHref(topic.name, {
-                                      category: categoryName,
-                                      query: searchQuery || undefined,
-                                    })}
-                                    className={`flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] transition-colors ${
-                                      isCategoryActive
-                                        ? "bg-[#21425e] text-[#79ebcf]"
-                                        : "bg-[#0e1d2c] text-slate-400 hover:bg-[#162a3d]"
-                                    }`}
-                                  >
-                                    <span>{categoryName}</span>
-                                    <span>{groupedArticles.length}</span>
-                                  </Link>
+                            return (
+                              <div key={categoryName} className="space-y-2">
+                                <Link
+                                  href={buildAppHref(topic.name, {
+                                    category: categoryName,
+                                    query: searchQuery || undefined,
+                                  })}
+                                  className={`flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-[0.1em] ${
+                                    isCategoryActive
+                                      ? "bg-sky-100 text-sky-700"
+                                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                                  }`}
+                                >
+                                  <span>{categoryName}</span>
+                                  <span>{groupedArticles.length}</span>
+                                </Link>
 
-                                  {groupedArticles.length > 0 ? (
-                                    <div className="space-y-2">
-                                      {groupedArticles.map((article) => {
-                                        const isSelected = article.id === selectedArticle?.id;
+                                {groupedArticles.length > 0 ? (
+                                  <div className="space-y-2">
+                                    {groupedArticles.map((article) => {
+                                      const isSelected = article.id === selectedArticle?.id;
 
-                                        return (
-                                          <Link
-                                            key={article.id}
-                                            href={buildAppHref(topic.name, {
-                                              articleId: article.id,
-                                              category: categoryName,
-                                              query: searchQuery || undefined,
-                                            })}
-                                            className={`block rounded-xl border px-3 py-3 transition-colors ${
-                                              isSelected
-                                                ? "border-[#4d7391] bg-[#0f2030] text-slate-100 shadow-sm"
-                                                : "border-slate-500/45 bg-[#173046] text-slate-200 hover:bg-[#0f2030]"
-                                            }`}
-                                          >
-                                            <div className="flex items-start justify-between gap-3">
-                                              <div className="min-w-0">
-                                                <p className="truncate text-sm font-semibold">
-                                                  {article.title}
-                                                </p>
-                                                <p
-                                                  className={`mt-1 line-clamp-2 text-xs leading-5 ${
-                                                    isSelected
-                                                      ? "text-slate-300"
-                                                      : "text-slate-400"
-                                                  }`}
-                                                >
-                                                  {article.summary}
-                                                </p>
-                                              </div>
-                                              <ArrowUpRight className="mt-0.5 size-3.5 shrink-0 text-slate-400" />
+                                      return (
+                                        <Link
+                                          key={article.id}
+                                          href={buildAppHref(topic.name, {
+                                            articleId: article.id,
+                                            category: categoryName,
+                                            query: searchQuery || undefined,
+                                          })}
+                                          className={`block rounded-xl border px-3 py-3 transition-colors ${
+                                            isSelected
+                                              ? "border-sky-300 bg-sky-50"
+                                              : "border-slate-200 bg-white hover:bg-slate-50"
+                                          }`}
+                                        >
+                                          <div className="flex items-start justify-between gap-3">
+                                            <div className="min-w-0">
+                                              <p className="truncate text-sm font-semibold text-slate-900">
+                                                {article.title}
+                                              </p>
+                                              <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-600">
+                                                {article.summary}
+                                              </p>
                                             </div>
-                                          </Link>
-                                        );
-                                      })}
-                                    </div>
-                                  ) : (
-                                    <div className="rounded-xl border border-dashed border-slate-500/45 bg-[#0e1d2c] px-3 py-3 text-sm leading-6 text-slate-400">
-                                      В этой категории пока нет статей.
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        ) : (
-                          <div className="rounded-xl border border-dashed border-slate-500/45 bg-[#0e1d2c] px-3 py-4 text-sm leading-6 text-slate-400">
-                            {copy.noArticlesInSection}
-                          </div>
-                        )}
-                      </div>
-                    ) : null}
-                  </div>
-                );
-              })}
-            </nav>
-          </div>
+                                            <ArrowUpRight className="mt-0.5 size-3.5 shrink-0 text-slate-400" />
+                                          </div>
+                                        </Link>
+                                      );
+                                    })}
+                                  </div>
+                                ) : (
+                                  <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3 py-3 text-xs leading-5 text-slate-500">
+                                    В этой категории пока нет статей.
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3 py-3 text-xs leading-5 text-slate-500">
+                          {copy.noArticlesInSection}
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
+                </article>
+              );
+            })}
+          </nav>
         </aside>
 
-        <main className="nook-scroll flex min-w-0 flex-1 flex-col gap-5 overflow-y-auto p-5 lg:p-6 xl:p-7">
-          <section className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_290px]">
-            <div className="nook-surface rounded-[28px] p-6">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-                {copy.currentSection}
-              </p>
-              <div className="mt-4 flex flex-wrap items-center gap-3">
-                <span className="inline-flex rounded-full bg-[#21425e] px-3 py-1 text-sm font-semibold text-[#79ebcf]">
-                  {currentTopic.name}
-                </span>
-                <span className="inline-flex rounded-full border border-slate-500/45 bg-[#142637] px-3 py-1 text-sm font-medium text-slate-200">
-                  {selectedCategory}
-                </span>
-                <span className="text-sm text-slate-300">
-                  {categoryArticles.length} {copy.sectionCount}
-                </span>
-              </div>
-              <h2 className="mt-5 max-w-3xl text-3xl font-semibold tracking-tight text-slate-100 sm:text-[2.4rem]">
-                {copy.heroTitle}
-              </h2>
-              <p className="mt-4 max-w-3xl text-sm leading-7 text-slate-300 sm:text-base">
-                {copy.heroText}
-              </p>
+        <main className="order-1 space-y-4 lg:order-2">
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+              {copy.currentSection}
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700">
+                {currentTopic.name}
+              </span>
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                {selectedCategory}
+              </span>
+              <span className="text-xs text-slate-500">
+                {categoryArticles.length} {copy.sectionCount}
+              </span>
             </div>
+            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900 sm:text-[2.1rem]">
+              {copy.heroTitle}
+            </h1>
+            <p className="mt-3 max-w-4xl text-sm leading-7 text-slate-600">{copy.heroText}</p>
+          </section>
 
-            <div className="nook-surface rounded-[28px] p-6">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-                {copy.snapshot}
-              </p>
-              <div className="mt-5 grid gap-3">
-                <div className="rounded-[18px] border border-slate-500/45 bg-[#15293d] px-4 py-4">
-                  <p className="text-xs uppercase tracking-[0.16em] text-slate-400">
-                    {copy.allArticles}
-                  </p>
-                  <p className="mt-2 text-2xl font-semibold text-slate-100">{totalArticles}</p>
+          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            {selectedArticle ? (
+              <>
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <span className="rounded-full bg-sky-100 px-3 py-1 font-semibold text-sky-700">
+                    {selectedArticle.topic}
+                  </span>
+                  <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700">
+                    {selectedArticle.category}
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-slate-500">
+                    <Clock3 className="size-3.5" />
+                    {copy.updated} {formatDateTime(selectedArticle.updatedAt)}
+                  </span>
                 </div>
-                <div className="rounded-[18px] border border-slate-500/45 bg-[#15293d] px-4 py-4">
-                  <p className="text-xs uppercase tracking-[0.16em] text-slate-400">
-                    Категория
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-slate-100">{selectedCategory}</p>
+
+                <h2 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900">
+                  {selectedArticle.title}
+                </h2>
+                <p className="mt-3 text-sm leading-7 text-slate-600">{selectedArticle.summary}</p>
+
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                    <div className="flex items-center gap-2 text-xs uppercase tracking-[0.1em] text-slate-500">
+                      <UserRound className="size-3.5" />
+                      {copy.author}
+                    </div>
+                    <p className="mt-2 text-sm font-semibold text-slate-900">
+                      {selectedArticle.authorName}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {copy.created} {formatDateTime(selectedArticle.createdAt)}
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+                    <div className="flex items-center gap-2 text-xs uppercase tracking-[0.1em] text-slate-500">
+                      <PenSquare className="size-3.5" />
+                      {copy.lastEditor}
+                    </div>
+                    <p className="mt-2 text-sm font-semibold text-slate-900">
+                      {selectedArticle.updatedByName}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {copy.updated} {formatDateTime(selectedArticle.updatedAt)}
+                    </p>
+                  </div>
                 </div>
-                <div className="rounded-[18px] border border-slate-500/45 bg-[#15293d] px-4 py-4">
-                  <p className="text-xs uppercase tracking-[0.16em] text-slate-400">
-                    {copy.lastUpdate}
-                  </p>
-                  <p className="mt-2 text-sm font-semibold text-slate-100">
-                    {articles[0] ? formatDateTime(articles[0].updatedAt) : copy.emptyValue}
-                  </p>
+
+                <div className="mt-5 rounded-xl border border-slate-200 bg-white p-4">
+                  <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-700">
+                    <BookOpenText className="size-4 text-sky-700" />
+                    {copy.reading}
+                  </div>
+                  <ArticleContent
+                    html={selectedArticle.contentHtml}
+                    wikiLinks={wikiLinks}
+                    className="nook-editor-light max-w-none space-y-4 text-[15px] leading-7 text-slate-700"
+                  />
                 </div>
+              </>
+            ) : (
+              <div className="flex min-h-[380px] flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-8 text-center">
+                <div className="flex size-14 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
+                  <SearchSlash className="size-6" />
+                </div>
+                <h2 className="mt-4 text-2xl font-semibold text-slate-900">{copy.nothingToRead}</h2>
+                <p className="mt-2 max-w-md text-sm leading-7 text-slate-600">{copy.nothingToReadText}</p>
+              </div>
+            )}
+          </section>
+        </main>
+
+        <aside className="order-3 space-y-4">
+          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+              {copy.workspace}
+            </p>
+            <div className="mt-3 flex items-center gap-3">
+              <UserAvatar
+                image={session.user.image}
+                name={displayName}
+                className="size-11 rounded-xl border border-slate-300 bg-slate-100"
+                fallbackClassName="text-sky-700"
+              />
+              <div className="min-w-0">
+                <h3 className="truncate text-base font-semibold text-slate-900">{displayName}</h3>
+                <p className="truncate text-xs text-slate-500">{session.user.email}</p>
+              </div>
+            </div>
+            <p className="mt-3 text-sm leading-6 text-slate-600">{copy.workspaceText}</p>
+          </section>
+
+          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+              {copy.snapshot}
+            </p>
+            <div className="mt-3 grid gap-2">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                <p className="text-[11px] uppercase tracking-[0.1em] text-slate-500">{copy.allArticles}</p>
+                <p className="mt-1 text-xl font-semibold text-slate-900">{totalArticles}</p>
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                <p className="text-[11px] uppercase tracking-[0.1em] text-slate-500">Категория</p>
+                <p className="mt-1 text-sm font-semibold text-slate-900">{selectedCategory}</p>
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
+                <p className="text-[11px] uppercase tracking-[0.1em] text-slate-500">{copy.lastUpdate}</p>
+                <p className="mt-1 text-sm font-semibold text-slate-900">
+                  {articles[0] ? formatDateTime(articles[0].updatedAt) : copy.emptyValue}
+                </p>
               </div>
             </div>
           </section>
 
-          <section className="grid min-h-0 gap-5 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-            <div className="nook-surface rounded-[28px] p-6">
-              {selectedArticle ? (
-                <>
-                  <div className="flex flex-wrap items-center gap-3">
-                    <span className="inline-flex rounded-full bg-[#21425e] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#79ebcf]">
-                      {selectedArticle.topic}
-                    </span>
-                    <span className="inline-flex rounded-full border border-slate-500/45 bg-[#142637] px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-300">
-                      {selectedArticle.category}
-                    </span>
-                    <span className="inline-flex items-center gap-2 text-xs text-slate-300">
-                      <Clock3 className="size-3.5" />
-                      {copy.updated} {formatDateTime(selectedArticle.updatedAt)}
-                    </span>
-                  </div>
+          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+              {copy.editor}
+            </p>
+            <h2 className="mt-2 text-xl font-semibold text-slate-900">
+              {selectedArticle ? copy.editArticle : copy.newNote}
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600">{copy.editorText}</p>
 
-                  <h2 className="mt-5 text-3xl font-semibold tracking-tight text-slate-100">
-                    {selectedArticle.title}
-                  </h2>
-                  <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300 sm:text-base">
-                    {selectedArticle.summary}
-                  </p>
-
-                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-[18px] border border-slate-500/45 bg-[#15293d] px-4 py-4">
-                      <div className="flex items-center gap-2 text-xs uppercase tracking-[0.14em] text-slate-400">
-                        <UserRound className="size-3.5" />
-                        {copy.author}
-                      </div>
-                      <p className="mt-2 text-sm font-semibold text-slate-100">
-                        {selectedArticle.authorName}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-400">
-                        {copy.created} {formatDateTime(selectedArticle.createdAt)}
-                      </p>
-                    </div>
-
-                    <div className="rounded-[18px] border border-slate-500/45 bg-[#15293d] px-4 py-4">
-                      <div className="flex items-center gap-2 text-xs uppercase tracking-[0.14em] text-slate-400">
-                        <PenSquare className="size-3.5" />
-                        {copy.lastEditor}
-                      </div>
-                      <p className="mt-2 text-sm font-semibold text-slate-100">
-                        {selectedArticle.updatedByName}
-                      </p>
-                      <p className="mt-1 text-xs text-slate-400">
-                        {copy.updated} {formatDateTime(selectedArticle.updatedAt)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-6 rounded-[22px] border border-slate-500/45 bg-[#0e1d2c] p-5">
-                    <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-200">
-                      <BookOpenText className="size-4 text-[#79ebcf]" />
-                      {copy.reading}
-                    </div>
-                    <ArticleContent
-                      html={selectedArticle.contentHtml}
-                      wikiLinks={wikiLinks}
-                      className="max-w-none space-y-4 text-sm leading-7 text-slate-300"
-                    />
-                  </div>
-                </>
-              ) : (
-                <div className="flex h-full min-h-[420px] flex-col items-center justify-center rounded-[22px] border border-dashed border-slate-500/45 bg-[#0e1d2c] px-8 text-center">
-                  <div className="flex size-14 items-center justify-center rounded-3xl bg-[#1a3650] text-[#79ebcf]">
-                    <SearchSlash className="size-6" />
-                  </div>
-                  <h2 className="mt-5 text-2xl font-semibold text-slate-100">
-                    {copy.nothingToRead}
-                  </h2>
-                  <p className="mt-3 max-w-md text-sm leading-7 text-slate-300">
-                    {copy.nothingToReadText}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="nook-surface rounded-[28px] p-6">
-              <div className="mb-5">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-400">
-                  {copy.editor}
-                </p>
-                <h2 className="mt-3 text-2xl font-semibold tracking-tight text-slate-100">
-                  {selectedArticle ? copy.editArticle : copy.newNote}
-                </h2>
-                <p className="mt-3 text-sm leading-7 text-slate-300">{copy.editorText}</p>
-              </div>
-
+            <div className="mt-4">
               <ThoughtEditor
                 article={selectedArticle}
                 topics={articleTopics.map((topic) => topic.name)}
@@ -628,12 +616,8 @@ export default async function AppPage({ searchParams }: AppPageProps) {
               />
             </div>
           </section>
-        </main>
+        </aside>
       </div>
     </div>
   );
 }
-
-
-
-

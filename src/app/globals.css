@@ -324,6 +324,44 @@
   content: attr(data-placeholder);
 }
 
+.nook-editor-light h2 {
+  color: #0f172a;
+}
+
+.nook-editor-light h3 {
+  color: #1e293b;
+}
+
+.nook-editor-light p,
+.nook-editor-light li {
+  color: #334155;
+}
+
+.nook-editor-light blockquote {
+  border-left-color: #0ea5e9;
+  color: #475569;
+}
+
+.nook-editor-light pre {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.nook-editor-light p code,
+.nook-editor-light li code {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.nook-editor-light hr {
+  border-top-color: #d1d5db;
+}
+
+.nook-editor-light img {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
 .nook-snippet {
   margin: 0.95rem 0;
   overflow: hidden;
