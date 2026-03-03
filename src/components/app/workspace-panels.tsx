@@ -22,7 +22,7 @@ const copy = {
   editorText:
     "Изменения сохраняются в PostgreSQL и сразу отображаются в структуре разделов.",
   editButton: "Редактировать",
-  closeEditor: "Закрыть редактор",
+  previewButton: "Предпросмотр",
 } as const;
 
 type EditorArticle = Parameters<typeof ThoughtEditor>[0]["article"];
@@ -93,7 +93,7 @@ export function WorkspacePanels({
                   href={closeEditorHref}
                   className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
                 >
-                  {copy.closeEditor}
+                  {copy.previewButton}
                 </Link>
               ) : null}
             </div>
