@@ -13,6 +13,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   CheckCircle2,
+  Clock3,
   Circle,
   Eye,
   EyeOff,
@@ -60,6 +61,20 @@ type ModeMeta = {
   icon: LucideIcon;
 };
 
+type JourneyTone = "sky" | "amber" | "emerald" | "cyan";
+
+type JourneyStep = {
+  id: string;
+  label: string;
+  icon: LucideIcon;
+  tone: JourneyTone;
+};
+
+type ModeJourney = {
+  title: string;
+  steps: JourneyStep[];
+};
+
 const modeOptions: ModeOption[] = [
   {
     id: "sign-in",
@@ -99,6 +114,36 @@ const modeMeta: Record<AuthMode, ModeMeta> = {
     title: "Сброс пароля",
     description: "Пришлем ссылку для восстановления доступа.",
     icon: ShieldCheck,
+  },
+};
+
+const modeJourney: Record<AuthMode, ModeJourney> = {
+  "sign-in": {
+    title: "authorization flow",
+    steps: [
+      { id: "signin-email", label: "email", icon: Mail, tone: "sky" },
+      { id: "signin-password", label: "password", icon: KeyRound, tone: "amber" },
+      { id: "signin-check", label: "check", icon: ShieldCheck, tone: "emerald" },
+      { id: "signin-open", label: "session", icon: CheckCircle2, tone: "cyan" },
+    ],
+  },
+  "sign-up": {
+    title: "registration flow",
+    steps: [
+      { id: "signup-profile", label: "profile", icon: UserPlus, tone: "sky" },
+      { id: "signup-request", label: "request", icon: Clock3, tone: "amber" },
+      { id: "signup-review", label: "review", icon: ShieldCheck, tone: "emerald" },
+      { id: "signup-access", label: "access", icon: KeyRound, tone: "cyan" },
+    ],
+  },
+  reset: {
+    title: "reset flow",
+    steps: [
+      { id: "reset-request", label: "request", icon: Mail, tone: "sky" },
+      { id: "reset-wait", label: "link", icon: Clock3, tone: "amber" },
+      { id: "reset-update", label: "update", icon: KeyRound, tone: "emerald" },
+      { id: "reset-done", label: "login", icon: CheckCircle2, tone: "cyan" },
+    ],
   },
 };
 
@@ -251,6 +296,7 @@ export function AuthForms() {
   const activeFeedback = feedback ?? queryFeedback;
   const resendEmail = lastEmail || signInForm.email || signUpForm.email || resetEmail;
   const activeMode = modeMeta[mode];
+  const activeJourney = modeJourney[mode];
   const modeOffset = mode === "sign-in" ? "0%" : mode === "sign-up" ? "100%" : "200%";
   const modeIndicatorStyle = { "--nook-mode-x": modeOffset } as CSSProperties;
 
@@ -542,6 +588,35 @@ export function AuthForms() {
             <div className="space-y-1">
               <h2 className="text-xl font-semibold tracking-tight text-[#e5f2fd]">{activeMode.title}</h2>
               <p className="text-sm leading-6 text-[#93b5cd]">{activeMode.description}</p>
+            </div>
+          </div>
+
+          <div className="nook-auth-flow-card" data-mode={mode}>
+            <div className="nook-auth-flow-head">
+              <span className="nook-auth-flow-title">{activeJourney.title}</span>
+            </div>
+            <div className="nook-auth-flow-stage" aria-hidden="true">
+              <span className="nook-auth-flow-line" />
+              <span className="nook-auth-flow-line-glow" />
+              <span className="nook-auth-flow-traveler" />
+              {activeJourney.steps.map((step, index) => (
+                <div
+                  key={step.id}
+                  className={`nook-auth-flow-node nook-auth-flow-node-${index + 1}`}
+                  data-tone={step.tone}
+                >
+                  <step.icon className="size-3.5" />
+                </div>
+              ))}
+              {activeJourney.steps.map((step, index) => (
+                <span
+                  key={`${step.id}-label`}
+                  className={`nook-auth-flow-label nook-auth-flow-label-${index + 1}`}
+                  data-tone={step.tone}
+                >
+                  {step.label}
+                </span>
+              ))}
             </div>
           </div>
         </div>
