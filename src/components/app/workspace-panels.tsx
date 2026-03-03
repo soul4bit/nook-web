@@ -1,13 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BookOpenText, Clock3, SearchSlash } from "lucide-react";
+import { BookOpenText, Clock3, PenSquare, SearchSlash, UserRound } from "lucide-react";
 import { ArticleContent } from "@/components/articles/article-content";
 import { ThoughtEditor, type ThoughtEditorPreview } from "@/components/editor/thought-editor";
 import { type ArticleTopic } from "@/lib/content/devops-library";
 
 const copy = {
+  snapshot: "Состояние",
+  allArticles: "Всего статей",
+  lastUpdate: "Последнее обновление",
+  emptyValue: "Пока нет данных",
   updated: "Обновлено",
+  created: "Создано",
+  author: "Автор",
+  lastEditor: "Последний редактор",
   reading: "Просмотр статьи",
   nothingToRead: "Статья не выбрана",
   nothingToReadText:
@@ -21,9 +28,6 @@ const copy = {
   draftTitle: "Новая статья",
   previewSummaryFallback: "Добавьте короткое описание, и оно появится под заголовком статьи.",
   previewBodyFallback: "Начните писать в редакторе справа, и здесь сразу появится предпросмотр.",
-  totalArticles: "Всего статей",
-  lastUpdate: "Последнее обновление",
-  emptyValue: "Пока нет данных",
 } as const;
 
 type EditorArticle = Parameters<typeof ThoughtEditor>[0]["article"];
@@ -41,6 +45,7 @@ type WorkspacePanelsProps = {
   lastUpdatedAt: string | null;
   isAdmin: boolean;
   currentUserId: string;
+  displayName: string;
   wikiLinks: WikiLink[];
 };
 
@@ -87,6 +92,7 @@ export function WorkspacePanels({
   lastUpdatedAt,
   isAdmin,
   currentUserId,
+  displayName,
   wikiLinks,
 }: WorkspacePanelsProps) {
   const [livePreview, setLivePreview] = useState<ThoughtEditorPreview>(() =>
@@ -101,6 +107,9 @@ export function WorkspacePanels({
   const previewSummary = livePreview.summary || copy.previewSummaryFallback;
   const previewTopic = livePreview.topic || selectedTopic;
   const previewCategory = livePreview.category || selectedCategory;
+  const authorName = selectedArticle?.authorName ?? displayName;
+  const lastEditorName = selectedArticle?.updatedByName ?? displayName;
+  const createdAt = selectedArticle ? formatDateTime(selectedArticle.createdAt) : copy.draft;
   const updatedAt = selectedArticle ? formatDateTime(selectedArticle.updatedAt) : copy.draft;
   const canDeleteArticle = selectedArticle
     ? selectedArticle.authorId === currentUserId || isAdmin
@@ -136,7 +145,31 @@ export function WorkspacePanels({
               </h2>
               <p className="mt-3 text-sm leading-7 text-slate-600 sm:text-[15px]">{previewSummary}</p>
 
-              <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50/30 p-4 sm:p-5">
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 px-4 py-3">
+                  <div className="flex items-center gap-2 text-xs uppercase tracking-[0.1em] text-slate-500">
+                    <UserRound className="size-3.5" />
+                    {copy.author}
+                  </div>
+                  <p className="mt-2 text-sm font-semibold text-slate-900">{authorName}</p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {copy.created} {createdAt}
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 px-4 py-3">
+                  <div className="flex items-center gap-2 text-xs uppercase tracking-[0.1em] text-slate-500">
+                    <PenSquare className="size-3.5" />
+                    {copy.lastEditor}
+                  </div>
+                  <p className="mt-2 text-sm font-semibold text-slate-900">{lastEditorName}</p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {copy.updated} {updatedAt}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50/30 p-4">
                 <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-700">
                   <BookOpenText className="size-4 text-sky-700" />
                   {copy.reading}
@@ -166,16 +199,33 @@ export function WorkspacePanels({
 
       <aside className="order-3 space-y-3 sm:space-y-4">
         <section className="nook-surface rounded-2xl p-4">
-          <div className="flex flex-wrap gap-3 text-xs text-slate-600">
-            <span className="rounded-full bg-slate-100 px-2.5 py-1">
-              {copy.totalArticles}: {totalArticles}
-            </span>
-            <span className="rounded-full bg-slate-100 px-2.5 py-1">Категория: {previewCategory}</span>
-            <span className="rounded-full bg-slate-100 px-2.5 py-1">
-              {copy.lastUpdate}: {lastUpdatedAt ? formatDateTime(lastUpdatedAt) : copy.emptyValue}
-            </span>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+            {copy.snapshot}
+          </p>
+          <div className="mt-3 grid gap-2">
+            <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 px-3 py-2">
+              <p className="text-[11px] uppercase tracking-[0.1em] text-slate-500">
+                {copy.allArticles}
+              </p>
+              <p className="mt-1 text-xl font-semibold text-slate-900">{totalArticles}</p>
+            </div>
+            <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 px-3 py-2">
+              <p className="text-[11px] uppercase tracking-[0.1em] text-slate-500">Категория</p>
+              <p className="mt-1 text-sm font-semibold text-slate-900">{previewCategory}</p>
+            </div>
+            <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 px-3 py-2">
+              <p className="text-[11px] uppercase tracking-[0.1em] text-slate-500">
+                {copy.lastUpdate}
+              </p>
+              <p className="mt-1 text-sm font-semibold text-slate-900">
+                {lastUpdatedAt ? formatDateTime(lastUpdatedAt) : copy.emptyValue}
+              </p>
+            </div>
           </div>
-          <p className="mt-4 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+        </section>
+
+        <section className="nook-surface rounded-2xl p-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
             {copy.editor}
           </p>
           <h2 className="mt-2 text-xl font-semibold text-slate-900">

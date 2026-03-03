@@ -31,6 +31,8 @@ const copy = {
   admin: "Админ-панель",
   sections: "Разделы",
   articlesSuffix: "статей",
+  noArticlesInSection:
+    "В этой категории пока нет материалов. Создайте первую заметку через редактор справа.",
   searchPlaceholder: "Поиск по заголовку, описанию и тексту",
   searchButton: "Найти",
   clearSearch: "Сброс",
@@ -264,133 +266,161 @@ export default async function AppPage({ searchParams }: AppPageProps) {
         </div>
       </header>
 
-      <div className="mx-auto max-w-[1700px] px-3 py-3 sm:px-6 sm:py-4 lg:px-8">
-        <details className="nook-surface group rounded-2xl">
-          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3">
-            <div>
-              <p className="text-sm font-semibold text-slate-900">{copy.sections}</p>
-              <p className="text-xs text-slate-500">
-                {selectedTopic} / {selectedCategory}
+      <div className="mx-auto grid max-w-[1700px] gap-4 px-3 py-3 sm:gap-5 sm:px-6 sm:py-4 lg:grid-cols-[300px_minmax(0,1fr)_430px] lg:px-8">
+        <aside className="order-2 space-y-3 sm:space-y-4 lg:order-1">
+          <section className="nook-surface rounded-2xl p-4">
+            <div className="mb-3 flex items-center justify-between">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+                {copy.sections}
               </p>
+              <span className="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-600">
+                {hasSearchQuery ? `${visibleArticlesCount}/${totalArticles}` : totalArticles} {" "}
+                {copy.articlesSuffix}
+              </span>
             </div>
-            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-700">
-              {hasSearchQuery ? `${visibleArticlesCount}/${totalArticles}` : totalArticles}{" "}
-              {copy.articlesSuffix}
-            </span>
-          </summary>
-
-          <div className="border-t border-slate-200 p-3">
             {hasSearchQuery ? (
-              <div className="mb-3 rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-800">
+              <div className="rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-xs text-sky-800">
                 {copy.searchResult}: {visibleArticlesCount}
               </div>
             ) : null}
+          </section>
 
-            <nav className="nook-scroll max-h-[52vh] space-y-2 overflow-y-auto pr-1">
-              {articleTopics.map((topic) => {
-                const Icon = topicIcons[topic.name];
-                const isActive = topic.name === selectedTopic;
-                const nestedArticles = articles.filter((article) => article.topic === topic.name);
-                const nestedCategories = Array.from(
-                  new Set([...topic.categories, ...nestedArticles.map((article) => article.category)])
-                );
+          <nav className="nook-scroll max-h-[calc(100vh-190px)] space-y-2 overflow-y-auto pr-1 sm:space-y-3">
+            {articleTopics.map((topic) => {
+              const Icon = topicIcons[topic.name];
+              const isActive = topic.name === selectedTopic;
+              const nestedArticles = articles.filter((article) => article.topic === topic.name);
+              const nestedCategories = Array.from(
+                new Set([...topic.categories, ...nestedArticles.map((article) => article.category)])
+              );
 
-                return (
-                  <article
-                    key={topic.name}
-                    className={`rounded-xl border ${
-                      isActive ? "border-sky-300 bg-sky-50/60" : "border-slate-200 bg-white"
-                    }`}
+              return (
+                <article
+                  key={topic.name}
+                  className={`nook-surface rounded-2xl transition-[border-color,box-shadow] ${
+                    isActive
+                      ? "border-sky-300/90"
+                      : "border-slate-200 hover:border-slate-300 hover:shadow-[0_12px_26px_rgba(15,23,42,0.07)]"
+                  }`}
+                >
+                  <Link
+                    href={buildAppHref(topic.name, {
+                      query: searchQuery || undefined,
+                    })}
+                    className="flex items-start gap-3 px-4 py-3.5"
                   >
-                    <Link
-                      href={buildAppHref(topic.name, {
-                        query: searchQuery || undefined,
-                      })}
-                      className="flex items-center gap-3 px-3 py-2.5"
+                    <div
+                      className={`mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl ${
+                        isActive ? "bg-sky-100 text-sky-800" : "bg-slate-100 text-slate-500"
+                      }`}
                     >
-                      <div
-                        className={`flex size-8 shrink-0 items-center justify-center rounded-lg ${
-                          isActive ? "bg-sky-100 text-sky-700" : "bg-slate-100 text-slate-500"
-                        }`}
-                      >
-                        <Icon className="size-4" />
+                      <Icon className="size-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-sm font-semibold text-slate-900">{topic.name}</h2>
+                        <span className="text-xs text-slate-500">{nestedArticles.length}</span>
                       </div>
-                      <p className="text-sm font-medium text-slate-900">
-                        {topic.name} <span className="text-slate-500">({nestedArticles.length})</span>
-                      </p>
-                    </Link>
+                      <p className="mt-1 text-xs leading-5 text-slate-600">{topic.summary}</p>
+                    </div>
+                  </Link>
 
-                    {isActive ? (
-                      <div className="space-y-2 border-t border-slate-200 px-3 py-2.5">
-                        {nestedCategories.map((categoryName) => {
-                          const groupedArticles = nestedArticles.filter(
-                            (article) => article.category === categoryName
-                          );
-                          const isCategoryActive = categoryName === selectedCategory;
+                  {isActive ? (
+                    <div className="border-t border-slate-200/90 px-3 py-3">
+                      {nestedCategories.length > 0 ? (
+                        <div className="space-y-4">
+                          {nestedCategories.map((categoryName) => {
+                            const groupedArticles = nestedArticles.filter(
+                              (article) => article.category === categoryName
+                            );
+                            const isCategoryActive = categoryName === selectedCategory;
 
-                          return (
-                            <div key={categoryName} className="space-y-1.5">
-                              <Link
-                                href={buildAppHref(topic.name, {
-                                  category: categoryName,
-                                  query: searchQuery || undefined,
-                                })}
-                                className={`flex items-center justify-between rounded-lg px-2 py-1.5 text-xs font-semibold ${
-                                  isCategoryActive
-                                    ? "bg-sky-100 text-sky-800"
-                                    : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                                }`}
-                              >
-                                <span>{categoryName}</span>
-                                <span>{groupedArticles.length}</span>
-                              </Link>
+                            return (
+                              <div key={categoryName} className="space-y-2">
+                                <Link
+                                  href={buildAppHref(topic.name, {
+                                    category: categoryName,
+                                    query: searchQuery || undefined,
+                                  })}
+                                  className={`flex items-center justify-between rounded-xl border px-3 py-2 text-xs font-semibold uppercase tracking-[0.1em] transition-colors ${
+                                    isCategoryActive
+                                      ? "border-sky-200 bg-sky-50 text-sky-800"
+                                      : "border-transparent bg-slate-100 text-slate-600 hover:border-slate-200 hover:bg-slate-50"
+                                  }`}
+                                >
+                                  <span>{categoryName}</span>
+                                  <span>{groupedArticles.length}</span>
+                                </Link>
 
-                              {groupedArticles.map((article) => {
-                                const isSelected = article.id === selectedArticle?.id;
+                                {groupedArticles.length > 0 ? (
+                                  <div className="space-y-2">
+                                    {groupedArticles.map((article) => {
+                                      const isSelected = article.id === selectedArticle?.id;
 
-                                return (
-                                  <Link
-                                    key={article.id}
-                                    href={buildAppHref(topic.name, {
-                                      articleId: article.id,
-                                      category: categoryName,
-                                      query: searchQuery || undefined,
+                                      return (
+                                        <Link
+                                          key={article.id}
+                                          href={buildAppHref(topic.name, {
+                                            articleId: article.id,
+                                            category: categoryName,
+                                            query: searchQuery || undefined,
+                                          })}
+                                          className={`block rounded-xl border px-3 py-3 transition-all ${
+                                            isSelected
+                                              ? "border-sky-300 bg-sky-50 shadow-[inset_0_0_0_1px_rgba(125,211,252,0.32)]"
+                                              : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                                          }`}
+                                        >
+                                          <div className="flex items-start justify-between gap-3">
+                                            <div className="min-w-0">
+                                              <p className="truncate text-sm font-semibold text-slate-900">
+                                                {article.title}
+                                              </p>
+                                              <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-600">
+                                                {article.summary}
+                                              </p>
+                                            </div>
+                                            <ArrowUpRight className="mt-0.5 size-3.5 shrink-0 text-slate-400" />
+                                          </div>
+                                        </Link>
+                                      );
                                     })}
-                                    className={`flex items-start justify-between gap-2 rounded-lg px-2 py-2 text-sm ${
-                                      isSelected ? "bg-sky-100 text-sky-900" : "hover:bg-slate-100"
-                                    }`}
-                                  >
-                                    <span className="line-clamp-1">{article.title}</span>
-                                    <ArrowUpRight className="mt-0.5 size-3.5 shrink-0 text-slate-400" />
-                                  </Link>
-                                );
-                              })}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : null}
-                  </article>
-                );
-              })}
-            </nav>
-          </div>
-        </details>
+                                  </div>
+                                ) : (
+                                  <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3 py-3 text-xs leading-5 text-slate-500">
+                                    В этой категории пока нет статей.
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-3 py-3 text-xs leading-5 text-slate-500">
+                          {copy.noArticlesInSection}
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
+                </article>
+              );
+            })}
+          </nav>
+        </aside>
 
-        <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_440px]">
-          <WorkspacePanels
-            selectedArticle={selectedArticle}
-            selectedTopic={selectedTopic}
-            selectedCategory={selectedCategory}
-            topics={articleTopics.map((topic) => topic.name)}
-            topicCategories={topicCategoryMap}
-            totalArticles={totalArticles}
-            lastUpdatedAt={lastUpdatedAt}
-            isAdmin={isAdmin}
-            currentUserId={session.user.id}
-            wikiLinks={wikiLinks}
-          />
-        </div>
+        <WorkspacePanels
+          selectedArticle={selectedArticle}
+          selectedTopic={selectedTopic}
+          selectedCategory={selectedCategory}
+          topics={articleTopics.map((topic) => topic.name)}
+          topicCategories={topicCategoryMap}
+          totalArticles={totalArticles}
+          lastUpdatedAt={lastUpdatedAt}
+          isAdmin={isAdmin}
+          currentUserId={session.user.id}
+          displayName={displayName}
+          wikiLinks={wikiLinks}
+        />
       </div>
     </div>
   );

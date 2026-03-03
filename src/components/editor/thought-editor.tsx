@@ -70,6 +70,8 @@ const copy = {
   deleting: "Удаляем...",
   deleteConfirm: "Удалить статью? Это действие нельзя отменить.",
   deleteError: "Не удалось удалить статью.",
+  footer:
+    "Контент хранится в PostgreSQL и параллельно в markdown-представлении, поэтому статьи можно экспортировать отдельно.",
   previewTitle: "Предпросмотр в реальном времени",
   previewDescription:
     "Превью обновляется сразу во время набора, чтобы вы видели итоговый вид статьи до сохранения.",
@@ -479,24 +481,33 @@ export function ThoughtEditor({
   if (!editor) return null;
 
   return (
-    <div className="space-y-3">
-      <div className="space-y-2">
-        <label htmlFor="article-title" className="text-sm font-medium text-slate-700">
-          {copy.titleLabel}
-        </label>
-        <Input
-          id="article-title"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          placeholder={copy.titlePlaceholder}
-          className="h-11 rounded-2xl border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-sky-200"
-        />
-        <p className="text-xs text-slate-500">
-          {copy.draft}: {stats.paragraphs} {copy.blocks}, {stats.chars} {copy.chars}
-        </p>
+    <div className="space-y-4">
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div className="space-y-2">
+          <label htmlFor="article-title" className="text-sm font-medium text-slate-700">
+            {copy.titleLabel}
+          </label>
+          <Input
+            id="article-title"
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
+            placeholder={copy.titlePlaceholder}
+            className="h-11 rounded-2xl border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-sky-200"
+          />
+        </div>
+
+        <div className="nook-surface-soft rounded-[18px] px-4 py-2.5 text-sm leading-6 text-slate-700">
+          <p className="font-semibold text-slate-900">{copy.draft}</p>
+          <p className="mt-2">
+            {stats.paragraphs} {copy.blocks}
+          </p>
+          <p>
+            {stats.chars} {copy.chars}
+          </p>
+        </div>
       </div>
 
-      <div className="grid gap-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-2">
           <label htmlFor="article-topic" className="text-sm font-medium text-slate-700">
             {copy.topicLabel}
@@ -549,7 +560,7 @@ export function ThoughtEditor({
         />
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="sticky top-20 z-10 -mx-1 flex flex-wrap gap-2 rounded-2xl border border-slate-200 bg-white/95 p-2 backdrop-blur">
         <EditorButton
           active={editor.isActive("bold")}
           onClick={() => editor.chain().focus().toggleBold().run()}
@@ -666,10 +677,10 @@ export function ThoughtEditor({
         </div>
       ) : null}
 
-      <div className="sticky bottom-2 z-10 flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200 bg-white/95 p-2 backdrop-blur">
+      <div className="flex flex-wrap items-center gap-3">
         <Button
           type="button"
-          className="rounded-xl px-4"
+          className="rounded-2xl px-5"
           onClick={handleSave}
           disabled={isSaving || isDeleting || isUploadingImage}
         >
@@ -689,7 +700,7 @@ export function ThoughtEditor({
         <Button
           type="button"
           variant="outline"
-          className="rounded-xl border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+          className="rounded-2xl border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
           onClick={handleNewDraft}
           disabled={isSaving || isDeleting || isUploadingImage}
         >
@@ -700,7 +711,7 @@ export function ThoughtEditor({
           <Button
             type="button"
             variant="outline"
-            className="rounded-xl border-rose-300 bg-white text-rose-700 hover:bg-rose-50"
+            className="rounded-2xl border-rose-300 bg-white text-rose-700 hover:bg-rose-50"
             onClick={handleDelete}
             disabled={isSaving || isDeleting || isUploadingImage}
           >
@@ -717,6 +728,10 @@ export function ThoughtEditor({
             )}
           </Button>
         ) : null}
+      </div>
+
+      <div className="nook-surface-soft rounded-[18px] p-4 text-sm leading-7 text-slate-600">
+        {copy.footer}
       </div>
     </div>
   );
