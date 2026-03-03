@@ -114,6 +114,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
   );
   const lastUpdatedAt = visibleArticles[0]?.updatedAt ?? null;
   const hasSearchQuery = Boolean(searchQuery);
+  const totalArticles = allArticles.length;
   const seenSlugs = new Set<string>();
 
   const wikiLinks = allArticles
@@ -218,6 +219,21 @@ export default async function AppPage({ searchParams }: AppPageProps) {
             <Sparkles className="size-3.5 text-orange-500" />
             Контур Знаний: решения, runbook и контекст в одном рабочем контуре
           </div>
+
+          <div className="mt-3 grid gap-2 sm:grid-cols-3">
+            <div className="rounded-xl border border-border bg-card/85 px-3 py-2">
+              <p className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">Статей в базе</p>
+              <p className="mt-1 text-base font-semibold text-foreground">{totalArticles}</p>
+            </div>
+            <div className="rounded-xl border border-border bg-card/85 px-3 py-2">
+              <p className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">В выборке</p>
+              <p className="mt-1 text-base font-semibold text-foreground">{visibleArticles.length}</p>
+            </div>
+            <div className="rounded-xl border border-border bg-card/85 px-3 py-2">
+              <p className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">Текущий раздел</p>
+              <p className="mt-1 text-base font-semibold text-foreground">{selectedTopic}</p>
+            </div>
+          </div>
         </header>
 
         <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)_420px]">
@@ -236,7 +252,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
             selectedCategory={selectedCategory}
             topics={articleTopics.map((topic) => topic.name)}
             topicCategories={topicCategoryMap}
-            totalArticles={allArticles.length}
+            totalArticles={totalArticles}
             lastUpdatedAt={lastUpdatedAt}
             isAdmin={isAdmin}
             currentUserId={session.user.id}

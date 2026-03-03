@@ -22,6 +22,17 @@ const checklist = [
   },
 ] as const;
 
+const values = [
+  {
+    title: "Один стандарт для заметок",
+    text: "Каждая команда пишет в одном формате, чтобы знания читались одинаково.",
+  },
+  {
+    title: "Скорость обучения",
+    text: "Новый инженер быстрее входит в проект за счет живых runbook и связей между статьями.",
+  },
+] as const;
+
 export default async function AuthPage() {
   const session = await getCurrentSession();
 
@@ -64,6 +75,15 @@ export default async function AuthPage() {
                   <item.icon className="size-4" />
                 </div>
                 <h2 className="mt-3 text-sm font-semibold text-foreground">{item.title}</h2>
+                <p className="mt-1.5 text-sm leading-6 text-muted-foreground">{item.text}</p>
+              </article>
+            ))}
+          </div>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            {values.map((item) => (
+              <article key={item.title} className="nook-panel-soft rounded-2xl p-4">
+                <h3 className="text-sm font-semibold text-foreground">{item.title}</h3>
                 <p className="mt-1.5 text-sm leading-6 text-muted-foreground">{item.text}</p>
               </article>
             ))}

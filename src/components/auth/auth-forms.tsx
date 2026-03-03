@@ -2,7 +2,7 @@
 
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { LoaderCircle, Mail, ShieldCheck } from "lucide-react";
+import { BadgeCheck, Clock3, LoaderCircle, Mail, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FeedbackBanner } from "@/components/auth/forms/feedback-banner";
 import { ResetForm } from "@/components/auth/forms/reset-form";
@@ -42,6 +42,60 @@ const modeMeta = {
     description: "Отправим ссылку на почту для безопасного восстановления доступа.",
     label: "Сброс",
   },
+} as const;
+
+const modeFlow = {
+  "sign-in": [
+    {
+      title: "Ввод данных",
+      text: "Email и пароль для действующего аккаунта.",
+      icon: BadgeCheck,
+    },
+    {
+      title: "Проверка защиты",
+      text: "Guard проверяет лимиты и антибот-защиту.",
+      icon: ShieldCheck,
+    },
+    {
+      title: "Открытие workspace",
+      text: "После успешной проверки сразу переход в базу знаний.",
+      icon: Clock3,
+    },
+  ],
+  "sign-up": [
+    {
+      title: "Заявка на доступ",
+      text: "Заполняете форму и отправляете запрос.",
+      icon: BadgeCheck,
+    },
+    {
+      title: "Модерация",
+      text: "Администратор принимает решение через Telegram.",
+      icon: ShieldCheck,
+    },
+    {
+      title: "Подтверждение email",
+      text: "После одобрения подтверждаете почту и входите.",
+      icon: Clock3,
+    },
+  ],
+  reset: [
+    {
+      title: "Запрос ссылки",
+      text: "Отправляем одноразовую ссылку на почту.",
+      icon: BadgeCheck,
+    },
+    {
+      title: "Проверка токена",
+      text: "Токен ограничен по времени и безопасности.",
+      icon: ShieldCheck,
+    },
+    {
+      title: "Новый пароль",
+      text: "Сохраняете пароль и входите стандартно.",
+      icon: Clock3,
+    },
+  ],
 } as const;
 
 function nextModeFromQuery(rawMode: string | null): AuthMode {
@@ -301,14 +355,14 @@ export function AuthForms() {
         <p className="text-sm leading-6 text-muted-foreground">{activeMeta.description}</p>
       </div>
 
-      <div className="nook-panel-soft grid grid-cols-3 rounded-xl p-1">
+      <div className="nook-panel-soft grid grid-cols-3 rounded-2xl p-1.5">
         {(Object.keys(modeMeta) as AuthMode[]).map((option) => (
           <button
             key={option}
             type="button"
-            className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+            className={`rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
               mode === option
-                ? "bg-card text-foreground shadow-sm"
+                ? "bg-card text-foreground shadow-[0_6px_14px_rgba(21,39,83,0.12)]"
                 : "text-muted-foreground hover:text-foreground"
             }`}
             onClick={() => {
@@ -327,6 +381,27 @@ export function AuthForms() {
             {modeMeta[option].label}
           </button>
         ))}
+      </div>
+
+      <div className="nook-panel-soft rounded-2xl p-4">
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          Как это работает
+        </p>
+        <div className="mt-3 space-y-2.5">
+          {modeFlow[mode].map((step, index) => (
+            <div key={step.title} className="flex items-start gap-3 rounded-xl bg-card/65 px-3 py-2.5">
+              <div className="mt-0.5 inline-flex size-7 items-center justify-center rounded-lg border border-border bg-accent">
+                <step.icon className="size-3.5 text-primary" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-foreground">
+                  {index + 1}. {step.title}
+                </p>
+                <p className="text-xs leading-5 text-muted-foreground">{step.text}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {activeFeedback ? <FeedbackBanner feedback={activeFeedback} /> : null}
