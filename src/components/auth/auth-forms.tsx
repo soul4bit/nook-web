@@ -75,6 +75,13 @@ type ModeJourney = {
   steps: JourneyStep[];
 };
 
+type JourneyState = {
+  completed: boolean[];
+  activeIndex: number;
+  completionCount: number;
+  caption: string;
+};
+
 const modeOptions: ModeOption[] = [
   {
     id: "sign-in",
@@ -328,6 +335,119 @@ export function AuthForms() {
       },
     ];
   }, [signUpForm.confirmPassword, signUpForm.password]);
+
+  const journeyState = useMemo<JourneyState>(() => {
+    const firstIncomplete = (steps: boolean[]) => {
+      const index = steps.findIndex((step) => !step);
+      return index === -1 ? steps.length - 1 : index;
+    };
+
+    const looksLikeEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+
+    if (mode === "sign-in") {
+      const emailReady = looksLikeEmail(signInForm.email.trim());
+      const passwordReady = signInForm.password.length > 0;
+      const credentialsReady = emailReady && passwordReady;
+      const completed = [
+        emailReady,
+        passwordReady,
+        credentialsReady,
+        pendingAction === "sign-in" ? true : credentialsReady,
+      ];
+      const completionCount = completed.filter(Boolean).length;
+
+      return {
+        completed,
+        activeIndex: firstIncomplete(completed),
+        completionCount,
+        caption:
+          pendingAction === "sign-in"
+            ? "authorizing credentials..."
+            : credentialsReady
+              ? "ready to sign in"
+              : "fill email and password",
+      };
+    }
+
+    if (mode === "sign-up") {
+      const nameReady = signUpForm.name.trim().length >= 2;
+      const emailReady = looksLikeEmail(signUpForm.email.trim());
+      const passwordReady =
+        signUpForm.password.length >= 10 &&
+        signUpForm.password.length <= 128 &&
+        /\p{L}/u.test(signUpForm.password) &&
+        /\d/.test(signUpForm.password);
+      const confirmReady =
+        signUpForm.confirmPassword.length > 0 && signUpForm.password === signUpForm.confirmPassword;
+      const completed = [nameReady, emailReady, passwordReady, confirmReady];
+      const completionCount = completed.filter(Boolean).length;
+
+      let caption = "enter your name";
+      if (nameReady && !emailReady) {
+        caption = "enter working email";
+      } else if (nameReady && emailReady && !passwordReady) {
+        caption = "create strong password";
+      } else if (nameReady && emailReady && passwordReady && !confirmReady) {
+        caption = "confirm password";
+      } else if (confirmReady) {
+        caption = "ready to send request";
+      }
+
+      if (pendingAction === "sign-up") {
+        caption = "sending registration request...";
+      }
+
+      return {
+        completed,
+        activeIndex: firstIncomplete(completed),
+        completionCount,
+        caption,
+      };
+    }
+
+    const emailReady = looksLikeEmail(resetEmail.trim());
+    const resetDone =
+      mode === "reset" &&
+      pendingAction !== "reset" &&
+      activeFeedback?.tone === "info" &&
+      Boolean(lastEmail);
+    const completed = [emailReady, emailReady, pendingAction === "reset" || resetDone, resetDone];
+    const completionCount = completed.filter(Boolean).length;
+
+    return {
+      completed,
+      activeIndex: firstIncomplete(completed),
+      completionCount,
+      caption:
+        resetDone
+          ? "reset link sent"
+          : pendingAction === "reset"
+            ? "sending reset link..."
+            : "enter account email",
+    };
+  }, [
+    activeFeedback?.tone,
+    lastEmail,
+    mode,
+    pendingAction,
+    resetEmail,
+    signInForm.email,
+    signInForm.password,
+    signUpForm.confirmPassword,
+    signUpForm.email,
+    signUpForm.name,
+    signUpForm.password,
+  ]);
+
+  const flowStyle = {
+    "--nook-flow-scale": (
+      journeyState.completionCount / Math.max(activeJourney.steps.length, 1)
+    ).toFixed(3),
+    "--nook-flow-speed":
+      mode === "sign-up" ? "2.9s" : mode === "sign-in" ? "4.4s" : "3.5s",
+    "--nook-flow-glow-speed":
+      mode === "sign-up" ? "2.2s" : mode === "sign-in" ? "3.3s" : "2.8s",
+  } as CSSProperties;
 
   function updateGuard(action: GuardAction, patch: Partial<GuardState>) {
     setGuardState((current) => ({
@@ -591,19 +711,26 @@ export function AuthForms() {
             </div>
           </div>
 
-          <div className="nook-auth-flow-card" data-mode={mode}>
+          <div className="nook-auth-flow-card" data-mode={mode} style={flowStyle}>
             <div className="nook-auth-flow-head">
               <span className="nook-auth-flow-title">{activeJourney.title}</span>
+              <span className="nook-auth-flow-count">
+                {journeyState.completionCount}/{activeJourney.steps.length}
+              </span>
             </div>
             <div className="nook-auth-flow-stage" aria-hidden="true">
               <span className="nook-auth-flow-line" />
+              <span className="nook-auth-flow-progress" />
               <span className="nook-auth-flow-line-glow" />
               <span className="nook-auth-flow-traveler" />
+              <span className="nook-auth-flow-marker" />
               {activeJourney.steps.map((step, index) => (
                 <div
                   key={step.id}
                   className={`nook-auth-flow-node nook-auth-flow-node-${index + 1}`}
                   data-tone={step.tone}
+                  data-complete={journeyState.completed[index] ? "true" : "false"}
+                  data-active={journeyState.activeIndex === index ? "true" : "false"}
                 >
                   <step.icon className="size-3.5" />
                 </div>
@@ -613,11 +740,13 @@ export function AuthForms() {
                   key={`${step.id}-label`}
                   className={`nook-auth-flow-label nook-auth-flow-label-${index + 1}`}
                   data-tone={step.tone}
+                  data-complete={journeyState.completed[index] ? "true" : "false"}
                 >
                   {step.label}
                 </span>
               ))}
             </div>
+            <p className="nook-auth-flow-caption">{journeyState.caption}</p>
           </div>
         </div>
       </div>
