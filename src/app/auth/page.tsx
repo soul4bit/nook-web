@@ -17,18 +17,18 @@ export default async function AuthPage() {
           <KnowledgeLogo
             subtitle="Приватная база знаний команды"
             className="relative z-10"
-            markClassName="border-[#3a6585] bg-[#102942]"
-            titleClassName="text-[#a6d8ee]"
-            subtitleClassName="text-[#7db0cc]"
+            markClassName="border-[#3f5f78] bg-[#112437]"
+            titleClassName="text-[#c6e5f7]"
+            subtitleClassName="text-[#8fb1c9]"
           />
 
           <div className="relative z-10 mt-8 lg:mt-6">
-            <div className="rounded-3xl border border-[#335f7f] bg-[#102a42]/78 p-5 shadow-[0_20px_44px_rgba(2,8,16,0.42)] backdrop-blur">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#7fc5e4]">О Wiki</p>
-              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#e6f3fd]">
+            <div className="rounded-3xl border border-[#395773] bg-[#101f30]/82 p-5 shadow-[0_20px_44px_rgba(2,8,16,0.38)] backdrop-blur">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#77b8d8]">О Wiki</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#e3f1fb]">
                 Единая база знаний команды
               </h2>
-              <p className="mt-3 text-sm leading-7 text-[#9fc2d8]">
+              <p className="mt-3 text-sm leading-7 text-[#9db9cb]">
                 Документация, runbook и статьи в одном месте. Доступы настраиваются по ролям, а
                 контент можно быстро обновлять и поддерживать в актуальном состоянии.
               </p>
@@ -36,6 +36,30 @@ export default async function AuthPage() {
                 <span className="nook-chip">Быстрый поиск</span>
                 <span className="nook-chip">Права по ролям</span>
                 <span className="nook-chip">История изменений</span>
+              </div>
+            </div>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl border border-[#324e67] bg-[#0f1d2d]/76 p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#84b6d2]">
+                  Что внутри
+                </p>
+                <ul className="mt-2 space-y-1.5 text-sm text-[#acc4d6]">
+                  <li>Runbook и эксплуатационные инструкции</li>
+                  <li>Архитектура сервисов и интеграций</li>
+                  <li>Статьи команды и onboarding</li>
+                </ul>
+              </div>
+
+              <div className="rounded-2xl border border-[#324e67] bg-[#0f1d2d]/76 p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#84b6d2]">
+                  Рабочий процесс
+                </p>
+                <ul className="mt-2 space-y-1.5 text-sm text-[#acc4d6]">
+                  <li>Создали статью</li>
+                  <li>Проверили и обновили</li>
+                  <li>Быстро нашли через поиск</li>
+                </ul>
               </div>
             </div>
           </div>

@@ -1096,40 +1096,40 @@
 }
 
 .nook-auth-flow-card {
-  --nook-flow-accent: #58d5f5;
-  --nook-flow-accent-soft: rgba(56, 189, 248, 0.34);
+  --nook-flow-accent: #66bfdc;
+  --nook-flow-accent-soft: rgba(102, 191, 220, 0.3);
   --nook-flow-scale: 0;
   margin-top: 0.9rem;
   border-radius: 0.9rem;
-  border: 1px solid rgba(74, 118, 148, 0.64);
-  background: rgba(7, 26, 41, 0.54);
+  border: 1px solid rgba(67, 97, 122, 0.72);
+  background: rgba(10, 24, 36, 0.7);
   box-shadow:
-    0 8px 20px rgba(2, 8, 16, 0.36),
-    inset 0 1px 0 rgba(186, 230, 253, 0.12);
+    0 8px 20px rgba(2, 8, 16, 0.34),
+    inset 0 1px 0 rgba(186, 230, 253, 0.1);
   padding: 0.62rem;
 }
 
 .nook-auth-flow-card[data-mode="sign-in"] {
-  border-color: rgba(82, 130, 164, 0.72);
-  background: linear-gradient(180deg, rgba(8, 28, 44, 0.7) 0%, rgba(7, 25, 39, 0.62) 100%);
+  border-color: rgba(83, 124, 153, 0.72);
+  background: linear-gradient(180deg, rgba(11, 29, 43, 0.82) 0%, rgba(10, 24, 36, 0.76) 100%);
 }
 
 .nook-auth-flow-card[data-mode="sign-up"] {
-  --nook-flow-accent: #34d399;
-  --nook-flow-accent-soft: rgba(45, 212, 191, 0.34);
-  border-color: rgba(79, 157, 141, 0.72);
+  --nook-flow-accent: #42c6ae;
+  --nook-flow-accent-soft: rgba(66, 198, 174, 0.34);
+  border-color: rgba(70, 143, 132, 0.72);
   background:
-    radial-gradient(circle at 72% 26%, rgba(45, 212, 191, 0.16), transparent 48%),
-    linear-gradient(180deg, rgba(8, 32, 34, 0.72) 0%, rgba(7, 29, 31, 0.66) 100%);
+    radial-gradient(circle at 72% 26%, rgba(66, 198, 174, 0.18), transparent 48%),
+    linear-gradient(180deg, rgba(8, 30, 33, 0.78) 0%, rgba(8, 26, 29, 0.72) 100%);
 }
 
 .nook-auth-flow-card[data-mode="reset"] {
-  --nook-flow-accent: #fbbf24;
-  --nook-flow-accent-soft: rgba(251, 191, 36, 0.34);
-  border-color: rgba(162, 132, 72, 0.72);
+  --nook-flow-accent: #e5b865;
+  --nook-flow-accent-soft: rgba(229, 184, 101, 0.34);
+  border-color: rgba(137, 113, 73, 0.72);
   background:
-    radial-gradient(circle at 24% 82%, rgba(251, 191, 36, 0.16), transparent 46%),
-    linear-gradient(180deg, rgba(36, 29, 17, 0.72) 0%, rgba(28, 23, 13, 0.66) 100%);
+    radial-gradient(circle at 24% 82%, rgba(229, 184, 101, 0.16), transparent 46%),
+    linear-gradient(180deg, rgba(35, 28, 18, 0.76) 0%, rgba(27, 22, 14, 0.7) 100%);
 }
 
 .nook-auth-flow-head {
@@ -1143,14 +1143,14 @@
   font-weight: 700;
   letter-spacing: 0.11em;
   text-transform: uppercase;
-  color: #8fc4df;
+  color: #9abfd4;
 }
 
 .nook-auth-flow-count {
   font-size: 0.58rem;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: #97c6de;
+  color: #a2c4d6;
 }
 
 .nook-auth-flow-stage {
@@ -1166,7 +1166,7 @@
   top: 1.22rem;
   height: 0.38rem;
   border-radius: 999px;
-  background: rgba(79, 127, 157, 0.44);
+  background: rgba(76, 99, 118, 0.56);
 }
 
 .nook-auth-flow-progress {
@@ -1195,9 +1195,9 @@
   align-items: center;
   justify-content: center;
   border-radius: 0.72rem;
-  border: 1px solid rgba(125, 211, 252, 0.48);
-  background: rgba(11, 30, 49, 0.92);
-  color: #d8eeff;
+  border: 1px solid rgba(103, 151, 182, 0.56);
+  background: rgba(13, 31, 45, 0.94);
+  color: #d4e5f0;
   box-shadow:
     0 10px 20px rgba(2, 8, 16, 0.46),
     inset 0 1px 0 rgba(186, 230, 253, 0.12);
@@ -1267,7 +1267,7 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #93bdd8;
+  color: #8eafc3;
   opacity: 0.56;
   transition: color 220ms ease, opacity 220ms ease;
 }
@@ -1314,15 +1314,15 @@
   font-size: 0.62rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #8ab6d0;
+  color: #90b0c2;
 }
 
 .nook-shell {
-  border: 1px solid #2a4f6b;
-  background: linear-gradient(180deg, rgba(10, 26, 44, 0.97) 0%, rgba(8, 23, 38, 0.95) 100%);
+  border: 1px solid #314a5f;
+  background: linear-gradient(180deg, rgba(13, 24, 36, 0.98) 0%, rgba(11, 22, 32, 0.96) 100%);
   box-shadow:
-    0 18px 38px rgba(2, 8, 16, 0.52),
-    inset 0 1px 0 rgba(148, 230, 253, 0.16);
+    0 18px 38px rgba(2, 8, 16, 0.48),
+    inset 0 1px 0 rgba(175, 207, 226, 0.12);
   backdrop-filter: blur(16px);
 }
 
@@ -1342,26 +1342,26 @@
   align-items: center;
   gap: 0.45rem;
   border-radius: 999px;
-  border: 1px solid #3f6f90;
-  background: #14334c;
+  border: 1px solid #49657c;
+  background: #1b3448;
   padding: 0.32rem 0.72rem;
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.17em;
   text-transform: uppercase;
-  color: #70d7f3;
+  color: #9bc4d9;
 }
 
 .nook-chip {
   display: inline-flex;
   align-items: center;
   border-radius: 999px;
-  border: 1px solid #355d7a;
-  background: #0f2a41;
+  border: 1px solid #3c5a70;
+  background: #15283a;
   padding: 0.24rem 0.72rem;
   font-size: 0.72rem;
   font-weight: 600;
-  color: #b8d1e5;
+  color: #b9cddd;
 }
 
 .nook-scroll {
