@@ -1,4 +1,4 @@
-import { type NextRequest } from "next/server";
+﻿import { type NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { handleGuardedAuthRequest, validateSignUpPayload } from "@/lib/auth/guard";
 import {
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
           {
             status: "pending_approval",
             message:
-              "Заявка на регистрацию отправлена администратору в Telegram. После одобрения вы сможете войти.",
+              "Заявка на регистрацию отправлена администратору в Telegram. После одобрения подтвердите email и затем войдите.",
           },
           { status: 202 }
         );
@@ -53,4 +53,3 @@ export async function POST(request: NextRequest) {
     },
   });
 }
-

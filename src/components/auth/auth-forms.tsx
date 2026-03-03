@@ -573,7 +573,7 @@ export function AuthForms() {
         tone: "success",
         text:
           result.message ??
-          "Заявка на регистрацию отправлена администратору в Telegram. После одобрения вы сможете войти.",
+          "Заявка на регистрацию отправлена администратору в Telegram. После одобрения подтвердите email и затем войдите.",
       });
     } catch (error) {
       setFeedback({
@@ -865,7 +865,7 @@ export function AuthForms() {
             <div className="rounded-2xl border border-[#2f4f67] bg-[#122235] p-4">
               <p className="text-sm font-semibold text-[#e4f0f8]">Нет аккаунта?</p>
               <p className="mt-1 text-sm leading-6 text-[#98b4c7]">
-                Отправьте заявку. После одобрения вы получите письмо и сможете войти.
+                Отправьте заявку. После одобрения получите письмо подтверждения, активируйте email и войдите.
               </p>
               <Button
                 type="button"

@@ -52,6 +52,28 @@ class AuthGuardError extends Error {
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const NAME_REGEX = /^[\p{L}\p{N} .,'_-]+$/u;
+const NAME_PROFANITY_ROOTS = [
+  "бля",
+  "бляд",
+  "блять",
+  "пизд",
+  "хуй",
+  "хуе",
+  "хер",
+  "сук",
+  "пидор",
+  "пидар",
+  "еба",
+  "ебл",
+  "ебуч",
+  "ебан",
+  "мудак",
+  "мудил",
+  "гандон",
+  "долбоеб",
+  "уеб",
+  "чмо",
+];
 const MAX_FORM_AGE_MS = 1000 * 60 * 60 * 24 * 7;
 const MAX_FUTURE_CLOCK_SKEW_MS = 1000 * 60 * 5;
 const AUTH_GUARD_SCHEMA_SQL = `
@@ -222,6 +244,31 @@ function validateName(value: unknown) {
   if (!NAME_REGEX.test(name)) {
     throw new AuthGuardError("Имя содержит недопустимые символы.", {
       code: "invalid_name_format",
+    });
+  }
+
+  const normalizedName = name
+    .toLowerCase()
+    .replaceAll("ё", "е")
+    .replace(/[0134@$]/g, (char) => {
+      if (char === "0") return "о";
+      if (char === "1") return "и";
+      if (char === "3") return "з";
+      if (char === "4") return "ч";
+      if (char === "@") return "а";
+      if (char === "$") return "с";
+      return char;
+    })
+    .replace(/[\s._,'-]+/g, "")
+    .replace(/[^\p{L}\p{N}]/gu, "");
+
+  const hasProfanity = NAME_PROFANITY_ROOTS.some((root) =>
+    normalizedName.includes(root)
+  );
+
+  if (hasProfanity) {
+    throw new AuthGuardError("Имя содержит недопустимые слова. Укажите другое имя.", {
+      code: "invalid_name_content",
     });
   }
 

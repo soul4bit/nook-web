@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { NextRequest } from "next/server";
 import type { PoolClient } from "pg";
+import { authHandlers } from "@/lib/auth/handler";
 import { auth, pool } from "@/lib/auth/server";
 import { getAuthEnv } from "@/lib/auth/env";
 import {
@@ -289,6 +290,62 @@ async function notifyUserAboutDecision(
   }
 }
 
+async function sendVerificationEmailAfterApproval({
+  email,
+  callbackURL,
+}: {
+  email: string;
+  callbackURL: string;
+}) {
+  const { baseUrl } = getAuthEnv();
+
+  try {
+    const request = new NextRequest(
+      new Request(`${baseUrl.replace(/\/$/, "")}/api/auth/send-verification-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          callbackURL,
+        }),
+      })
+    );
+
+    const response = await authHandlers.POST(request);
+
+    if (!response.ok) {
+      let message: string | null = null;
+
+      try {
+        const payload = (await response.json()) as { message?: unknown };
+
+        if (typeof payload.message === "string") {
+          message = payload.message;
+        }
+      } catch {
+        // ignore parse errors for non-json responses
+      }
+
+      console.error("[registration-approval:verification-email:error]", {
+        email,
+        status: response.status,
+        message,
+      });
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    console.error("[registration-approval:verification-email:error]", {
+      email,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return false;
+  }
+}
+
 function mapReviewResult(
   status: "approved" | "approved_existing" | "rejected",
   email: string,
@@ -348,6 +405,7 @@ async function approveRegistration(
   status: "approved" | "approved_existing";
   email: string;
   name: string;
+  requiresEmailVerification: boolean;
 }> {
   const existingUser = await findUserByEmail(registration.email);
 
@@ -369,6 +427,7 @@ async function approveRegistration(
       status: "approved_existing",
       email: registration.email,
       name: registration.name,
+      requiresEmailVerification: !Boolean(existingUser.user.emailVerified),
     };
   }
 
@@ -378,7 +437,7 @@ async function approveRegistration(
     const user = await ctx.internalAdapter.createUser({
       email: registration.email,
       name: registration.name,
-      emailVerified: true,
+      emailVerified: false,
       role: "user",
     });
 
@@ -406,6 +465,7 @@ async function approveRegistration(
       status: "approved",
       email: registration.email,
       name: registration.name,
+      requiresEmailVerification: true,
     };
   } catch (error) {
     const userAfterFailure = await findUserByEmail(registration.email);
@@ -431,6 +491,7 @@ async function approveRegistration(
       status: "approved_existing",
       email: registration.email,
       name: registration.name,
+      requiresEmailVerification: !Boolean(userAfterFailure.user.emailVerified),
     };
   }
 }
@@ -497,6 +558,16 @@ async function reviewPendingRegistration({
       ...decisionResult,
       notificationSent: false,
     });
+
+    if (
+      "requiresEmailVerification" in decisionResult &&
+      decisionResult.requiresEmailVerification
+    ) {
+      await sendVerificationEmailAfterApproval({
+        email: decisionResult.email,
+        callbackURL: registration.callback_url || `${getAuthEnv().baseUrl}/app`,
+      });
+    }
 
     return mapReviewResult(
       decisionResult.status,
@@ -697,4 +768,3 @@ export async function reviewPendingRegistrationById({
     reviewedBy,
   });
 }
-
