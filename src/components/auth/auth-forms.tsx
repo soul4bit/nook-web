@@ -1,8 +1,28 @@
 ﻿"use client";
 
-import { type ComponentProps, type FormEvent, useMemo, useState } from "react";
+import {
+  type ComponentProps,
+  type FormEvent,
+  type ReactNode,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, KeyRound, LoaderCircle, Mail, UserPlus } from "lucide-react";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  Circle,
+  Eye,
+  EyeOff,
+  KeyRound,
+  LoaderCircle,
+  Mail,
+  ShieldCheck,
+  User,
+  UserPlus,
+  type LucideIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -23,6 +43,63 @@ type GuardState = {
 type AuthSuccessResponse = {
   status?: string;
   message?: string;
+};
+
+type ModeOption = {
+  id: AuthMode;
+  label: string;
+  caption: string;
+  icon: LucideIcon;
+};
+
+type ModeMeta = {
+  badge: string;
+  title: string;
+  description: string;
+  icon: LucideIcon;
+};
+
+const modeOptions: ModeOption[] = [
+  {
+    id: "sign-in",
+    label: "Вход",
+    caption: "Для действующего аккаунта",
+    icon: KeyRound,
+  },
+  {
+    id: "sign-up",
+    label: "Регистрация",
+    caption: "Заявка на новый доступ",
+    icon: UserPlus,
+  },
+  {
+    id: "reset",
+    label: "Сброс",
+    caption: "Если забыли пароль",
+    icon: ShieldCheck,
+  },
+];
+
+const modeMeta: Record<AuthMode, ModeMeta> = {
+  "sign-in": {
+    badge: "быстрый вход",
+    title: "Вход в рабочую область",
+    description: "Введите почту и пароль. После проверки вы сразу перейдете в статьи.",
+    icon: KeyRound,
+  },
+  "sign-up": {
+    badge: "новый доступ",
+    title: "Запрос на регистрацию",
+    description:
+      "Оставьте данные для заявки. После модерации придет письмо с подтверждением аккаунта.",
+    icon: UserPlus,
+  },
+  reset: {
+    badge: "восстановление",
+    title: "Сброс пароля",
+    description: "Отправим ссылку на почту и откроем защищенную форму смены пароля.",
+    icon: ShieldCheck,
+  },
 };
 
 async function postAuth(path: string, payload: Record<string, unknown>) {
@@ -77,9 +154,7 @@ function FeedbackBanner({ feedback }: { feedback: AuthFeedback }) {
         : "border-sky-200 bg-sky-50 text-sky-700";
 
   return (
-    <div className={`rounded-2xl border px-4 py-3 text-sm leading-6 ${toneClass}`}>
-      {feedback.text}
-    </div>
+    <div className={`rounded-2xl border px-4 py-3 text-sm leading-6 ${toneClass}`}>{feedback.text}</div>
   );
 }
 
@@ -95,8 +170,28 @@ function FormInput(props: ComponentProps<typeof Input>) {
   return (
     <Input
       {...props}
-      className={`h-12 rounded-2xl border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 ${props.className ?? ""}`}
+      className={`h-12 rounded-xl border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 ${props.className ?? ""}`}
     />
+  );
+}
+
+function IconInput({
+  icon: Icon,
+  trailing,
+  className,
+  ...props
+}: ComponentProps<typeof Input> & {
+  icon: LucideIcon;
+  trailing?: ReactNode;
+}) {
+  return (
+    <div className="relative">
+      <Icon className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
+      <FormInput {...props} className={`pl-11 ${trailing ? "pr-12" : ""} ${className ?? ""}`} />
+      {trailing ? (
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500">{trailing}</div>
+      ) : null}
+    </div>
   );
 }
 
@@ -134,6 +229,9 @@ export function AuthForms() {
     reset: createGuardState(),
     resend: createGuardState(),
   });
+  const [showSignInPassword, setShowSignInPassword] = useState(false);
+  const [showSignUpPassword, setShowSignUpPassword] = useState(false);
+  const [showSignUpConfirmPassword, setShowSignUpConfirmPassword] = useState(false);
   const [signInForm, setSignInForm] = useState({ email: "", password: "" });
   const [signUpForm, setSignUpForm] = useState({
     name: "",
@@ -143,25 +241,45 @@ export function AuthForms() {
   });
   const [resetEmail, setResetEmail] = useState("");
 
+  useEffect(() => {
+    const nextMode =
+      requestedMode === "sign-up" || requestedMode === "reset" ? requestedMode : "sign-in";
+
+    setMode(nextMode);
+  }, [requestedMode]);
+
   const activeFeedback = feedback ?? queryFeedback;
   const resendEmail = lastEmail || signInForm.email || signUpForm.email || resetEmail;
-  const title =
-    mode === "sign-in"
-      ? "Вход"
-      : mode === "sign-up"
-        ? "Регистрация"
-        : "Сброс пароля";
-  const description =
-    mode === "sign-in"
-      ? "Введите email и пароль, чтобы открыть рабочую область."
-      : mode === "sign-up"
-        ? "Оставьте заявку на доступ. Администратор проверит ее в Telegram и отправит решение на почту."
-        : "Отправим письмо со ссылкой для безопасного сброса пароля.";
-  const modeOptions: Array<{ id: AuthMode; label: string }> = [
-    { id: "sign-in", label: "Вход" },
-    { id: "sign-up", label: "Регистрация" },
-    { id: "reset", label: "Сброс" },
-  ];
+  const activeMode = modeMeta[mode];
+
+  const passwordChecks = useMemo(() => {
+    const hasLetters = /\p{L}/u.test(signUpForm.password);
+    const hasDigit = /\d/.test(signUpForm.password);
+
+    return [
+      {
+        id: "length",
+        text: "От 10 до 128 символов",
+        passed: signUpForm.password.length >= 10 && signUpForm.password.length <= 128,
+      },
+      {
+        id: "letters",
+        text: "Содержит буквы",
+        passed: hasLetters,
+      },
+      {
+        id: "digits",
+        text: "Содержит цифры",
+        passed: hasDigit,
+      },
+      {
+        id: "match",
+        text: "Пароли совпадают",
+        passed:
+          signUpForm.confirmPassword.length > 0 && signUpForm.password === signUpForm.confirmPassword,
+      },
+    ];
+  }, [signUpForm.confirmPassword, signUpForm.password]);
 
   function updateGuard(action: GuardAction, patch: Partial<GuardState>) {
     setGuardState((current) => ({
@@ -184,12 +302,15 @@ export function AuthForms() {
     setMode(nextMode);
     setFeedback(null);
     setAwaitingVerification(false);
+
     if (nextMode === "sign-in") {
       resetGuard("sign-in");
     }
+
     if (nextMode === "sign-up") {
       resetGuard("sign-up");
     }
+
     if (nextMode === "reset") {
       resetGuard("reset");
     }
@@ -254,7 +375,12 @@ export function AuthForms() {
       return;
     }
 
-    if (password.length < 10 || !/\p{L}/u.test(password) || !/\d/.test(password)) {
+    if (
+      password.length < 10 ||
+      password.length > 128 ||
+      !/\p{L}/u.test(password) ||
+      !/\d/.test(password)
+    ) {
       setFeedback({
         tone: "error",
         text: "Пароль должен быть от 10 до 128 символов и содержать буквы и цифры.",
@@ -279,6 +405,8 @@ export function AuthForms() {
       setMode("sign-in");
       setSignInForm({ email, password: "" });
       setSignUpForm({ name: "", email: "", password: "", confirmPassword: "" });
+      setShowSignUpPassword(false);
+      setShowSignUpConfirmPassword(false);
       setFeedback({
         tone: "success",
         text:
@@ -366,42 +494,53 @@ export function AuthForms() {
   }
 
   return (
-    <div className="w-full rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-      <div className="border-b border-slate-200 pb-6">
-        <div className="grid grid-cols-3 gap-2 rounded-2xl border border-slate-200 bg-slate-50 p-1">
+    <div className="w-full rounded-[32px] border border-slate-200 bg-white/95 p-5 shadow-[0_18px_44px_rgba(15,23,42,0.08)] backdrop-blur sm:p-6 lg:h-full lg:overflow-y-auto nook-scroll">
+      <div className="space-y-4 border-b border-slate-200 pb-6">
+        <div className="grid gap-2 sm:grid-cols-3">
           {modeOptions.map((option) => (
             <button
               key={option.id}
               type="button"
-              className={`rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
+              className={`rounded-2xl border px-3 py-3 text-left transition-colors ${
                 mode === option.id
-                  ? "bg-sky-100 text-sky-700"
-                  : "text-slate-600 hover:bg-slate-200 hover:text-slate-900"
+                  ? "border-sky-300 bg-sky-50 text-sky-800"
+                  : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900"
               }`}
               onClick={() => {
                 openMode(option.id);
+
                 if (option.id === "sign-up") {
                   setSignUpForm((current) => ({
                     ...current,
                     email: signInForm.email || current.email,
                   }));
                 }
+
                 if (option.id === "reset") {
                   setResetEmail(signInForm.email || resetEmail);
                 }
               }}
             >
-              {option.label}
+              <div className="flex items-center gap-2">
+                <option.icon className="size-4" />
+                <span className="text-sm font-semibold">{option.label}</span>
+              </div>
+              <p className="mt-1 text-xs leading-5 opacity-80">{option.caption}</p>
             </button>
           ))}
         </div>
 
-        <div className="mt-5 space-y-2">
-          <span className="inline-flex rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-700">
-            {mode === "sign-up" ? "заявка" : mode === "reset" ? "сброс" : "доступ"}
-          </span>
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">{title}</h2>
-          <p className="max-w-md text-sm leading-6 text-slate-600">{description}</p>
+        <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+          <span className="nook-kicker">{activeMode.badge}</span>
+          <div className="mt-3 flex items-start gap-3">
+            <div className="mt-0.5 flex size-10 items-center justify-center rounded-xl bg-white text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
+              <activeMode.icon className="size-4" />
+            </div>
+            <div className="space-y-1">
+              <h2 className="text-xl font-semibold tracking-tight text-slate-900">{activeMode.title}</h2>
+              <p className="text-sm leading-6 text-slate-600">{activeMode.description}</p>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -409,7 +548,7 @@ export function AuthForms() {
         {activeFeedback ? <FeedbackBanner feedback={activeFeedback} /> : null}
 
         {awaitingVerification ? (
-          <div className="rounded-[20px] border border-sky-200 bg-sky-50 p-4 text-sm leading-6 text-sky-700">
+          <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm leading-6 text-sky-700">
             <div className="flex items-start gap-3">
               <div className="mt-0.5 flex size-10 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
                 <Mail className="size-4" />
@@ -422,7 +561,7 @@ export function AuthForms() {
                 <Button
                   type="button"
                   variant="outline"
-                  className="rounded-2xl border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+                  className="rounded-xl border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
                   onClick={handleResendVerification}
                   disabled={pendingAction === "resend"}
                 >
@@ -453,7 +592,7 @@ export function AuthForms() {
 
               <div className="space-y-1.5">
                 <FieldLabel htmlFor="signin-email">Email</FieldLabel>
-                <FormInput
+                <IconInput
                   id="signin-email"
                   name="email"
                   type="email"
@@ -463,6 +602,7 @@ export function AuthForms() {
                   }
                   placeholder="you@example.com"
                   autoComplete="email"
+                  icon={Mail}
                   required
                 />
               </div>
@@ -481,21 +621,36 @@ export function AuthForms() {
                     Забыли пароль?
                   </button>
                 </div>
-                <FormInput
+                <IconInput
                   id="signin-password"
                   name="password"
-                  type="password"
+                  type={showSignInPassword ? "text" : "password"}
                   value={signInForm.password}
                   onChange={(event) =>
                     setSignInForm((current) => ({ ...current, password: event.target.value }))
                   }
                   placeholder="Введите пароль"
                   autoComplete="current-password"
+                  icon={KeyRound}
+                  trailing={
+                    <button
+                      type="button"
+                      onClick={() => setShowSignInPassword((current) => !current)}
+                      className="rounded-lg p-2 hover:bg-slate-100"
+                      aria-label={showSignInPassword ? "Скрыть пароль" : "Показать пароль"}
+                    >
+                      {showSignInPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                    </button>
+                  }
                   required
                 />
               </div>
 
-              <Button type="submit" className="h-11 w-full rounded-2xl" disabled={pendingAction === "sign-in"}>
+              <Button
+                type="submit"
+                className="h-12 w-full rounded-xl text-base"
+                disabled={pendingAction === "sign-in"}
+              >
                 {pendingAction === "sign-in" ? (
                   <>
                     <LoaderCircle className="size-4 animate-spin" />
@@ -504,21 +659,21 @@ export function AuthForms() {
                 ) : (
                   <>
                     <KeyRound className="size-4" />
-                    Войти
+                    Открыть рабочую область
                   </>
                 )}
               </Button>
             </form>
 
-            <div className="rounded-[20px] border border-slate-200 bg-slate-50 p-4">
-              <p className="text-sm font-medium text-slate-900">Нет аккаунта?</p>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Отправьте заявку, и после одобрения вам придет письмо с подтверждением доступа.
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <p className="text-sm font-semibold text-slate-900">Нет аккаунта?</p>
+              <p className="mt-1 text-sm leading-6 text-slate-600">
+                Отправьте заявку. После одобрения вы получите письмо и сможете войти.
               </p>
               <Button
                 type="button"
                 variant="outline"
-                className="mt-4 w-full rounded-2xl border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+                className="mt-3 h-11 w-full rounded-xl"
                 onClick={() => {
                   openMode("sign-up");
                   setSignUpForm((current) => ({
@@ -536,6 +691,18 @@ export function AuthForms() {
 
         {mode === "sign-up" ? (
           <>
+            <div className="grid gap-2 sm:grid-cols-3">
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                1. Данные
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                2. Модерация
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                3. Подтверждение
+              </div>
+            </div>
+
             <form className="space-y-4" onSubmit={handleSignUp}>
               <BotTrap
                 value={guardState["sign-up"].website}
@@ -544,7 +711,7 @@ export function AuthForms() {
 
               <div className="space-y-1.5">
                 <FieldLabel htmlFor="signup-name">Имя</FieldLabel>
-                <FormInput
+                <IconInput
                   id="signup-name"
                   name="name"
                   value={signUpForm.name}
@@ -553,13 +720,14 @@ export function AuthForms() {
                   }
                   placeholder="Как к вам обращаться"
                   autoComplete="name"
+                  icon={User}
                   required
                 />
               </div>
 
               <div className="space-y-1.5">
                 <FieldLabel htmlFor="signup-email">Email</FieldLabel>
-                <FormInput
+                <IconInput
                   id="signup-email"
                   name="email"
                   type="email"
@@ -569,6 +737,7 @@ export function AuthForms() {
                   }
                   placeholder="you@example.com"
                   autoComplete="email"
+                  icon={Mail}
                   required
                 />
               </div>
@@ -576,26 +745,41 @@ export function AuthForms() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
                   <FieldLabel htmlFor="signup-password">Пароль</FieldLabel>
-                  <FormInput
+                  <IconInput
                     id="signup-password"
                     name="password"
-                    type="password"
+                    type={showSignUpPassword ? "text" : "password"}
                     value={signUpForm.password}
                     onChange={(event) =>
                       setSignUpForm((current) => ({ ...current, password: event.target.value }))
                     }
                     placeholder="Минимум 10 символов"
                     autoComplete="new-password"
+                    icon={KeyRound}
+                    trailing={
+                      <button
+                        type="button"
+                        onClick={() => setShowSignUpPassword((current) => !current)}
+                        className="rounded-lg p-2 hover:bg-slate-100"
+                        aria-label={showSignUpPassword ? "Скрыть пароль" : "Показать пароль"}
+                      >
+                        {showSignUpPassword ? (
+                          <EyeOff className="size-4" />
+                        ) : (
+                          <Eye className="size-4" />
+                        )}
+                      </button>
+                    }
                     required
                   />
                 </div>
 
                 <div className="space-y-1.5">
                   <FieldLabel htmlFor="signup-password-repeat">Повторите пароль</FieldLabel>
-                  <FormInput
+                  <IconInput
                     id="signup-password-repeat"
                     name="confirmPassword"
-                    type="password"
+                    type={showSignUpConfirmPassword ? "text" : "password"}
                     value={signUpForm.confirmPassword}
                     onChange={(event) =>
                       setSignUpForm((current) => ({
@@ -605,12 +789,49 @@ export function AuthForms() {
                     }
                     placeholder="Повторите пароль"
                     autoComplete="new-password"
+                    icon={KeyRound}
+                    trailing={
+                      <button
+                        type="button"
+                        onClick={() => setShowSignUpConfirmPassword((current) => !current)}
+                        className="rounded-lg p-2 hover:bg-slate-100"
+                        aria-label={showSignUpConfirmPassword ? "Скрыть пароль" : "Показать пароль"}
+                      >
+                        {showSignUpConfirmPassword ? (
+                          <EyeOff className="size-4" />
+                        ) : (
+                          <Eye className="size-4" />
+                        )}
+                      </button>
+                    }
                     required
                   />
                 </div>
               </div>
 
-              <Button type="submit" className="h-11 w-full rounded-2xl" disabled={pendingAction === "sign-up"}>
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                  Требования к паролю
+                </p>
+                <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
+                  {passwordChecks.map((check) => (
+                    <div key={check.id} className="flex items-center gap-2 text-sm text-slate-600">
+                      {check.passed ? (
+                        <CheckCircle2 className="size-4 text-emerald-600" />
+                      ) : (
+                        <Circle className="size-4 text-slate-400" />
+                      )}
+                      {check.text}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                className="h-12 w-full rounded-xl text-base"
+                disabled={pendingAction === "sign-up"}
+              >
                 {pendingAction === "sign-up" ? (
                   <>
                     <LoaderCircle className="size-4 animate-spin" />
@@ -628,7 +849,7 @@ export function AuthForms() {
             <Button
               type="button"
               variant="ghost"
-              className="w-full rounded-2xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              className="w-full rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               onClick={() => {
                 openMode("sign-in");
                 setSignInForm((current) => ({
@@ -645,6 +866,11 @@ export function AuthForms() {
 
         {mode === "reset" ? (
           <>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 text-sm leading-6 text-slate-600">
+              Введите email аккаунта. Если он найден в системе, на почту придет ссылка для
+              безопасной смены пароля.
+            </div>
+
             <form className="space-y-4" onSubmit={handleReset}>
               <BotTrap
                 value={guardState.reset.website}
@@ -653,7 +879,7 @@ export function AuthForms() {
 
               <div className="space-y-1.5">
                 <FieldLabel htmlFor="reset-email">Email для восстановления</FieldLabel>
-                <FormInput
+                <IconInput
                   id="reset-email"
                   name="email"
                   type="email"
@@ -661,11 +887,16 @@ export function AuthForms() {
                   onChange={(event) => setResetEmail(event.target.value)}
                   placeholder="you@example.com"
                   autoComplete="email"
+                  icon={Mail}
                   required
                 />
               </div>
 
-              <Button type="submit" className="h-11 w-full rounded-2xl" disabled={pendingAction === "reset"}>
+              <Button
+                type="submit"
+                className="h-12 w-full rounded-xl text-base"
+                disabled={pendingAction === "reset"}
+              >
                 {pendingAction === "reset" ? (
                   <>
                     <LoaderCircle className="size-4 animate-spin" />
@@ -683,7 +914,7 @@ export function AuthForms() {
             <Button
               type="button"
               variant="ghost"
-              className="w-full rounded-2xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+              className="w-full rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
               onClick={() => {
                 openMode("sign-in");
                 setSignInForm((current) => ({
