@@ -315,7 +315,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
             ) : null}
           </section>
 
-          <nav className="nook-scroll max-h-[calc(100vh-190px)] space-y-2 overflow-y-auto pr-1 sm:space-y-3">
+          <nav className="space-y-2 sm:space-y-3">
             {articleTopics.map((topic) => {
               const Icon = topicIcons[topic.name];
               const isActive = topic.name === selectedTopic;
