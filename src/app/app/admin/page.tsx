@@ -2,6 +2,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
+  Edit3,
   ArrowLeft,
   Ban,
   CheckCircle2,
@@ -26,6 +27,7 @@ import {
   adminBanUser,
   adminRemoveUser,
   adminRevokeUserSessions,
+  adminSetArticlesAccess,
   adminSetUserRole,
   adminUnbanUser,
   listAdminUsers,
@@ -217,6 +219,14 @@ async function manageUserAction(formData: FormData) {
         await adminRemoveUser(userId);
         notice = "Аккаунт пользователя удален.";
         break;
+      case "grant_articles":
+        await adminSetArticlesAccess(userId, true, session.user.id);
+        notice = "Пользователю выдан доступ к созданию и редактированию статей.";
+        break;
+      case "revoke_articles":
+        await adminSetArticlesAccess(userId, false, session.user.id);
+        notice = "Доступ к созданию и редактированию статей отключен.";
+        break;
       default:
         notice = "Неизвестное действие.";
         tone = "error";
@@ -395,6 +405,15 @@ export default async function AdminRegistrationPage({ searchParams }: AdminPageP
                           </span>
                           <span
                             className={`rounded-full border px-2.5 py-1 ${
+                              user.canManageArticles
+                                ? "border-indigo-200 bg-indigo-50 text-indigo-700"
+                                : "border-slate-300 bg-white text-slate-600"
+                            }`}
+                          >
+                            статьи: {user.canManageArticles ? "редактор" : "только просмотр"}
+                          </span>
+                          <span
+                            className={`rounded-full border px-2.5 py-1 ${
                               user.emailVerified
                                 ? "border-emerald-200 bg-emerald-50 text-emerald-800"
                                 : "border-amber-200 bg-amber-50 text-amber-800"
@@ -478,6 +497,34 @@ export default async function AdminRegistrationPage({ searchParams }: AdminPageP
                         >
                           <ShieldCheck className="size-4" />
                           Сделать admin
+                        </Button>
+                      </form>
+                    )}
+
+                    {isAdmin ? null : user.canManageArticles ? (
+                      <form action={manageUserAction}>
+                        <input type="hidden" name="userId" value={user.id} />
+                        <input type="hidden" name="action" value="revoke_articles" />
+                        <Button
+                          type="submit"
+                          variant="outline"
+                          className="rounded-xl border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+                        >
+                          <Edit3 className="size-4" />
+                          Запретить статьи
+                        </Button>
+                      </form>
+                    ) : (
+                      <form action={manageUserAction}>
+                        <input type="hidden" name="userId" value={user.id} />
+                        <input type="hidden" name="action" value="grant_articles" />
+                        <Button
+                          type="submit"
+                          variant="outline"
+                          className="rounded-xl border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+                        >
+                          <Edit3 className="size-4" />
+                          Разрешить статьи
                         </Button>
                       </form>
                     )}

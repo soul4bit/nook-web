@@ -2,10 +2,15 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
 import {
   deleteArticle,
+  getArticleManageAccessStatus,
   isArticleTopic,
   updateArticle,
   type UpdateArticleInput,
 } from "@/lib/articles/server";
+import {
+  getUserArticleWriteAccess,
+  isAdminRole,
+} from "@/lib/auth/article-permissions";
 
 function badRequest(message: string) {
   return NextResponse.json({ message }, { status: 400 });
@@ -27,6 +32,46 @@ export async function PATCH(
   }
 
   const { articleId } = await context.params;
+  const actorIsAdmin = isAdminRole((session.user as { role?: unknown }).role);
+  const canManageArticles = await getUserArticleWriteAccess(
+    session.user.id,
+    (session.user as { role?: unknown }).role
+  );
+
+  if (!canManageArticles) {
+    return NextResponse.json(
+      { message: "Недостаточно прав для редактирования статей." },
+      { status: 403 }
+    );
+  }
+
+  const accessStatus = await getArticleManageAccessStatus(
+    articleId,
+    session.user.id,
+    actorIsAdmin
+  );
+
+  if (accessStatus === "not_found") {
+    return NextResponse.json(
+      { message: "\u0421\u0442\u0430\u0442\u044c\u044f \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u0430." },
+      { status: 404 }
+    );
+  }
+
+  if (accessStatus === "forbidden_admin_article") {
+    return NextResponse.json(
+      { message: "Статьи администратора может редактировать только администратор." },
+      { status: 403 }
+    );
+  }
+
+  if (accessStatus === "forbidden") {
+    return NextResponse.json(
+      { message: "Редактировать статью может только автор или администратор." },
+      { status: 403 }
+    );
+  }
+
   const body = (await request.json()) as Partial<UpdateArticleInput>;
 
   if (!body.title?.trim()) {
@@ -86,10 +131,23 @@ export async function DELETE(
   }
 
   const { articleId } = await context.params;
+  const actorIsAdmin = isAdminRole((session.user as { role?: unknown }).role);
+  const canManageArticles = await getUserArticleWriteAccess(
+    session.user.id,
+    (session.user as { role?: unknown }).role
+  );
+
+  if (!canManageArticles) {
+    return NextResponse.json(
+      { message: "Недостаточно прав для удаления статей." },
+      { status: 403 }
+    );
+  }
+
   const deleted = await deleteArticle(
     articleId,
     session.user.id,
-    (session.user as { role?: string }).role === "admin"
+    actorIsAdmin
   );
 
   if (deleted === "not_found") {
@@ -105,6 +163,13 @@ export async function DELETE(
         message:
           "\u0423\u0434\u0430\u043b\u044f\u0442\u044c \u0441\u0442\u0430\u0442\u044c\u044e \u043c\u043e\u0436\u0435\u0442 \u0442\u043e\u043b\u044c\u043a\u043e \u0430\u0432\u0442\u043e\u0440 \u0438\u043b\u0438 \u0430\u0434\u043c\u0438\u043d.",
       },
+      { status: 403 }
+    );
+  }
+
+  if (deleted === "forbidden_admin_article") {
+    return NextResponse.json(
+      { message: "Статьи администратора может удалять только администратор." },
       { status: 403 }
     );
   }

@@ -27,6 +27,7 @@ jobs:
             npm run registration:migrate
             npm run account:migrate
             npm run articles:migrate
+            npm run article-permissions:migrate
             npm run build
             sudo systemctl restart nook
             sudo systemctl status nook --no-pager

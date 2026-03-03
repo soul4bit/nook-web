@@ -3,6 +3,7 @@ import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth/server";
+import { getUserArticleWriteAccess } from "@/lib/auth/article-permissions";
 
 export const runtime = "nodejs";
 
@@ -26,6 +27,15 @@ export async function POST(request: Request) {
 
   if (!session) {
     return badRequest("Нужна авторизация.", 401);
+  }
+
+  const canManageArticles = await getUserArticleWriteAccess(
+    session.user.id,
+    (session.user as { role?: unknown }).role
+  );
+
+  if (!canManageArticles) {
+    return badRequest("Недостаточно прав для загрузки изображений в статьи.", 403);
   }
 
   const formData = await request.formData();

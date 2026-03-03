@@ -5,6 +5,9 @@ import {
   isArticleTopic,
   type CreateArticleInput,
 } from "@/lib/articles/server";
+import {
+  getUserArticleWriteAccess,
+} from "@/lib/auth/article-permissions";
 
 function badRequest(message: string) {
   return NextResponse.json({ message }, { status: 400 });
@@ -19,6 +22,18 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { message: "\u041d\u0443\u0436\u043d\u0430 \u0430\u0432\u0442\u043e\u0440\u0438\u0437\u0430\u0446\u0438\u044f." },
       { status: 401 }
+    );
+  }
+
+  const canManageArticles = await getUserArticleWriteAccess(
+    session.user.id,
+    (session.user as { role?: unknown }).role
+  );
+
+  if (!canManageArticles) {
+    return NextResponse.json(
+      { message: "Недостаточно прав для создания статей." },
+      { status: 403 }
     );
   }
 

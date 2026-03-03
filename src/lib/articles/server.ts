@@ -7,6 +7,7 @@ type ArticleRow = {
   id: string;
   author_id: string;
   author_name: string | null;
+  author_role: string | null;
   updated_by_id: string | null;
   updated_by_name: string | null;
   title: string;
@@ -44,6 +45,7 @@ export type ArticleRecord = ArticleListItem & {
   contentText: string;
   coverImagePath: string | null;
   createdAt: string;
+  authorIsAdmin: boolean;
 };
 
 export type SaveArticleInput = {
@@ -100,6 +102,10 @@ function mapArticle(row: ArticleRow): ArticleRecord {
     coverImagePath: row.cover_image_path,
     createdAt: row.created_at.toISOString(),
     updatedAt: row.updated_at.toISOString(),
+    authorIsAdmin: row.author_role
+      ?.split(",")
+      .map((role) => role.trim().toLowerCase())
+      .includes("admin") ?? false,
   };
 }
 
@@ -178,11 +184,59 @@ function articleSelectSql() {
     select
       articles.*,
       author_user.name as author_name,
+      author_user.role as author_role,
       updated_user.name as updated_by_name
     from articles
     left join "user" as author_user on author_user.id = articles.author_id
     left join "user" as updated_user on updated_user.id = articles.updated_by_id
   `;
+}
+
+export type ArticleManageAccessStatus =
+  | "allowed"
+  | "not_found"
+  | "forbidden"
+  | "forbidden_admin_article";
+
+export async function getArticleManageAccessStatus(
+  articleId: string,
+  actorId: string,
+  actorIsAdmin: boolean
+): Promise<ArticleManageAccessStatus> {
+  const { rows } = await pool.query<{ author_id: string; author_role: string | null }>(
+    `
+      select
+        articles.author_id,
+        author_user.role as author_role
+      from articles
+      left join "user" as author_user on author_user.id = articles.author_id
+      where articles.id = $1
+      limit 1
+    `,
+    [articleId]
+  );
+
+  const article = rows[0];
+
+  if (!article) {
+    return "not_found";
+  }
+
+  const articleAuthorIsAdmin =
+    article.author_role
+      ?.split(",")
+      .map((role) => role.trim().toLowerCase())
+      .includes("admin") ?? false;
+
+  if (articleAuthorIsAdmin && !actorIsAdmin) {
+    return "forbidden_admin_article";
+  }
+
+  if (!actorIsAdmin && article.author_id !== actorId) {
+    return "forbidden";
+  }
+
+  return "allowed";
 }
 
 export function isArticleTopic(value: string): value is ArticleTopic {
@@ -332,24 +386,10 @@ export async function updateArticle(articleId: string, input: UpdateArticleInput
 }
 
 export async function deleteArticle(articleId: string, actorId: string, actorIsAdmin: boolean) {
-  const { rows } = await pool.query<{ author_id: string }>(
-    `
-      select author_id
-      from articles
-      where id = $1
-      limit 1
-    `,
-    [articleId]
-  );
+  const accessStatus = await getArticleManageAccessStatus(articleId, actorId, actorIsAdmin);
 
-  const article = rows[0];
-
-  if (!article) {
-    return "not_found" as const;
-  }
-
-  if (!actorIsAdmin && article.author_id !== actorId) {
-    return "forbidden" as const;
+  if (accessStatus !== "allowed") {
+    return accessStatus;
   }
 
   await pool.query(

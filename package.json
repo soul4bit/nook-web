@@ -13,6 +13,7 @@
     "auth:guard:migrate": "node --env-file=.env.local scripts/auth-guard-migrate.mjs",
     "registration:migrate": "node --env-file=.env.local scripts/registration-requests-migrate.mjs",
     "articles:migrate": "node --env-file=.env.local scripts/articles-migrate.mjs",
+    "article-permissions:migrate": "node --env-file=.env.local scripts/article-permissions-migrate.mjs",
     "account:migrate": "node --env-file=.env.local scripts/account-migrate.mjs"
   },
   "dependencies": {

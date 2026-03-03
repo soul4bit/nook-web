@@ -1,5 +1,10 @@
 import { headers } from "next/headers";
 import { auth, pool } from "@/lib/auth/server";
+import {
+  adminSetUserArticleWriteAccess,
+  getUserArticleWriteAccessMap,
+  hasRole,
+} from "@/lib/auth/article-permissions";
 
 type AdminListUsersResponse = {
   users?: unknown[];
@@ -40,6 +45,7 @@ export type AdminUser = {
   updatedAt: string | null;
   lastActiveAt: string | null;
   activeSessions: number;
+  canManageArticles: boolean;
 };
 
 function toDate(value: string | Date | null | undefined) {
@@ -93,6 +99,7 @@ export async function listAdminUsers(limit = 500) {
   const rawUsers = (response.users ?? []) as RawAdminUser[];
   const userIds = rawUsers.map((user) => user.id).filter(Boolean);
   const sessionStats = new Map<string, { lastSeenAt: Date | null; activeSessions: number }>();
+  const articleAccessMap = await getUserArticleWriteAccessMap(userIds);
 
   if (userIds.length > 0) {
     const result = await pool.query<SessionStatRow>(
@@ -118,6 +125,7 @@ export async function listAdminUsers(limit = 500) {
 
   const users = rawUsers.map<AdminUser>((user) => {
     const stats = sessionStats.get(user.id);
+    const isAdmin = hasRole(user.role, "admin");
 
     return {
       id: user.id,
@@ -133,6 +141,7 @@ export async function listAdminUsers(limit = 500) {
       updatedAt: toIso(user.updatedAt),
       lastActiveAt: getLastActivityAt(user.updatedAt, stats?.lastSeenAt ?? null),
       activeSessions: stats?.activeSessions ?? 0,
+      canManageArticles: isAdmin || Boolean(articleAccessMap.get(user.id)),
     };
   });
 
@@ -150,6 +159,14 @@ export async function adminSetUserRole(userId: string, role: "admin" | "user") {
     },
     headers: await getAdminHeaders(),
   });
+}
+
+export async function adminSetArticlesAccess(
+  userId: string,
+  canManageArticles: boolean,
+  adminUserId: string
+) {
+  await adminSetUserArticleWriteAccess(userId, canManageArticles, adminUserId);
 }
 
 export async function adminBanUser(userId: string, reason?: string) {
@@ -188,4 +205,3 @@ export async function adminRemoveUser(userId: string) {
     headers: await getAdminHeaders(),
   });
 }
-

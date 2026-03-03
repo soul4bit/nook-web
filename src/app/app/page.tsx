@@ -25,6 +25,7 @@ import {
   searchArticles,
 } from "@/lib/articles/server";
 import { articleTopics, type ArticleTopic } from "@/lib/content/devops-library";
+import { getUserArticleWriteAccess } from "@/lib/auth/article-permissions";
 
 const copy = {
   newArticle: "Новая заметка",
@@ -174,6 +175,10 @@ export default async function AppPage({ searchParams }: AppPageProps) {
 
   const displayName = session.user.name?.trim() || session.user.email;
   const isAdmin = isAdminSession(session);
+  const canManageArticles = await getUserArticleWriteAccess(
+    session.user.id,
+    (session.user as { role?: unknown }).role
+  );
   const totalArticles = allArticles.length;
   const visibleArticlesCount = articles.length;
   const lastUpdatedAt = articles[0]?.updatedAt ?? null;
@@ -244,18 +249,20 @@ export default async function AppPage({ searchParams }: AppPageProps) {
           </form>
 
           <div className="ml-auto flex w-full items-center justify-end gap-2 sm:w-auto sm:justify-start">
-            <Button asChild size="sm" className="h-9 rounded-lg bg-sky-600 hover:bg-sky-700">
-              <Link
-                href={buildAppHref(selectedTopic, {
-                  draft: true,
-                  category: selectedCategory,
-                  query: searchQuery || undefined,
-                })}
-              >
-                <Plus className="size-4" />
-                <span className="hidden sm:inline">{copy.newArticle}</span>
-              </Link>
-            </Button>
+            {canManageArticles ? (
+              <Button asChild size="sm" className="h-9 rounded-lg bg-sky-600 hover:bg-sky-700">
+                <Link
+                  href={buildAppHref(selectedTopic, {
+                    draft: true,
+                    category: selectedCategory,
+                    query: searchQuery || undefined,
+                  })}
+                >
+                  <Plus className="size-4" />
+                  <span className="hidden sm:inline">{copy.newArticle}</span>
+                </Link>
+              </Button>
+            ) : null}
 
             {isAdmin ? (
               <Button
@@ -441,6 +448,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
           lastUpdatedAt={lastUpdatedAt}
           isAdmin={isAdmin}
           currentUserId={session.user.id}
+          canManageArticles={canManageArticles}
           isEditMode={isEditMode}
           editArticleHref={editArticleHref}
           closeEditorHref={selectedArticleHref}

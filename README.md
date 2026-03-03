@@ -87,6 +87,7 @@ scripts
    npm run auth:guard:migrate
    npm run registration:migrate
    npm run articles:migrate
+   npm run article-permissions:migrate
    npm run account:migrate
    ```
 5. (Опционально) создайте администратора:
@@ -146,6 +147,7 @@ npm run auth:migrate
 npm run auth:guard:migrate
 npm run registration:migrate
 npm run articles:migrate
+npm run article-permissions:migrate
 npm run account:migrate
 
 npm run admin:create -- --email=admin@example.com --password=CHANGE_ME --name="Admin"
@@ -164,6 +166,7 @@ npm run auth:guard:migrate
 npm run registration:migrate
 npm run account:migrate
 npm run articles:migrate
+npm run article-permissions:migrate
 npm run build
 sudo systemctl restart nook
 sudo systemctl status nook --no-pager

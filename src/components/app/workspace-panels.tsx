@@ -23,6 +23,9 @@ const copy = {
     "Изменения сохраняются в PostgreSQL и сразу отображаются в структуре разделов.",
   editButton: "Редактировать",
   closeEditor: "К статье",
+  noAccessEmptyTitle: "Пустой раздел",
+  noAccessEmptyText:
+    "В этой категории пока нет статей. У вас права только на просмотр, обратитесь к администратору для доступа к созданию.",
 } as const;
 
 type EditorArticle = Parameters<typeof ThoughtEditor>[0]["article"];
@@ -40,6 +43,7 @@ type WorkspacePanelsProps = {
   lastUpdatedAt: string | null;
   isAdmin: boolean;
   currentUserId: string;
+  canManageArticles: boolean;
   isEditMode: boolean;
   editArticleHref: string | null;
   closeEditorHref: string | null;
@@ -63,15 +67,21 @@ export function WorkspacePanels({
   lastUpdatedAt,
   isAdmin,
   currentUserId,
+  canManageArticles,
   isEditMode,
   editArticleHref,
   closeEditorHref,
   wikiLinks,
 }: WorkspacePanelsProps) {
+  const canEditSelectedArticle = Boolean(
+    selectedArticle &&
+      canManageArticles &&
+      (!selectedArticle.authorIsAdmin || isAdmin)
+  );
   const canDeleteArticle = selectedArticle
     ? selectedArticle.authorId === currentUserId || isAdmin
     : false;
-  const shouldShowEditor = !selectedArticle || isEditMode;
+  const shouldShowEditor = canManageArticles && (!selectedArticle || (isEditMode && canEditSelectedArticle));
 
   return (
     <>
@@ -124,7 +134,7 @@ export function WorkspacePanels({
                   {copy.updated} {formatDateTime(selectedArticle.updatedAt)}
                 </span>
               </div>
-              {editArticleHref ? (
+              {editArticleHref && canEditSelectedArticle ? (
                 <Link
                   href={editArticleHref}
                   className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
@@ -181,7 +191,12 @@ export function WorkspacePanels({
               />
             </div>
           </section>
-        ) : null}
+        ) : (
+          <section className="nook-surface rounded-2xl p-6">
+            <h2 className="text-xl font-semibold text-slate-900">{copy.noAccessEmptyTitle}</h2>
+            <p className="mt-2 text-sm leading-7 text-slate-600">{copy.noAccessEmptyText}</p>
+          </section>
+        )}
       </main>
 
       {!shouldShowEditor ? (
