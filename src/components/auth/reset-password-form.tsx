@@ -43,13 +43,13 @@ async function postAuth(path: string, payload: Record<string, unknown>) {
 function FeedbackBanner({ feedback }: { feedback: AuthFeedback }) {
   const toneClass =
     feedback.tone === "error"
-      ? "border-rose-400/45 bg-rose-950/35 text-rose-200"
+      ? "border-rose-200 bg-rose-50 text-rose-700"
       : feedback.tone === "success"
-        ? "border-emerald-400/45 bg-emerald-950/30 text-emerald-200"
-        : "border-sky-400/45 bg-sky-950/30 text-sky-200";
+        ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+        : "border-sky-200 bg-sky-50 text-sky-700";
 
   return (
-    <div className={`rounded-2xl border px-4 py-3 text-sm leading-6 backdrop-blur-sm ${toneClass}`}>
+    <div className={`rounded-2xl border px-4 py-3 text-sm leading-6 ${toneClass}`}>
       {feedback.text}
     </div>
   );
@@ -132,13 +132,13 @@ export function ResetPasswordForm({ token, error }: ResetPasswordFormProps) {
   }
 
   return (
-    <div className="nook-surface w-full rounded-[30px] p-5 shadow-[0_32px_80px_rgba(2,8,15,0.48)] sm:p-6">
-      <div className="border-b border-slate-600/65 pb-6">
-        <div className="flex size-12 items-center justify-center rounded-2xl bg-[#1d3751] text-[#79ebcf]">
+    <div className="w-full rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <div className="border-b border-slate-200 pb-6">
+        <div className="flex size-12 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
           <KeyRound className="size-5" />
         </div>
-        <h2 className="mt-4 text-2xl font-semibold text-slate-100">Новый пароль</h2>
-        <p className="mt-2 max-w-md text-sm leading-6 text-slate-300">
+        <h2 className="mt-4 text-2xl font-semibold text-slate-900">Новый пароль</h2>
+        <p className="mt-2 max-w-md text-sm leading-6 text-slate-600">
           Укажите новый пароль для аккаунта и вернитесь к обычному входу.
         </p>
       </div>
@@ -157,7 +157,7 @@ export function ResetPasswordForm({ token, error }: ResetPasswordFormProps) {
             <Button
               asChild
               variant="outline"
-              className="w-full rounded-2xl border-slate-500/45 bg-[#112131] text-slate-100 hover:bg-[#183049]"
+              className="w-full rounded-2xl border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
             >
               <Link href="/auth?mode=reset">Вернуться к форме сброса</Link>
             </Button>
@@ -176,7 +176,7 @@ export function ResetPasswordForm({ token, error }: ResetPasswordFormProps) {
             />
 
             <div className="space-y-1.5">
-              <label htmlFor="reset-password" className="text-sm font-medium text-slate-300">
+              <label htmlFor="reset-password" className="text-sm font-medium text-slate-700">
                 Новый пароль
               </label>
               <Input
@@ -187,13 +187,13 @@ export function ResetPasswordForm({ token, error }: ResetPasswordFormProps) {
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 placeholder="Минимум 10 символов"
-                className="h-12 rounded-2xl border-slate-500/45 bg-[#0e1d2d]/92 text-slate-100 placeholder:text-slate-500"
+                className="h-12 rounded-2xl border-slate-300 bg-white text-slate-900 placeholder:text-slate-400"
                 required
               />
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="reset-password-confirm" className="text-sm font-medium text-slate-300">
+              <label htmlFor="reset-password-confirm" className="text-sm font-medium text-slate-700">
                 Повторите пароль
               </label>
               <Input
@@ -204,7 +204,7 @@ export function ResetPasswordForm({ token, error }: ResetPasswordFormProps) {
                 value={confirmPassword}
                 onChange={(event) => setConfirmPassword(event.target.value)}
                 placeholder="Повторите пароль"
-                className="h-12 rounded-2xl border-slate-500/45 bg-[#0e1d2d]/92 text-slate-100 placeholder:text-slate-500"
+                className="h-12 rounded-2xl border-slate-300 bg-white text-slate-900 placeholder:text-slate-400"
                 required
               />
             </div>
@@ -224,7 +224,7 @@ export function ResetPasswordForm({ token, error }: ResetPasswordFormProps) {
               asChild
               type="button"
               variant="ghost"
-              className="w-full rounded-2xl text-slate-300 hover:bg-[#183049] hover:text-slate-100"
+              className="w-full rounded-2xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
             >
               <Link href="/auth">
                 <ArrowLeft className="size-4" />

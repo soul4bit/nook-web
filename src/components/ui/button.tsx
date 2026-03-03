@@ -9,14 +9,14 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "border border-emerald-300/20 bg-primary text-primary-foreground shadow-[0_8px_22px_rgba(12,24,34,0.35)] hover:bg-[#27b090]",
+          "border border-sky-600 bg-primary text-primary-foreground shadow-[0_8px_20px_rgba(2,132,199,0.26)] hover:bg-[#0369a1]",
         destructive:
-          "border border-rose-400/30 bg-destructive text-white shadow-[0_8px_20px_rgba(36,8,12,0.45)] hover:bg-[#c83a55] focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
+          "border border-rose-300 bg-destructive text-white shadow-[0_8px_18px_rgba(220,77,104,0.25)] hover:bg-[#c83a55] focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
         outline:
-          "border border-slate-500/40 bg-[#152536]/85 text-slate-100 shadow-[inset_0_1px_0_rgba(151,181,210,0.08)] hover:bg-[#1b3046]",
+          "border border-slate-300 bg-white text-slate-700 shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] hover:bg-slate-100",
         secondary:
-          "border border-slate-500/35 bg-secondary text-secondary-foreground shadow-[inset_0_1px_0_rgba(151,181,210,0.08)] hover:bg-[#21364d]",
-        ghost: "text-slate-300 hover:bg-[#1a2f44] hover:text-slate-100",
+          "border border-slate-200 bg-secondary text-secondary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.8)] hover:bg-slate-200",
+        ghost: "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

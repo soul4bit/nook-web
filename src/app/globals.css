@@ -50,71 +50,71 @@
 
 :root {
   --radius: 0.75rem;
-  --background: #050c13;
-  --foreground: #edf4ff;
-  --card: #0f1b29;
-  --card-foreground: #edf4ff;
-  --popover: #0f1b29;
-  --popover-foreground: #edf4ff;
-  --primary: #30c7a4;
-  --primary-foreground: #042720;
-  --secondary: #1a2b3d;
-  --secondary-foreground: #d2e2f4;
-  --muted: #152434;
-  --muted-foreground: #8fa6bc;
-  --accent: #1f344b;
-  --accent-foreground: #dfedfd;
+  --background: #edf1f4;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #0284c7;
+  --primary-foreground: #ffffff;
+  --secondary: #e2e8f0;
+  --secondary-foreground: #1e293b;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #eff6ff;
+  --accent-foreground: #0c4a6e;
   --destructive: #dc4d68;
-  --border: #294056;
-  --input: #294056;
-  --ring: #50d8b7;
-  --chart-1: #30c7a4;
-  --chart-2: #54bee2;
-  --chart-3: #7ba3ff;
-  --chart-4: #6fd6c2;
+  --border: #d4dde7;
+  --input: #d4dde7;
+  --ring: #93c5fd;
+  --chart-1: #0284c7;
+  --chart-2: #0ea5e9;
+  --chart-3: #2563eb;
+  --chart-4: #38bdf8;
   --chart-5: #ffb86b;
-  --sidebar: #0b151f;
-  --sidebar-foreground: #edf4ff;
-  --sidebar-primary: #30c7a4;
-  --sidebar-primary-foreground: #042720;
-  --sidebar-accent: #142536;
-  --sidebar-accent-foreground: #d9e7f9;
-  --sidebar-border: #294056;
-  --sidebar-ring: #50d8b7;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #0284c7;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #1e293b;
+  --sidebar-border: #d4dde7;
+  --sidebar-ring: #93c5fd;
 }
 
 .dark {
-  --background: #050c13;
-  --foreground: #edf4ff;
-  --card: #0f1b29;
-  --card-foreground: #edf4ff;
-  --popover: #0f1b29;
-  --popover-foreground: #edf4ff;
-  --primary: #30c7a4;
-  --primary-foreground: #042720;
-  --secondary: #1a2b3d;
-  --secondary-foreground: #d2e2f4;
-  --muted: #152434;
-  --muted-foreground: #8fa6bc;
-  --accent: #1f344b;
-  --accent-foreground: #dfedfd;
+  --background: #edf1f4;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #0284c7;
+  --primary-foreground: #ffffff;
+  --secondary: #e2e8f0;
+  --secondary-foreground: #1e293b;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #eff6ff;
+  --accent-foreground: #0c4a6e;
   --destructive: #dc4d68;
-  --border: #294056;
-  --input: #294056;
-  --ring: #50d8b7;
-  --chart-1: #30c7a4;
-  --chart-2: #54bee2;
-  --chart-3: #7ba3ff;
-  --chart-4: #6fd6c2;
+  --border: #d4dde7;
+  --input: #d4dde7;
+  --ring: #93c5fd;
+  --chart-1: #0284c7;
+  --chart-2: #0ea5e9;
+  --chart-3: #2563eb;
+  --chart-4: #38bdf8;
   --chart-5: #ffb86b;
-  --sidebar: #0b151f;
-  --sidebar-foreground: #edf4ff;
-  --sidebar-primary: #30c7a4;
-  --sidebar-primary-foreground: #042720;
-  --sidebar-accent: #142536;
-  --sidebar-accent-foreground: #d9e7f9;
-  --sidebar-border: #294056;
-  --sidebar-ring: #50d8b7;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0f172a;
+  --sidebar-primary: #0284c7;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #1e293b;
+  --sidebar-border: #d4dde7;
+  --sidebar-ring: #93c5fd;
 }
 
 @layer base {
@@ -130,9 +130,9 @@
   body {
     @apply bg-background text-foreground antialiased;
     background-image:
-      radial-gradient(circle at 14% 8%, rgba(48, 199, 164, 0.2), transparent 34%),
-      radial-gradient(circle at 92% 90%, rgba(93, 132, 241, 0.24), transparent 35%),
-      linear-gradient(180deg, #040912 0%, #0b131d 56%, #0e1824 100%);
+      radial-gradient(circle at 8% 6%, rgba(14, 165, 233, 0.12), transparent 32%),
+      radial-gradient(circle at 90% 92%, rgba(99, 102, 241, 0.09), transparent 35%),
+      linear-gradient(180deg, #f8fafc 0%, #eef2f7 55%, #e8edf3 100%);
     min-height: 100vh;
   }
 
@@ -141,16 +141,16 @@
     position: fixed;
     inset: 0;
     pointer-events: none;
-    background-image: linear-gradient(rgba(121, 156, 189, 0.06) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(121, 156, 189, 0.06) 1px, transparent 1px);
+    background-image: linear-gradient(rgba(148, 163, 184, 0.18) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 163, 184, 0.18) 1px, transparent 1px);
     background-size: 32px 32px;
-    opacity: 0.22;
+    opacity: 0.12;
     z-index: -1;
   }
 
   ::selection {
-    background: rgba(48, 199, 164, 0.33);
-    color: #f6fffb;
+    background: rgba(14, 165, 233, 0.26);
+    color: #0f172a;
   }
 }
 
@@ -171,23 +171,23 @@
 }
 
 .nook-shell {
-  border: 1px solid rgba(67, 93, 118, 0.78);
-  background: linear-gradient(180deg, rgba(9, 20, 32, 0.94) 0%, rgba(10, 22, 35, 0.9) 100%);
+  border: 1px solid #d5dde7;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 251, 255, 0.94) 100%);
   box-shadow:
-    0 42px 110px rgba(2, 7, 12, 0.72),
-    inset 0 1px 0 rgba(136, 170, 203, 0.14);
+    0 16px 38px rgba(15, 23, 42, 0.09),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(16px);
 }
 
 .nook-surface {
-  border: 1px solid rgba(64, 91, 116, 0.82);
-  background: linear-gradient(170deg, rgba(17, 35, 53, 0.92) 0%, rgba(13, 29, 45, 0.88) 100%);
-  box-shadow: inset 0 1px 0 rgba(149, 183, 214, 0.12);
+  border: 1px solid #d5dde7;
+  background: #ffffff;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.05);
 }
 
 .nook-surface-soft {
-  border: 1px solid rgba(57, 84, 109, 0.72);
-  background: rgba(13, 27, 42, 0.82);
+  border: 1px solid #dde5ef;
+  background: #f8fafc;
 }
 
 .nook-kicker {
@@ -195,26 +195,26 @@
   align-items: center;
   gap: 0.45rem;
   border-radius: 999px;
-  border: 1px solid rgba(59, 90, 116, 0.88);
-  background: rgba(14, 30, 45, 0.95);
+  border: 1px solid #cfe0f3;
+  background: #edf6ff;
   padding: 0.32rem 0.72rem;
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.17em;
   text-transform: uppercase;
-  color: #91a8bd;
+  color: #3b82f6;
 }
 
 .nook-chip {
   display: inline-flex;
   align-items: center;
   border-radius: 999px;
-  border: 1px solid rgba(64, 93, 120, 0.75);
-  background: rgba(14, 30, 46, 0.9);
+  border: 1px solid #d4dde7;
+  background: #f8fafc;
   padding: 0.24rem 0.72rem;
   font-size: 0.72rem;
   font-weight: 600;
-  color: #c0d4e8;
+  color: #475569;
 }
 
 .nook-scroll {
@@ -417,15 +417,15 @@
 }
 
 .nook-wiki-link {
-  border-bottom: 1px dashed #45dfbe;
-  color: #45dfbe;
+  border-bottom: 1px dashed #0284c7;
+  color: #0284c7;
   font-weight: 600;
   text-decoration: none;
 }
 
 .nook-wiki-link:hover {
-  border-bottom-color: #8af1d8;
-  color: #8af1d8;
+  border-bottom-color: #0ea5e9;
+  color: #0ea5e9;
 }
 
 .nook-wiki-missing {
