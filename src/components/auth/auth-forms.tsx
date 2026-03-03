@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  type CSSProperties,
   type ComponentProps,
   type FormEvent,
   type ReactNode,
@@ -250,6 +251,8 @@ export function AuthForms() {
   const activeFeedback = feedback ?? queryFeedback;
   const resendEmail = lastEmail || signInForm.email || signUpForm.email || resetEmail;
   const activeMode = modeMeta[mode];
+  const modeOffset = mode === "sign-in" ? "0%" : mode === "sign-up" ? "100%" : "200%";
+  const modeIndicatorStyle = { "--nook-mode-x": modeOffset } as CSSProperties;
 
   const passwordChecks = useMemo(() => {
     const hasLetters = /\p{L}/u.test(signUpForm.password);
@@ -495,14 +498,15 @@ export function AuthForms() {
   return (
     <div className="nook-auth-reveal-1 w-full rounded-[32px] border border-[#2e5674] bg-[#0d2237]/95 p-5 shadow-[0_18px_44px_rgba(3,9,18,0.45)] backdrop-blur sm:p-6 lg:h-full lg:overflow-y-auto nook-scroll">
       <div className="space-y-4 border-b border-[#2e5674] pb-6">
-        <div className="grid gap-2 sm:grid-cols-3">
+        <div className="nook-auth-mode-palette relative grid gap-2 sm:grid-cols-3">
+          <div className="nook-auth-mode-indicator" style={modeIndicatorStyle} />
           {modeOptions.map((option) => (
             <button
               key={option.id}
               type="button"
-              className={`rounded-2xl border px-3 py-3 text-left transition-colors ${
+              className={`relative z-10 rounded-2xl border px-3 py-3 text-left transition-colors ${
                 mode === option.id
-                  ? "border-[#62d2f1] bg-[#12334c] text-[#c8ebfb]"
+                  ? "border-[#62d2f1]/30 bg-transparent text-[#d7f1ff]"
                   : "border-[#2f5774] bg-[#102941] text-[#8eb2cb] hover:border-[#4e86a9] hover:bg-[#14344f] hover:text-[#d8effd]"
               }`}
               onClick={() => {
@@ -547,9 +551,9 @@ export function AuthForms() {
         {activeFeedback ? <FeedbackBanner feedback={activeFeedback} /> : null}
 
         {awaitingVerification ? (
-          <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm leading-6 text-sky-700">
+          <div className="nook-auth-mode-body rounded-2xl border border-[#4d7e9f] bg-[#12334c] p-4 text-sm leading-6 text-[#bde2f6]">
             <div className="flex items-start gap-3">
-              <div className="mt-0.5 flex size-10 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
+              <div className="mt-0.5 flex size-10 items-center justify-center rounded-2xl bg-[#184465] text-[#8fdbf8]">
                 <Mail className="size-4" />
               </div>
               <div className="space-y-3">
@@ -582,7 +586,7 @@ export function AuthForms() {
         ) : null}
 
         {mode === "sign-in" ? (
-          <>
+          <div className="nook-auth-mode-body space-y-5">
             <form className="space-y-4" onSubmit={handleSignIn}>
               <BotTrap
                 value={guardState["sign-in"].website}
@@ -611,7 +615,7 @@ export function AuthForms() {
                   <FieldLabel htmlFor="signin-password">Пароль</FieldLabel>
                   <button
                     type="button"
-                    className="text-xs font-semibold text-sky-700 hover:text-sky-800"
+                    className="text-xs font-semibold text-[#7fd6f2] hover:text-[#b3e9fb]"
                     onClick={() => {
                       openMode("reset");
                       setResetEmail(signInForm.email);
@@ -685,11 +689,11 @@ export function AuthForms() {
                 Перейти к регистрации
               </Button>
             </div>
-          </>
+          </div>
         ) : null}
 
         {mode === "sign-up" ? (
-          <>
+          <div className="nook-auth-mode-body space-y-5">
             <form className="space-y-4" onSubmit={handleSignUp}>
               <BotTrap
                 value={guardState["sign-up"].website}
@@ -848,11 +852,11 @@ export function AuthForms() {
               <ArrowLeft className="size-4" />
               Уже есть аккаунт? Вернуться ко входу
             </Button>
-          </>
+          </div>
         ) : null}
 
         {mode === "reset" ? (
-          <>
+          <div className="nook-auth-mode-body space-y-5">
             <div className="rounded-2xl border border-[#315977] bg-[#102a42]/80 p-4 text-sm leading-6 text-[#96b9d0]">
               Введите email аккаунта. Если он найден в системе, на почту придет ссылка для
               безопасной смены пароля.
@@ -913,7 +917,7 @@ export function AuthForms() {
               <ArrowLeft className="size-4" />
               Вернуться ко входу
             </Button>
-          </>
+          </div>
         ) : null}
       </div>
     </div>

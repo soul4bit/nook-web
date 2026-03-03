@@ -249,9 +249,19 @@
   }
 }
 
+@keyframes nook-devops-route-shift {
+  0% {
+    stroke-dashoffset: 0;
+  }
+
+  100% {
+    stroke-dashoffset: -310;
+  }
+}
+
 @keyframes nook-devops-packet-move {
   0% {
-    left: -0.55rem;
+    offset-distance: 0%;
     opacity: 0;
   }
 
@@ -264,7 +274,7 @@
   }
 
   100% {
-    left: calc(100% - 0.55rem);
+    offset-distance: 100%;
     opacity: 0;
   }
 }
@@ -330,6 +340,23 @@
   100% {
     opacity: 0.4;
     transform: scale(1);
+  }
+}
+
+@keyframes nook-devops-nebula-drift {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0.25;
+  }
+
+  50% {
+    transform: translateY(-8px) scale(1.08);
+    opacity: 0.42;
+  }
+
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.25;
   }
 }
 
@@ -470,15 +497,15 @@
   overflow: hidden;
   width: min(100%, 46rem);
   min-height: 26rem;
-  border-radius: 1.6rem;
-  border: 1px solid rgba(65, 99, 130, 0.76);
+  border-radius: 1.65rem;
+  border: 1px solid rgba(82, 124, 156, 0.72);
   background:
-    radial-gradient(circle at 16% 14%, rgba(56, 189, 248, 0.22), transparent 38%),
-    radial-gradient(circle at 86% 86%, rgba(45, 212, 191, 0.2), transparent 46%),
-    linear-gradient(145deg, #0b172a 0%, #102136 54%, #102e2f 100%);
+    radial-gradient(circle at 17% 18%, rgba(56, 189, 248, 0.22), transparent 44%),
+    radial-gradient(circle at 88% 84%, rgba(45, 212, 191, 0.2), transparent 46%),
+    linear-gradient(145deg, #0a1628 0%, #0d2238 54%, #0d2e35 100%);
   box-shadow:
-    0 22px 50px rgba(15, 23, 42, 0.24),
-    inset 0 1px 0 rgba(148, 163, 184, 0.32);
+    0 24px 56px rgba(2, 8, 16, 0.5),
+    inset 0 1px 0 rgba(148, 163, 184, 0.28);
 }
 
 .nook-devops-grid {
@@ -489,6 +516,30 @@
     linear-gradient(90deg, rgba(148, 163, 184, 0.1) 1px, transparent 1px);
   background-size: 34px 34px;
   opacity: 0.26;
+}
+
+.nook-devops-nebula {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(14px);
+  animation: nook-devops-nebula-drift 7s ease-in-out infinite;
+}
+
+.nook-devops-nebula-a {
+  left: 8%;
+  top: 11%;
+  height: 9.4rem;
+  width: 9.4rem;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.23) 0%, rgba(56, 189, 248, 0) 70%);
+}
+
+.nook-devops-nebula-b {
+  right: 7%;
+  bottom: 9%;
+  height: 8.4rem;
+  width: 8.4rem;
+  background: radial-gradient(circle, rgba(45, 212, 191, 0.24) 0%, rgba(45, 212, 191, 0) 72%);
+  animation-delay: 2.3s;
 }
 
 .nook-devops-scan {
@@ -543,7 +594,7 @@
 .nook-devops-core {
   position: absolute;
   left: 50%;
-  top: 25%;
+  top: 23%;
   z-index: 3;
   display: flex;
   height: 4.2rem;
@@ -559,58 +610,79 @@
     inset 0 1px 0 rgba(186, 230, 253, 0.28);
 }
 
+.nook-devops-route {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+}
+
+.nook-devops-route-base {
+  fill: none;
+  stroke: rgba(125, 211, 252, 0.26);
+  stroke-linecap: round;
+  stroke-width: 11;
+}
+
+.nook-devops-route-glow {
+  fill: none;
+  stroke: #58d5f5;
+  stroke-linecap: round;
+  stroke-width: 7.6;
+  stroke-dasharray: 24 14;
+  animation: nook-devops-route-shift 5.2s linear infinite;
+  filter: drop-shadow(0 0 7px rgba(56, 189, 248, 0.56));
+}
+
+.nook-devops-traveler {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  width: 1.08rem;
+  height: 1.08rem;
+  border-radius: 999px;
+  border: 1px solid rgba(186, 230, 253, 0.86);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.98) 0%, rgba(125, 211, 252, 0.52) 72%);
+  box-shadow: 0 0 22px rgba(56, 189, 248, 0.76);
+  offset-path: path("M 60 300 L 240 300 L 385 240 L 525 300 L 705 300 L 850 235 L 940 235");
+  animation: nook-devops-packet-move 5.2s linear infinite;
+}
+
+.nook-devops-traveler-secondary {
+  width: 0.82rem;
+  height: 0.82rem;
+  border-color: rgba(110, 231, 183, 0.86);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.98) 0%, rgba(74, 222, 128, 0.5) 72%);
+  box-shadow: 0 0 16px rgba(74, 222, 128, 0.72);
+  animation-delay: 2.6s;
+}
+
 .nook-devops-pipeline {
   position: absolute;
   left: 8%;
   right: 8%;
-  top: 58%;
+  top: 58.5%;
   height: 4rem;
-  z-index: 2;
+  z-index: 3;
 }
 
 .nook-devops-track {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 0.32rem;
-  border-radius: 999px;
-  background: rgba(125, 211, 252, 0.24);
+  display: none;
 }
 
 .nook-devops-progress {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 0.32rem;
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgba(56, 189, 248, 0.9), rgba(45, 212, 191, 0.86));
-  animation: nook-devops-track-fill 5.2s ease-in-out infinite;
+  display: none;
 }
 
 .nook-devops-packet {
-  position: absolute;
-  top: calc(50% - 0.55rem);
-  width: 1.1rem;
-  height: 1.1rem;
-  border-radius: 999px;
-  border: 1px solid rgba(186, 230, 253, 0.7);
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.92) 0%, rgba(125, 211, 252, 0.4) 75%);
-  box-shadow: 0 0 20px rgba(56, 189, 248, 0.75);
-  animation: nook-devops-packet-move 5.2s linear infinite;
+  display: none;
 }
 
 .nook-devops-packet-secondary {
-  top: calc(50% - 0.4rem);
-  width: 0.8rem;
-  height: 0.8rem;
-  border-color: rgba(74, 222, 128, 0.72);
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(74, 222, 128, 0.46) 72%);
-  box-shadow: 0 0 16px rgba(74, 222, 128, 0.66);
-  animation-duration: 5.2s;
-  animation-delay: 2.6s;
+  display: none;
 }
 
 .nook-devops-node {
@@ -656,8 +728,8 @@
 
 .nook-devops-status-strip {
   position: absolute;
-  right: 1rem;
-  top: 1rem;
+  right: 0.95rem;
+  top: 0.95rem;
   z-index: 4;
   display: flex;
   flex-direction: column;
@@ -724,6 +796,54 @@
   bottom: 12%;
   transform: translateX(-50%);
   animation: nook-auth-float 6.1s ease-in-out infinite;
+}
+
+.nook-devops-float-top {
+  left: 50%;
+  top: 12%;
+  transform: translateX(-50%);
+  animation: nook-auth-float-reverse 5.6s ease-in-out infinite;
+}
+
+.nook-auth-mode-palette {
+  position: relative;
+  overflow: hidden;
+}
+
+.nook-auth-mode-palette::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    rgba(56, 189, 248, 0.08) 0%,
+    rgba(45, 212, 191, 0.07) 52%,
+    rgba(56, 189, 248, 0.08) 100%
+  );
+  animation: nook-devops-scan-sweep 7.2s linear infinite;
+}
+
+.nook-auth-mode-indicator {
+  position: absolute;
+  left: 0.28rem;
+  top: 0.28rem;
+  z-index: 0;
+  width: calc(33.333% - 0.2rem);
+  height: calc(100% - 0.56rem);
+  border-radius: 0.85rem;
+  background: linear-gradient(180deg, rgba(32, 184, 223, 0.28) 0%, rgba(20, 62, 95, 0.72) 100%);
+  border: 1px solid rgba(99, 209, 239, 0.6);
+  box-shadow:
+    0 8px 20px rgba(2, 8, 16, 0.42),
+    inset 0 1px 0 rgba(186, 230, 253, 0.22);
+  transform: translateX(var(--nook-mode-x, 0%));
+  transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.nook-auth-mode-body {
+  animation: nook-auth-enter 0.36s ease both;
 }
 
 .nook-shell {
@@ -1004,12 +1124,17 @@
   .nook-devops-packet,
   .nook-devops-orbit-a,
   .nook-devops-orbit-b,
+  .nook-devops-route-glow,
+  .nook-devops-traveler,
+  .nook-devops-traveler-secondary,
   .nook-devops-scan,
   .nook-devops-node,
   .nook-devops-status-dot,
   .nook-devops-float-left,
   .nook-devops-float-right,
-  .nook-devops-float-bottom {
+  .nook-devops-float-bottom,
+  .nook-devops-float-top,
+  .nook-auth-mode-palette::before {
     animation: none !important;
   }
 }

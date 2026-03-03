@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import {
   Cloud,
+  Database,
   GitBranch,
   Layers3,
   Rocket,
@@ -38,6 +39,8 @@ export default async function AuthPage() {
             <article className="nook-devops-stage nook-auth-reveal-1" aria-hidden="true">
               <div className="nook-devops-grid" />
               <div className="nook-devops-scan" />
+              <div className="nook-devops-nebula nook-devops-nebula-a" />
+              <div className="nook-devops-nebula nook-devops-nebula-b" />
               <div className="nook-devops-orbit nook-devops-orbit-a" />
               <div className="nook-devops-orbit nook-devops-orbit-b" />
 
@@ -45,12 +48,25 @@ export default async function AuthPage() {
                 <TerminalSquare className="size-7 text-sky-300" />
               </div>
 
-              <div className="nook-devops-pipeline">
-                <div className="nook-devops-track" />
-                <div className="nook-devops-progress" />
-                <div className="nook-devops-packet" />
-                <div className="nook-devops-packet nook-devops-packet-secondary" />
+              <svg
+                className="nook-devops-route"
+                viewBox="0 0 1000 420"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <path
+                  className="nook-devops-route-base"
+                  d="M 60 300 L 240 300 L 385 240 L 525 300 L 705 300 L 850 235 L 940 235"
+                />
+                <path
+                  className="nook-devops-route-glow"
+                  d="M 60 300 L 240 300 L 385 240 L 525 300 L 705 300 L 850 235 L 940 235"
+                />
+              </svg>
+              <div className="nook-devops-traveler" />
+              <div className="nook-devops-traveler nook-devops-traveler-secondary" />
 
+              <div className="nook-devops-pipeline">
                 <div className="nook-devops-node nook-devops-node-1">
                   <GitBranch className="size-5" />
                 </div>
@@ -61,7 +77,7 @@ export default async function AuthPage() {
                   <ShieldCheck className="size-5" />
                 </div>
                 <div className="nook-devops-node nook-devops-node-4">
-                  <Server className="size-5" />
+                  <Database className="size-5" />
                 </div>
                 <div className="nook-devops-node nook-devops-node-5">
                   <Rocket className="size-5" />
@@ -87,6 +103,9 @@ export default async function AuthPage() {
               </div>
               <div className="nook-devops-float nook-devops-float-bottom nook-auth-reveal-2">
                 <ShieldCheck className="size-5 text-amber-300" />
+              </div>
+              <div className="nook-devops-float nook-devops-float-top nook-auth-reveal-4">
+                <Layers3 className="size-5 text-cyan-300" />
               </div>
             </article>
           </div>
