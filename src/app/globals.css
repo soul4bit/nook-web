@@ -286,6 +286,53 @@
   }
 }
 
+@keyframes nook-devops-orbit-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes nook-devops-scan-sweep {
+  0% {
+    transform: translateX(-18%);
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 0.25;
+  }
+
+  80% {
+    opacity: 0.25;
+  }
+
+  100% {
+    transform: translateX(118%);
+    opacity: 0;
+  }
+}
+
+@keyframes nook-devops-dot-blink {
+  0% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+}
+
 .nook-auth-glow {
   pointer-events: none;
   position: absolute;
@@ -444,6 +491,55 @@
   opacity: 0.26;
 }
 
+.nook-devops-scan {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    90deg,
+    rgba(56, 189, 248, 0) 0%,
+    rgba(56, 189, 248, 0.22) 50%,
+    rgba(56, 189, 248, 0) 100%
+  );
+  animation: nook-devops-scan-sweep 6.6s linear infinite;
+}
+
+.nook-devops-orbit {
+  position: absolute;
+  z-index: 1;
+  border-radius: 999px;
+  border: 1px dashed rgba(125, 211, 252, 0.28);
+}
+
+.nook-devops-orbit::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -0.2rem;
+  height: 0.45rem;
+  width: 0.45rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: #67e8f9;
+  box-shadow: 0 0 10px rgba(103, 232, 249, 0.7);
+}
+
+.nook-devops-orbit-a {
+  left: 4.5%;
+  top: 10%;
+  height: 9rem;
+  width: 9rem;
+  animation: nook-devops-orbit-spin 12s linear infinite;
+}
+
+.nook-devops-orbit-b {
+  right: 5.5%;
+  bottom: 9%;
+  height: 7.2rem;
+  width: 7.2rem;
+  animation: nook-devops-orbit-spin 9s linear infinite reverse;
+}
+
 .nook-devops-core {
   position: absolute;
   left: 50%;
@@ -506,6 +602,17 @@
   animation: nook-devops-packet-move 5.2s linear infinite;
 }
 
+.nook-devops-packet-secondary {
+  top: calc(50% - 0.4rem);
+  width: 0.8rem;
+  height: 0.8rem;
+  border-color: rgba(74, 222, 128, 0.72);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(74, 222, 128, 0.46) 72%);
+  box-shadow: 0 0 16px rgba(74, 222, 128, 0.66);
+  animation-duration: 5.2s;
+  animation-delay: 2.6s;
+}
+
 .nook-devops-node {
   position: absolute;
   top: 50%;
@@ -545,6 +652,44 @@
 .nook-devops-node-5 {
   left: 100%;
   animation-delay: 2.6s;
+}
+
+.nook-devops-status-strip {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.nook-devops-status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.36rem;
+  border-radius: 999px;
+  border: 1px solid rgba(186, 230, 253, 0.34);
+  background: rgba(10, 26, 44, 0.75);
+  padding: 0.28rem 0.65rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #cfe8ff;
+}
+
+.nook-devops-status-dot {
+  height: 0.46rem;
+  width: 0.46rem;
+  border-radius: 999px;
+  background: #4ade80;
+  box-shadow: 0 0 10px rgba(74, 222, 128, 0.76);
+  animation: nook-devops-dot-blink 1.4s ease-in-out infinite;
+}
+
+.nook-devops-status-chip-alt {
+  color: #bbf7d0;
 }
 
 .nook-devops-float {
@@ -857,7 +1002,11 @@
   .nook-auth-reveal-4,
   .nook-devops-progress,
   .nook-devops-packet,
+  .nook-devops-orbit-a,
+  .nook-devops-orbit-b,
+  .nook-devops-scan,
   .nook-devops-node,
+  .nook-devops-status-dot,
   .nook-devops-float-left,
   .nook-devops-float-right,
   .nook-devops-float-bottom {

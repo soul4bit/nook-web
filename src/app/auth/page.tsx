@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import {
   Cloud,
   GitBranch,
+  Layers3,
   Rocket,
   Server,
   ShieldCheck,
@@ -26,15 +27,17 @@ export default async function AuthPage() {
           <div className="nook-auth-glow nook-auth-glow-secondary" />
 
           <KnowledgeLogo
-            subtitle=""
-            titleClassName="sr-only"
-            subtitleClassName="sr-only"
+            subtitle="Приватная база знаний команды"
+            className="relative z-10"
             markClassName="border-slate-200 bg-white"
           />
 
           <div className="relative z-10 mt-8 flex min-h-[540px] items-center justify-center lg:mt-4">
             <article className="nook-devops-stage nook-auth-reveal-1" aria-hidden="true">
               <div className="nook-devops-grid" />
+              <div className="nook-devops-scan" />
+              <div className="nook-devops-orbit nook-devops-orbit-a" />
+              <div className="nook-devops-orbit nook-devops-orbit-b" />
 
               <div className="nook-devops-core nook-auth-reveal-2">
                 <TerminalSquare className="size-7 text-sky-300" />
@@ -44,6 +47,7 @@ export default async function AuthPage() {
                 <div className="nook-devops-track" />
                 <div className="nook-devops-progress" />
                 <div className="nook-devops-packet" />
+                <div className="nook-devops-packet nook-devops-packet-secondary" />
 
                 <div className="nook-devops-node nook-devops-node-1">
                   <GitBranch className="size-5" />
@@ -59,6 +63,17 @@ export default async function AuthPage() {
                 </div>
                 <div className="nook-devops-node nook-devops-node-5">
                   <Rocket className="size-5" />
+                </div>
+              </div>
+
+              <div className="nook-devops-status-strip nook-auth-reveal-3">
+                <div className="nook-devops-status-chip">
+                  <span className="nook-devops-status-dot" />
+                  CI green
+                </div>
+                <div className="nook-devops-status-chip nook-devops-status-chip-alt">
+                  <Layers3 className="size-3.5 text-cyan-300" />
+                  CD live
                 </div>
               </div>
 
