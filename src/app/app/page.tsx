@@ -216,7 +216,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
 
           <div className="mt-3 inline-flex items-center gap-2 rounded-full border-2 border-border bg-white px-3 py-1.5 text-xs font-medium text-foreground">
             <Sparkles className="size-3.5 text-orange-500" />
-            Сохраняй решения так, чтобы через 3 месяца не страдать
+            Контур Знаний: решения, runbook и контекст в одном рабочем контуре
           </div>
         </header>
 

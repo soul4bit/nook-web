@@ -51,7 +51,7 @@ export default async function AuthPage() {
           <div className="mt-8 grid gap-3 sm:grid-cols-2">
             <article className="nook-panel rounded-2xl p-4 sm:col-span-2">
               <p className="text-sm font-medium text-foreground">
-                Да, можно писать по делу и с юмором одновременно. Это как runbook, только без боли.
+                Контур Знаний помогает держать практику команды в одном месте и не терять рабочие решения.
               </p>
             </article>
 
