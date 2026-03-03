@@ -1,12 +1,4 @@
 import { redirect } from "next/navigation";
-import {
-  CheckCircle2,
-  Clock3,
-  KeyRound,
-  Mail,
-  ShieldCheck,
-  UserPlus,
-} from "lucide-react";
 import { AuthForms } from "@/components/auth/auth-forms";
 import { KnowledgeLogo } from "@/components/brand/knowledge-logo";
 import { getCurrentSession } from "@/lib/auth/session";
@@ -22,9 +14,6 @@ export default async function AuthPage() {
     <div className="min-h-screen px-3 py-4 text-slate-100 sm:px-6 lg:px-8">
       <main className="mx-auto grid w-full max-w-[1480px] gap-4 lg:grid-cols-[1.1fr_minmax(440px,0.9fr)]">
         <section className="nook-shell relative overflow-hidden rounded-[32px] p-6 lg:p-9 xl:p-10">
-          <div className="nook-auth-glow nook-auth-glow-primary" />
-          <div className="nook-auth-glow nook-auth-glow-secondary" />
-
           <KnowledgeLogo
             subtitle="Приватная база знаний команды"
             className="relative z-10"
@@ -33,104 +22,22 @@ export default async function AuthPage() {
             subtitleClassName="text-[#7db0cc]"
           />
 
-          <div className="relative z-10 mt-8 flex min-h-[540px] items-center justify-center lg:mt-4">
-            <article className="nook-devops-stage nook-auth-reveal-1" aria-hidden="true">
-              <div className="nook-devops-grid" />
-              <div className="nook-devops-scan" />
-              <div className="nook-devops-nebula nook-devops-nebula-a" />
-              <div className="nook-devops-nebula nook-devops-nebula-b" />
-              <div className="nook-devops-orbit nook-devops-orbit-a" />
-              <div className="nook-devops-orbit nook-devops-orbit-b" />
-
-              <div className="nook-registration-card nook-auth-reveal-2">
-                <div className="nook-registration-card-title-row">
-                  <UserPlus className="size-3.5 text-cyan-300" />
-                  <span className="nook-registration-card-title">registration form</span>
-                </div>
-                <span className="nook-registration-card-line" />
-                <span className="nook-registration-card-line" />
-                <span className="nook-registration-card-line nook-registration-card-line-short" />
+          <div className="relative z-10 mt-8 lg:mt-6">
+            <div className="rounded-3xl border border-[#335f7f] bg-[#102a42]/78 p-5 shadow-[0_20px_44px_rgba(2,8,16,0.42)] backdrop-blur">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#7fc5e4]">О Wiki</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[#e6f3fd]">
+                Единая база знаний команды
+              </h2>
+              <p className="mt-3 text-sm leading-7 text-[#9fc2d8]">
+                Документация, runbook и статьи в одном месте. Доступы настраиваются по ролям, а
+                контент можно быстро обновлять и поддерживать в актуальном состоянии.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="nook-chip">Быстрый поиск</span>
+                <span className="nook-chip">Права по ролям</span>
+                <span className="nook-chip">История изменений</span>
               </div>
-
-              <div className="nook-devops-core nook-auth-reveal-2">
-                <CheckCircle2 className="size-7 text-sky-300" />
-              </div>
-
-              <svg
-                className="nook-devops-route"
-                viewBox="0 0 1000 420"
-                preserveAspectRatio="none"
-                aria-hidden="true"
-              >
-                <path
-                  className="nook-devops-route-base"
-                  d="M 60 300 L 940 300"
-                />
-                <path
-                  className="nook-devops-route-glow"
-                  d="M 60 300 L 940 300"
-                />
-              </svg>
-              <div className="nook-devops-traveler" />
-              <div className="nook-devops-traveler nook-devops-traveler-secondary" />
-
-              <div className="nook-devops-pipeline">
-                <div className="nook-devops-node nook-devops-node-1">
-                  <UserPlus className="size-5" />
-                </div>
-                <div className="nook-devops-node nook-devops-node-2">
-                  <Clock3 className="size-5" />
-                </div>
-                <div className="nook-devops-node nook-devops-node-3">
-                  <ShieldCheck className="size-5" />
-                </div>
-                <div className="nook-devops-node nook-devops-node-4">
-                  <Mail className="size-5" />
-                </div>
-                <div className="nook-devops-node nook-devops-node-5">
-                  <KeyRound className="size-5" />
-                </div>
-              </div>
-
-              <div className="nook-devops-steps nook-auth-reveal-2">
-                <span className="nook-devops-step nook-devops-step-1">request</span>
-                <span className="nook-devops-step nook-devops-step-2">review</span>
-                <span className="nook-devops-step nook-devops-step-3">approval</span>
-                <span className="nook-devops-step nook-devops-step-4">verify</span>
-                <span className="nook-devops-step nook-devops-step-5">access</span>
-              </div>
-
-              <div className="nook-devops-log nook-auth-reveal-3">
-                <p className="nook-devops-log-line nook-devops-log-line-1">registration form submitted</p>
-                <p className="nook-devops-log-line nook-devops-log-line-2">waiting for admin review</p>
-                <p className="nook-devops-log-line nook-devops-log-line-3">verification email dispatched</p>
-                <p className="nook-devops-log-line nook-devops-log-line-4">account access unlocked</p>
-              </div>
-
-              <div className="nook-devops-status-strip nook-auth-reveal-3">
-                <div className="nook-devops-status-chip">
-                  <span className="nook-devops-status-dot" />
-                  FORM SUBMITTED
-                </div>
-                <div className="nook-devops-status-chip nook-devops-status-chip-alt">
-                  <CheckCircle2 className="size-3.5 text-cyan-300" />
-                  AWAITING VERIFICATION
-                </div>
-              </div>
-
-              <div className="nook-devops-float nook-devops-float-left nook-auth-reveal-3">
-                <UserPlus className="size-5 text-cyan-300" />
-              </div>
-              <div className="nook-devops-float nook-devops-float-right nook-auth-reveal-4">
-                <Mail className="size-5 text-emerald-300" />
-              </div>
-              <div className="nook-devops-float nook-devops-float-bottom nook-auth-reveal-2">
-                <ShieldCheck className="size-5 text-amber-300" />
-              </div>
-              <div className="nook-devops-float nook-devops-float-top nook-auth-reveal-4">
-                <KeyRound className="size-5 text-cyan-300" />
-              </div>
-            </article>
+            </div>
           </div>
         </section>
 

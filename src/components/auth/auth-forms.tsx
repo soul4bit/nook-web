@@ -304,8 +304,6 @@ export function AuthForms() {
   const resendEmail = lastEmail || signInForm.email || signUpForm.email || resetEmail;
   const activeMode = modeMeta[mode];
   const activeJourney = modeJourney[mode];
-  const modeOffset = mode === "sign-in" ? "0%" : mode === "sign-up" ? "100%" : "200%";
-  const modeIndicatorStyle = { "--nook-mode-x": modeOffset } as CSSProperties;
 
   const passwordChecks = useMemo(() => {
     const hasLetters = /\p{L}/u.test(signUpForm.password);
@@ -443,10 +441,6 @@ export function AuthForms() {
     "--nook-flow-scale": (
       journeyState.completionCount / Math.max(activeJourney.steps.length, 1)
     ).toFixed(3),
-    "--nook-flow-speed":
-      mode === "sign-up" ? "2.9s" : mode === "sign-in" ? "4.4s" : "3.5s",
-    "--nook-flow-glow-speed":
-      mode === "sign-up" ? "2.2s" : mode === "sign-in" ? "3.3s" : "2.8s",
   } as CSSProperties;
 
   function updateGuard(action: GuardAction, patch: Partial<GuardState>) {
@@ -664,15 +658,14 @@ export function AuthForms() {
   return (
     <div className="nook-auth-reveal-1 w-full rounded-[32px] border border-[#2e5674] bg-[#0d2237]/95 p-5 shadow-[0_18px_44px_rgba(3,9,18,0.45)] backdrop-blur sm:p-6 lg:h-full lg:overflow-y-auto nook-scroll">
       <div className="space-y-4 border-b border-[#2e5674] pb-6">
-        <div className="nook-auth-mode-palette relative grid gap-2 sm:grid-cols-3">
-          <div className="nook-auth-mode-indicator" style={modeIndicatorStyle} />
+        <div className="grid grid-cols-3 gap-2">
           {modeOptions.map((option) => (
             <button
               key={option.id}
               type="button"
-              className={`relative z-10 rounded-2xl border px-3 py-3 text-left transition-colors ${
+              className={`flex min-h-[84px] flex-col justify-between rounded-2xl border px-3 py-3 text-left transition-colors ${
                 mode === option.id
-                  ? "border-[#62d2f1]/30 bg-transparent text-[#d7f1ff]"
+                  ? "border-[#65cff0] bg-[#173853] text-[#dff3ff]"
                   : "border-[#2f5774] bg-[#102941] text-[#8eb2cb] hover:border-[#4e86a9] hover:bg-[#14344f] hover:text-[#d8effd]"
               }`}
               onClick={() => {
@@ -694,7 +687,7 @@ export function AuthForms() {
                 <option.icon className="size-4" />
                 <span className="text-sm font-semibold">{option.label}</span>
               </div>
-              <p className="mt-1 text-xs leading-5 opacity-80">{option.caption}</p>
+              <p className="mt-1 hidden text-[11px] leading-4 opacity-80 sm:block">{option.caption}</p>
             </button>
           ))}
         </div>
@@ -721,9 +714,6 @@ export function AuthForms() {
             <div className="nook-auth-flow-stage" aria-hidden="true">
               <span className="nook-auth-flow-line" />
               <span className="nook-auth-flow-progress" />
-              <span className="nook-auth-flow-line-glow" />
-              <span className="nook-auth-flow-traveler" />
-              <span className="nook-auth-flow-marker" />
               {activeJourney.steps.map((step, index) => (
                 <div
                   key={step.id}

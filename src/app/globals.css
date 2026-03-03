@@ -1099,8 +1099,6 @@
   --nook-flow-accent: #58d5f5;
   --nook-flow-accent-soft: rgba(56, 189, 248, 0.34);
   --nook-flow-scale: 0;
-  --nook-flow-speed: 4.2s;
-  --nook-flow-glow-speed: 3.2s;
   margin-top: 0.9rem;
   border-radius: 0.9rem;
   border: 1px solid rgba(74, 118, 148, 0.64);
@@ -1158,7 +1156,7 @@
 .nook-auth-flow-stage {
   position: relative;
   margin-top: 0.64rem;
-  height: 4.8rem;
+  height: 4.2rem;
 }
 
 .nook-auth-flow-line {
@@ -1186,55 +1184,9 @@
   transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.nook-auth-flow-line-glow {
-  position: absolute;
-  left: 6%;
-  right: 6%;
-  top: 1.22rem;
-  height: 0.38rem;
-  border-radius: 999px;
-  background: repeating-linear-gradient(
-    90deg,
-    var(--nook-flow-accent) 0 0.95rem,
-    transparent 0.95rem 1.7rem
-  );
-  box-shadow: 0 0 10px var(--nook-flow-accent-soft);
-  animation: nook-auth-flow-line-shift var(--nook-flow-glow-speed) linear infinite;
-}
-
-.nook-auth-flow-traveler {
-  position: absolute;
-  left: 6%;
-  top: 0.89rem;
-  z-index: 2;
-  height: 1rem;
-  width: 1rem;
-  border-radius: 999px;
-  border: 1px solid rgba(223, 242, 255, 0.9);
-  background: radial-gradient(circle, #f8fdff 0%, var(--nook-flow-accent-soft) 68%);
-  box-shadow: 0 0 15px var(--nook-flow-accent-soft);
-  animation: nook-auth-flow-travel var(--nook-flow-speed) linear infinite;
-}
-
-.nook-auth-flow-marker {
-  position: absolute;
-  left: calc(6% + (88% * var(--nook-flow-scale)));
-  top: 0.82rem;
-  z-index: 4;
-  height: 1.16rem;
-  width: 1.16rem;
-  transform: translateX(-50%);
-  border-radius: 999px;
-  border: 1px solid rgba(223, 242, 255, 0.86);
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.98) 0%, var(--nook-flow-accent-soft) 72%);
-  box-shadow: 0 0 18px var(--nook-flow-accent-soft);
-  animation: nook-devops-dot-blink 1.8s ease-in-out infinite;
-  transition: left 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
 .nook-auth-flow-node {
   position: absolute;
-  top: 1.4rem;
+  top: 1.45rem;
   z-index: 3;
   display: flex;
   height: 2.05rem;
@@ -1249,7 +1201,6 @@
   box-shadow:
     0 10px 20px rgba(2, 8, 16, 0.46),
     inset 0 1px 0 rgba(186, 230, 253, 0.12);
-  animation: nook-devops-node-pulse 4.4s ease-in-out infinite;
   transition:
     transform 220ms ease,
     border-color 220ms ease,
@@ -1260,22 +1211,18 @@
 
 .nook-auth-flow-node-1 {
   left: 6%;
-  animation-delay: 0.2s;
 }
 
 .nook-auth-flow-node-2 {
   left: 35%;
-  animation-delay: 0.8s;
 }
 
 .nook-auth-flow-node-3 {
   left: 65%;
-  animation-delay: 1.4s;
 }
 
 .nook-auth-flow-node-4 {
   left: 94%;
-  animation-delay: 2s;
 }
 
 .nook-auth-flow-node[data-tone="sky"] {
@@ -1368,61 +1315,6 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: #8ab6d0;
-}
-
-.nook-auth-flow-card[data-mode="sign-up"] .nook-auth-flow-stage {
-  height: 5.15rem;
-}
-
-.nook-auth-flow-card[data-mode="sign-up"] .nook-auth-flow-line,
-.nook-auth-flow-card[data-mode="sign-up"] .nook-auth-flow-progress,
-.nook-auth-flow-card[data-mode="sign-up"] .nook-auth-flow-line-glow {
-  top: 1.55rem;
-  height: 0.34rem;
-}
-
-.nook-auth-flow-card[data-mode="sign-up"] .nook-auth-flow-traveler {
-  top: 1.23rem;
-}
-
-.nook-auth-flow-card[data-mode="sign-up"] .nook-auth-flow-marker {
-  top: 1.15rem;
-}
-
-.nook-auth-flow-card[data-mode="sign-up"] .nook-auth-flow-node-1 {
-  top: 1.72rem;
-}
-
-.nook-auth-flow-card[data-mode="sign-up"] .nook-auth-flow-node-2 {
-  top: 2.15rem;
-}
-
-.nook-auth-flow-card[data-mode="sign-up"] .nook-auth-flow-node-3 {
-  top: 1.2rem;
-}
-
-.nook-auth-flow-card[data-mode="sign-up"] .nook-auth-flow-node-4 {
-  top: 2.12rem;
-}
-
-.nook-auth-flow-card[data-mode="sign-up"] .nook-auth-flow-label {
-  top: 3.18rem;
-}
-
-.nook-auth-flow-card[data-mode="reset"] .nook-auth-flow-line-glow {
-  background: repeating-linear-gradient(
-    90deg,
-    rgba(251, 191, 36, 0.95) 0 0.72rem,
-    transparent 0.72rem 1.25rem
-  );
-}
-
-.nook-auth-flow-card[data-mode="reset"] .nook-auth-flow-marker {
-  box-shadow: 0 0 20px rgba(251, 191, 36, 0.28);
-}
-
-.nook-auth-flow-card[data-mode="sign-in"] .nook-auth-flow-line-glow {
-  opacity: 0.82;
 }
 
 .nook-shell {
