@@ -2,8 +2,8 @@
 
 import { type ChangeEvent, type FormEvent } from "react";
 import { ArrowRight, KeyRound, UserPlus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { BotTrap, PasswordField, TextField } from "@/components/auth/forms/form-fields";
+import { Button } from "@/components/ui/button";
 
 type SignInFormProps = {
   email: string;
@@ -58,7 +58,7 @@ export function SignInForm({
               className="text-xs font-semibold text-primary hover:text-primary/80"
               onClick={onForgotPassword}
             >
-              Забыли пароль?
+              Я забыл пароль
             </button>
           </div>
 
@@ -74,25 +74,25 @@ export function SignInForm({
         </div>
 
         <Button type="submit" className="h-11 w-full" disabled={isPending}>
-          {isPending ? "Входим..." : "Войти"}
+          {isPending ? "Проверяем доступ..." : "Войти и навести порядок"}
           <ArrowRight className="size-4" />
         </Button>
       </form>
 
       <div className="nook-panel-soft rounded-xl p-4">
-        <p className="text-sm font-medium text-foreground">Нет аккаунта?</p>
+        <p className="text-sm font-medium text-foreground">Первый раз здесь?</p>
         <p className="mt-1 text-sm leading-6 text-muted-foreground">
-          Отправьте заявку на доступ. После одобрения подтвердите email и войдите.
+          Отправьте заявку и получите доступ после одобрения. Вики любит порядок и админов.
         </p>
         <Button type="button" variant="outline" className="mt-3 w-full" onClick={onOpenSignUp}>
           <UserPlus className="size-4" />
-          Перейти к регистрации
+          Запросить доступ
         </Button>
       </div>
 
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <KeyRound className="size-3.5" />
-        Защита формы: anti-bot, лимиты и журнал попыток.
+        Внутри: anti-bot, rate limit и журнал попыток. Да, мы серьезные.
       </div>
     </div>
   );

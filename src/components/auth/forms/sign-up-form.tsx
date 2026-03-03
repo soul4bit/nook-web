@@ -2,8 +2,8 @@
 
 import { type ChangeEvent, type FormEvent, useMemo } from "react";
 import { ArrowLeft, CheckCircle2, Circle, UserPlus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { BotTrap, PasswordField, TextField } from "@/components/auth/forms/form-fields";
+import { Button } from "@/components/ui/button";
 
 type SignUpFormProps = {
   name: string;
@@ -75,10 +75,10 @@ export function SignUpForm({
 
         <TextField
           id="signup-name"
-          label="Имя"
+          label="Как вас звать"
           value={name}
           onChange={(event) => onNameChange(getFieldValue(event))}
-          placeholder="Как к вам обращаться"
+          placeholder="Например: Дежурный по продакшену"
           autoComplete="name"
           required
         />
@@ -117,13 +117,13 @@ export function SignUpForm({
 
         <div className="nook-panel-soft rounded-xl p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground">
-            Требования к паролю
+            Мини-чеклист пароля
           </p>
           <div className="mt-2 grid gap-1.5 sm:grid-cols-2">
             {passwordChecks.map((check) => (
               <div key={check.id} className="flex items-center gap-2 text-sm text-muted-foreground">
                 {check.passed ? (
-                  <CheckCircle2 className="size-4 text-emerald-400" />
+                  <CheckCircle2 className="size-4 text-emerald-500" />
                 ) : (
                   <Circle className="size-4 text-muted-foreground/75" />
                 )}
@@ -135,13 +135,13 @@ export function SignUpForm({
 
         <Button type="submit" className="h-11 w-full" disabled={isPending}>
           <UserPlus className="size-4" />
-          {isPending ? "Отправляем заявку..." : "Отправить заявку"}
+          {isPending ? "Отправляем заявку..." : "Вступить в клуб адекватных заметок"}
         </Button>
       </form>
 
       <Button type="button" variant="ghost" className="w-full" onClick={onBackToSignIn}>
         <ArrowLeft className="size-4" />
-        Вернуться ко входу
+        Назад ко входу
       </Button>
     </div>
   );

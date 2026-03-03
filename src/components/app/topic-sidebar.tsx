@@ -44,16 +44,16 @@ export function TopicSidebar({
 
   return (
     <aside className="order-2 space-y-4 lg:order-1">
-      <section className="nook-panel rounded-xl p-4">
+      <section className="nook-panel rounded-2xl p-4">
         <div className="flex items-center justify-between gap-3">
           <p className="text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground">Разделы</p>
-          <span className="rounded-full border border-border/80 px-2.5 py-1 text-xs text-muted-foreground">
+          <span className="rounded-full border-2 border-border px-2.5 py-1 text-xs font-medium text-foreground">
             {hasSearchQuery ? `${visibleArticles.length}/${totalArticles}` : totalArticles} статей
           </span>
         </div>
         {hasSearchQuery ? (
-          <p className="mt-3 rounded-lg bg-muted/60 px-3 py-2 text-xs text-muted-foreground">
-            Поиск: {visibleArticles.length} результатов
+          <p className="mt-3 rounded-lg bg-muted/80 px-3 py-2 text-xs text-muted-foreground">
+            Нашли: {visibleArticles.length}
           </p>
         ) : null}
       </section>
@@ -71,8 +71,8 @@ export function TopicSidebar({
           return (
             <article
               key={topic.name}
-              className={`nook-panel rounded-xl transition-colors ${
-                isActive ? "border-primary/60" : "border-border/90 hover:border-primary/35"
+              className={`nook-panel rounded-2xl transition-transform ${
+                isActive ? "border-primary/80" : "hover:-translate-y-px"
               }`}
             >
               <Link
@@ -80,8 +80,8 @@ export function TopicSidebar({
                 className="flex items-start gap-3 px-4 py-3.5"
               >
                 <div
-                  className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${
-                    isActive ? "bg-primary/20 text-primary" : "bg-muted/60 text-muted-foreground"
+                  className={`flex size-9 shrink-0 items-center justify-center rounded-lg border-2 border-border ${
+                    isActive ? "bg-primary/20 text-primary" : "bg-white text-muted-foreground"
                   }`}
                 >
                   <Icon className="size-4" />
@@ -96,7 +96,7 @@ export function TopicSidebar({
               </Link>
 
               {isActive ? (
-                <div className="space-y-4 border-t border-border/80 px-3 py-3">
+                <div className="space-y-4 border-t-2 border-border/70 px-3 py-3">
                   {categoryList.map((categoryName) => {
                     const groupedArticles = topicArticles.filter((article) => article.category === categoryName);
                     const isCategoryActive = categoryName === selectedCategory;
@@ -108,10 +108,10 @@ export function TopicSidebar({
                             category: categoryName,
                             query: searchQuery || undefined,
                           })}
-                          className={`flex items-center justify-between rounded-lg border px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] ${
+                          className={`flex items-center justify-between rounded-lg border-2 px-3 py-2 text-xs font-semibold uppercase tracking-[0.08em] ${
                             isCategoryActive
-                              ? "border-primary/65 bg-primary/10 text-foreground"
-                              : "border-border/80 bg-muted/40 text-muted-foreground hover:border-primary/35"
+                              ? "border-primary/80 bg-primary/10 text-foreground"
+                              : "border-border bg-white text-muted-foreground hover:border-primary/50"
                           }`}
                         >
                           <span>{categoryName}</span>
@@ -131,10 +131,10 @@ export function TopicSidebar({
                                     category: categoryName,
                                     query: searchQuery || undefined,
                                   })}
-                                  className={`block rounded-lg border px-3 py-2.5 ${
+                                  className={`block rounded-lg border-2 px-3 py-2.5 ${
                                     isSelected
-                                      ? "border-primary/65 bg-primary/10"
-                                      : "border-border/80 bg-card/70 hover:border-primary/35"
+                                      ? "border-primary/80 bg-primary/10"
+                                      : "border-border bg-card hover:border-primary/50"
                                   }`}
                                 >
                                   <div className="flex items-start justify-between gap-2">
@@ -153,8 +153,8 @@ export function TopicSidebar({
                             })}
                           </div>
                         ) : (
-                          <p className="rounded-lg border border-dashed border-border/80 bg-muted/35 px-3 py-2.5 text-xs leading-5 text-muted-foreground">
-                            В этой категории пока нет статей.
+                          <p className="rounded-lg border-2 border-dashed border-border bg-muted/35 px-3 py-2.5 text-xs leading-5 text-muted-foreground">
+                            Пока пусто. Можно стать первым героем этой категории.
                           </p>
                         )}
                       </div>

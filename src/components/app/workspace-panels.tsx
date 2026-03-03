@@ -19,12 +19,12 @@ const copy = {
   editor: "Редактор",
   editArticle: "Редактирование статьи",
   newNote: "Новая статья",
-  editorText: "Изменения сохраняются в PostgreSQL и сразу появляются в базе знаний.",
+  editorText: "Сохраняем в PostgreSQL. Никаких «а где был тот файл?»",
   editButton: "Редактировать",
   closeEditor: "К статье",
   noAccessEmptyTitle: "Пустая категория",
   noAccessEmptyText:
-    "В этой категории пока нет материалов. У вас только режим чтения, обратитесь к администратору для прав редактирования.",
+    "Здесь пока нет материалов. Можно начать с черновика и постепенно наполнить раздел.",
 } as const;
 
 type EditorArticle = Parameters<typeof ThoughtEditor>[0]["article"];
@@ -84,7 +84,7 @@ export function WorkspacePanels({
     <>
       <main className={`order-1 space-y-4 lg:order-2 ${shouldShowEditor ? "lg:col-span-2" : ""}`}>
         {shouldShowEditor ? (
-          <section className="nook-panel rounded-xl p-4 sm:p-5">
+          <section className="nook-panel rounded-2xl p-4 sm:p-5">
             <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground">
@@ -98,7 +98,7 @@ export function WorkspacePanels({
               {selectedArticle && closeEditorHref ? (
                 <Link
                   href={closeEditorHref}
-                  className="rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-accent"
+                  className="rounded-lg border-2 border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-accent"
                 >
                   {copy.closeEditor}
                 </Link>
@@ -117,13 +117,13 @@ export function WorkspacePanels({
             />
           </section>
         ) : selectedArticle ? (
-          <section className="nook-panel rounded-xl p-5 sm:p-6">
+          <section className="nook-panel rounded-2xl p-5 sm:p-6">
             <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-primary/45 bg-primary/10 px-3 py-1 font-semibold text-primary">
+                <span className="rounded-full border-2 border-primary/70 bg-primary/10 px-3 py-1 font-semibold text-primary">
                   {selectedArticle.topic}
                 </span>
-                <span className="rounded-full border border-border/80 bg-muted/50 px-3 py-1 font-semibold text-muted-foreground">
+                <span className="rounded-full border-2 border-border bg-muted/50 px-3 py-1 font-semibold text-muted-foreground">
                   {selectedArticle.category}
                 </span>
                 <span className="inline-flex items-center gap-1 text-muted-foreground">
@@ -134,7 +134,7 @@ export function WorkspacePanels({
               {editArticleHref && canEditSelectedArticle ? (
                 <Link
                   href={editArticleHref}
-                  className="rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-accent"
+                  className="rounded-lg border-2 border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-accent"
                 >
                   {copy.editButton}
                 </Link>
@@ -172,7 +172,7 @@ export function WorkspacePanels({
               </div>
             </div>
 
-            <div className="mt-5 rounded-xl border border-border/80 bg-card/75 p-4">
+            <div className="mt-5 rounded-xl border-2 border-border bg-card/90 p-4">
               <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
                 <BookOpenText className="size-4 text-primary" />
                 {copy.reading}
@@ -180,12 +180,12 @@ export function WorkspacePanels({
               <ArticleContent
                 html={selectedArticle.contentHtml}
                 wikiLinks={wikiLinks}
-                className="max-w-none space-y-4 text-[15px] leading-7 text-slate-200"
+                className="max-w-none space-y-4 text-[15px] leading-7 text-foreground"
               />
             </div>
           </section>
         ) : (
-          <section className="nook-panel rounded-xl p-6">
+          <section className="nook-panel rounded-2xl p-6">
             <h2 className="text-xl font-semibold text-foreground">{copy.noAccessEmptyTitle}</h2>
             <p className="mt-2 text-sm leading-7 text-muted-foreground">{copy.noAccessEmptyText}</p>
           </section>
@@ -194,7 +194,7 @@ export function WorkspacePanels({
 
       {!shouldShowEditor ? (
         <aside className="order-3 space-y-4">
-          <section className="nook-panel rounded-xl p-4">
+          <section className="nook-panel rounded-2xl p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.13em] text-muted-foreground">
               {copy.snapshot}
             </p>

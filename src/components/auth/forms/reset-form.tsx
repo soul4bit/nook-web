@@ -2,8 +2,8 @@
 
 import { type ChangeEvent, type FormEvent } from "react";
 import { ArrowLeft, Mail } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { BotTrap, TextField } from "@/components/auth/forms/form-fields";
+import { Button } from "@/components/ui/button";
 
 type ResetFormProps = {
   email: string;
@@ -31,7 +31,7 @@ export function ResetForm({
   return (
     <div className="space-y-5">
       <div className="nook-panel-soft rounded-xl p-4 text-sm leading-6 text-muted-foreground">
-        Введите email аккаунта. Если адрес есть в системе, мы отправим ссылку для сброса пароля.
+        Введите email аккаунта. Если адрес найден, пришлем ссылку и вернем вас к жизни без паники.
       </div>
 
       <form className="space-y-4" onSubmit={onSubmit}>
@@ -50,13 +50,13 @@ export function ResetForm({
 
         <Button type="submit" className="h-11 w-full" disabled={isPending}>
           <Mail className="size-4" />
-          {isPending ? "Отправляем ссылку..." : "Отправить ссылку"}
+          {isPending ? "Отправляем письмо..." : "Вернуть доступ"}
         </Button>
       </form>
 
       <Button type="button" variant="ghost" className="w-full" onClick={onBackToSignIn}>
         <ArrowLeft className="size-4" />
-        Вернуться ко входу
+        Назад ко входу
       </Button>
     </div>
   );

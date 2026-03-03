@@ -25,21 +25,21 @@ import {
 
 const modeMeta = {
   "sign-in": {
-    badge: "доступ к вики",
-    title: "Вход в рабочее пространство",
-    description: "Email и пароль. Никаких лишних шагов.",
+    badge: "пуск в боевой режим",
+    title: "Залетай в базу знаний",
+    description: "Email + пароль и погнали чинить прод осознанно.",
     label: "Вход",
   },
   "sign-up": {
-    badge: "новая заявка",
-    title: "Регистрация через одобрение",
-    description: "Новый доступ проходит модерацию администратора.",
+    badge: "новичок в отряде",
+    title: "Запросить доступ",
+    description: "Регистрация идет через модерацию, чтобы в вики не было хаоса.",
     label: "Регистрация",
   },
   reset: {
-    badge: "восстановление",
-    title: "Сброс пароля",
-    description: "Отправим ссылку на почту для безопасного обновления пароля.",
+    badge: "операция: вернуть доступ",
+    title: "Сбросить пароль",
+    description: "Пришлем ссылку и вернем тебя обратно в строй.",
     label: "Сброс",
   },
 } as const;
@@ -433,7 +433,7 @@ export function AuthForms() {
 
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <ShieldCheck className="size-3.5 text-primary" />
-        Доступ ограничен: регистрация проходит через Telegram-модерацию.
+        У нас строгий фейс-контроль: заявки проходят через Telegram-модерацию.
       </div>
     </div>
   );

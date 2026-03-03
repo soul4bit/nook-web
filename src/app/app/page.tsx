@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Plus, Search, ShieldCheck } from "lucide-react";
-import { WorkspacePanels } from "@/components/app/workspace-panels";
+import { Plus, Search, ShieldCheck, Sparkles } from "lucide-react";
 import { TopicSidebar } from "@/components/app/topic-sidebar";
+import { WorkspacePanels } from "@/components/app/workspace-panels";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { KnowledgeLogo } from "@/components/brand/knowledge-logo";
 import { UserAvatar } from "@/components/user/user-avatar";
@@ -97,7 +97,9 @@ export default async function AppPage({ searchParams }: AppPageProps) {
       Array.from(
         new Set([
           ...topic.categories,
-          ...allArticles.filter((article) => article.topic === topic.name).map((article) => article.category),
+          ...allArticles
+            .filter((article) => article.topic === topic.name)
+            .map((article) => article.category),
           "Общее",
         ])
       ),
@@ -134,13 +136,17 @@ export default async function AppPage({ searchParams }: AppPageProps) {
   return (
     <div className="min-h-screen px-3 py-3 sm:px-6 sm:py-4 lg:px-8">
       <div className="mx-auto flex w-full max-w-[1680px] flex-col gap-4">
-        <header className="nook-shell sticky top-3 z-30 rounded-2xl p-3 sm:p-4">
+        <header className="nook-shell sticky top-3 z-30 rounded-3xl p-3 sm:p-4">
           <div className="flex flex-wrap items-center gap-3">
             <Link href={buildAppHref(selectedTopic, { category: selectedCategory })}>
-              <KnowledgeLogo subtitle="Командная база знаний" />
+              <KnowledgeLogo subtitle="командная база знаний без занудства" />
             </Link>
 
-            <form action="/app" method="get" className="order-3 flex w-full items-center gap-2 md:order-none md:flex-1">
+            <form
+              action="/app"
+              method="get"
+              className="order-3 flex w-full items-center gap-2 md:order-none md:flex-1"
+            >
               <input type="hidden" name="topic" value={selectedTopic} />
               <input type="hidden" name="category" value={selectedCategory} />
               <div className="relative w-full">
@@ -149,8 +155,8 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                   type="search"
                   name="q"
                   defaultValue={searchQuery}
-                  placeholder="Поиск по заголовку, описанию и тексту"
-                  className="h-11 w-full rounded-xl border border-input bg-card pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+                  placeholder="Ищи по заголовку, описанию и тексту статьи"
+                  className="h-11 w-full rounded-xl border-2 border-input bg-card pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
                 />
               </div>
               <Button type="submit" className="h-11 px-4">
@@ -206,6 +212,11 @@ export default async function AppPage({ searchParams }: AppPageProps) {
                 />
               </Link>
             </div>
+          </div>
+
+          <div className="mt-3 inline-flex items-center gap-2 rounded-full border-2 border-border bg-white px-3 py-1.5 text-xs font-medium text-foreground">
+            <Sparkles className="size-3.5 text-orange-500" />
+            Сохраняй решения так, чтобы через 3 месяца не страдать
           </div>
         </header>
 

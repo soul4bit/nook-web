@@ -14,19 +14,19 @@ export function KnowledgeLogo({
   markClassName,
   titleClassName,
   subtitleClassName,
-  subtitle = "Контур Знаний",
+  subtitle = "документация, но живая",
 }: KnowledgeLogoProps) {
   return (
     <div className={cn("flex items-center gap-3", className)}>
       <div
         className={cn(
-          "flex h-12 w-16 items-center justify-center rounded-xl border border-border bg-card shadow-sm",
+          "flex h-12 w-16 items-center justify-center rounded-xl border-2 border-border bg-card shadow-[3px_3px_0_var(--border)]",
           markClassName
         )}
       >
         <Image
           src="/branding/logo-mark.svg"
-          alt="Логотип Контур Знаний"
+          alt="Логотип Nook"
           width={48}
           height={36}
           className="h-8 w-12 object-contain"
@@ -40,7 +40,7 @@ export function KnowledgeLogo({
             titleClassName
           )}
         >
-          Контур Знаний
+          Nook Wiki
         </p>
         <p className={cn("text-sm text-muted-foreground", subtitleClassName)}>{subtitle}</p>
       </div>
