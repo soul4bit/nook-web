@@ -99,6 +99,15 @@ const emptyHtml = `
   <p>${copy.emptyBody}</p>
 `;
 
+const normalizedSeedContent = `${copy.emptyTitle} ${copy.emptyBody}`
+  .trim()
+  .replace(/\s+/g, " ");
+
+function hasMeaningfulContent(value: string) {
+  const normalizedValue = value.trim().replace(/\s+/g, " ");
+  return normalizedValue.length > 0 && normalizedValue !== normalizedSeedContent;
+}
+
 type ThoughtEditorProps = {
   article: ArticleRecord | null;
   topics: readonly ArticleTopic[];
@@ -111,6 +120,17 @@ type ThoughtEditorProps = {
     title: string;
     href: string;
   }>;
+  showStandalonePreview?: boolean;
+  onPreviewChange?: (preview: ThoughtEditorPreview) => void;
+};
+
+export type ThoughtEditorPreview = {
+  title: string;
+  summary: string;
+  topic: ArticleTopic;
+  category: string;
+  contentHtml: string;
+  hasContent: boolean;
 };
 
 type SaveFeedback = {
@@ -212,6 +232,8 @@ export function ThoughtEditor({
   defaultCategory,
   canDeleteArticle = false,
   wikiLinks,
+  showStandalonePreview = true,
+  onPreviewChange,
 }: ThoughtEditorProps) {
   const router = useRouter();
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -225,6 +247,9 @@ export function ThoughtEditor({
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [previewHtml, setPreviewHtml] = useState(article?.contentHtml ?? emptyHtml);
   const [stats, setStats] = useState({ chars: 0, paragraphs: 0 });
+  const [hasPreviewContent, setHasPreviewContent] = useState(
+    hasMeaningfulContent(article?.contentText ?? "")
+  );
   const availableCategories = useMemo(
     () => topicCategories[topic] ?? [],
     [topic, topicCategories]
@@ -248,6 +273,7 @@ export function ThoughtEditor({
     onCreate: ({ editor: currentEditor }) => {
       const text = currentEditor.getText().trim();
       setPreviewHtml(currentEditor.getHTML());
+      setHasPreviewContent(hasMeaningfulContent(text));
       setStats({
         chars: text.length,
         paragraphs: currentEditor.getJSON().content?.length ?? 0,
@@ -256,6 +282,7 @@ export function ThoughtEditor({
     onUpdate: ({ editor: currentEditor }) => {
       const text = currentEditor.getText().trim();
       setPreviewHtml(currentEditor.getHTML());
+      setHasPreviewContent(hasMeaningfulContent(text));
       setStats({
         chars: text.length,
         paragraphs: currentEditor.getJSON().content?.length ?? 0,
@@ -276,6 +303,7 @@ export function ThoughtEditor({
     setCategory(article?.category ?? defaultCategory);
     setFeedback(null);
     setPreviewHtml(article?.contentHtml ?? emptyHtml);
+    setHasPreviewContent(hasMeaningfulContent(article?.contentText ?? ""));
 
     if (!editor) {
       return;
@@ -294,6 +322,21 @@ export function ThoughtEditor({
       setCategory(availableCategories[0] ?? "Общее");
     }
   }, [availableCategories, category]);
+
+  useEffect(() => {
+    if (!onPreviewChange) {
+      return;
+    }
+
+    onPreviewChange({
+      title: title.trim(),
+      summary: summary.trim(),
+      topic,
+      category: category.trim() || "Общее",
+      contentHtml: previewHtml,
+      hasContent: hasPreviewContent,
+    });
+  }, [category, hasPreviewContent, onPreviewChange, previewHtml, summary, title, topic]);
 
   async function handleSave() {
     if (!editor) {
@@ -353,6 +396,9 @@ export function ThoughtEditor({
     setTopic(defaultTopic);
     setCategory(defaultCategory);
     setFeedback(null);
+    setPreviewHtml(emptyHtml);
+    setStats({ chars: 0, paragraphs: 0 });
+    setHasPreviewContent(false);
     editor?.commands.setContent(emptyHtml);
     router.replace(
       `/app?topic=${encodeURIComponent(defaultTopic)}&category=${encodeURIComponent(
@@ -588,33 +634,35 @@ export function ThoughtEditor({
 
       <EditorContent editor={editor} />
 
-      <div className="rounded-[22px] border border-slate-300 bg-white p-5">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
-          {copy.previewTitle}
-        </p>
-        <p className="mt-2 text-sm leading-6 text-slate-600">{copy.previewDescription}</p>
-
-        <div className="mt-4 rounded-[16px] border border-slate-300 bg-slate-50 px-4 py-4">
-          <h3 className="text-xl font-semibold tracking-tight text-slate-900">
-            {title.trim() || copy.emptyTitle}
-          </h3>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            {summary.trim() || copy.previewSummaryFallback}
+      {showStandalonePreview ? (
+        <div className="rounded-[22px] border border-slate-300 bg-white p-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500">
+            {copy.previewTitle}
           </p>
-        </div>
+          <p className="mt-2 text-sm leading-6 text-slate-600">{copy.previewDescription}</p>
 
-        <div className="mt-4 rounded-[16px] border border-slate-300 bg-white p-4">
-          {stats.chars > 0 ? (
-            <ArticleContent
-              html={previewHtml}
-              wikiLinks={wikiLinks}
-              className="nook-editor-light max-w-none space-y-4 text-sm leading-7 text-slate-700"
-            />
-          ) : (
-            <p className="text-sm leading-7 text-slate-500">{copy.previewBodyFallback}</p>
-          )}
+          <div className="mt-4 rounded-[16px] border border-slate-300 bg-slate-50 px-4 py-4">
+            <h3 className="text-xl font-semibold tracking-tight text-slate-900">
+              {title.trim() || copy.emptyTitle}
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              {summary.trim() || copy.previewSummaryFallback}
+            </p>
+          </div>
+
+          <div className="mt-4 rounded-[16px] border border-slate-300 bg-white p-4">
+            {hasPreviewContent ? (
+              <ArticleContent
+                html={previewHtml}
+                wikiLinks={wikiLinks}
+                className="nook-editor-light max-w-none space-y-4 text-sm leading-7 text-slate-700"
+              />
+            ) : (
+              <p className="text-sm leading-7 text-slate-500">{copy.previewBodyFallback}</p>
+            )}
+          </div>
         </div>
-      </div>
+      ) : null}
 
       {feedback ? (
         <div

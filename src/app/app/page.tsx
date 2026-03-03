@@ -2,26 +2,20 @@
 import { redirect } from "next/navigation";
 import {
   ArrowUpRight,
-  BookOpenText,
   Boxes,
   Cable,
-  Clock3,
   FolderKanban,
   HardDriveUpload,
-  PenSquare,
   Plus,
   Search,
-  SearchSlash,
   ServerCog,
   ShieldCheck,
   Sparkles,
-  UserRound,
   UserRoundCog,
 } from "lucide-react";
+import { WorkspacePanels } from "@/components/app/workspace-panels";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { KnowledgeLogo } from "@/components/brand/knowledge-logo";
-import { ThoughtEditor } from "@/components/editor/thought-editor";
-import { ArticleContent } from "@/components/articles/article-content";
 import { UserAvatar } from "@/components/user/user-avatar";
 import { Button } from "@/components/ui/button";
 import { getCurrentSession, isAdminSession } from "@/lib/auth/session";
@@ -31,12 +25,9 @@ import {
   listArticles,
   searchArticles,
 } from "@/lib/articles/server";
-import { articleTopics } from "@/lib/content/devops-library";
+import { articleTopics, type ArticleTopic } from "@/lib/content/devops-library";
 
 const copy = {
-  workspace: "Приватная wiki",
-  workspaceText:
-    "Общая база знаний команды: единая структура разделов, категорий и статей для всех авторизованных пользователей.",
   newArticle: "Новая заметка",
   account: "Личный кабинет",
   admin: "Админ-панель",
@@ -44,28 +35,6 @@ const copy = {
   articlesSuffix: "статей",
   noArticlesInSection:
     "В этой категории пока нет материалов. Создайте первую заметку через редактор справа.",
-  currentSection: "Текущий контур",
-  sectionCount: "статей в категории",
-  heroTitle: "База знаний в формате Habr-style workspace.",
-  heroText:
-    "Слева иерархия тем, в центре чтение статьи, справа редактирование и действия. Логика построена так, чтобы быстрее находить и обновлять знания.",
-  snapshot: "Состояние",
-  allArticles: "Всего статей",
-  lastUpdate: "Последнее обновление",
-  emptyValue: "Пока нет данных",
-  updated: "Обновлено",
-  created: "Создано",
-  author: "Автор",
-  lastEditor: "Последний редактор",
-  reading: "Просмотр статьи",
-  nothingToRead: "Статья не выбрана",
-  nothingToReadText:
-    "Выберите материал в навигации слева или создайте новый. После сохранения он сразу появится в нужной категории.",
-  editor: "Редактор",
-  editArticle: "Редактирование статьи",
-  newNote: "Создание статьи",
-  editorText:
-    "Изменения сохраняются в PostgreSQL и сразу отображаются в структуре разделов.",
   searchPlaceholder: "Поиск по заголовку, описанию и тексту",
   searchButton: "Найти",
   clearSearch: "Сброс",
@@ -122,13 +91,6 @@ function buildAppHref(
   return `/app?${params.toString()}`;
 }
 
-function formatDateTime(date: string) {
-  return new Date(date).toLocaleString("ru-RU", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
-
 export default async function AppPage({ searchParams }: AppPageProps) {
   const session = await getCurrentSession();
 
@@ -164,7 +126,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
         ])
       ),
     ])
-  ) as Record<string, string[]>;
+  ) as Record<ArticleTopic, string[]>;
   const currentTopic =
     articleTopics.find((topic) => topic.name === selectedTopic) ?? articleTopics[0];
   const selectedCategory =
@@ -193,6 +155,7 @@ export default async function AppPage({ searchParams }: AppPageProps) {
   const isAdmin = isAdminSession(session);
   const totalArticles = allArticles.length;
   const visibleArticlesCount = articles.length;
+  const lastUpdatedAt = articles[0]?.updatedAt ?? null;
   const hasSearchQuery = Boolean(searchQuery);
   const seenSlugs = new Set<string>();
   const wikiLinks = allArticles
@@ -451,172 +414,21 @@ export default async function AppPage({ searchParams }: AppPageProps) {
           </nav>
         </aside>
 
-        <main className="order-1 space-y-4 lg:order-2">
-          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-              {copy.currentSection}
-            </p>
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700">
-                {currentTopic.name}
-              </span>
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                {selectedCategory}
-              </span>
-              <span className="text-xs text-slate-500">
-                {categoryArticles.length} {copy.sectionCount}
-              </span>
-            </div>
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900 sm:text-[2.1rem]">
-              {copy.heroTitle}
-            </h1>
-            <p className="mt-3 max-w-4xl text-sm leading-7 text-slate-600">{copy.heroText}</p>
-          </section>
-
-          <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-            {selectedArticle ? (
-              <>
-                <div className="flex flex-wrap items-center gap-2 text-xs">
-                  <span className="rounded-full bg-sky-100 px-3 py-1 font-semibold text-sky-700">
-                    {selectedArticle.topic}
-                  </span>
-                  <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-700">
-                    {selectedArticle.category}
-                  </span>
-                  <span className="inline-flex items-center gap-1 text-slate-500">
-                    <Clock3 className="size-3.5" />
-                    {copy.updated} {formatDateTime(selectedArticle.updatedAt)}
-                  </span>
-                </div>
-
-                <h2 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900">
-                  {selectedArticle.title}
-                </h2>
-                <p className="mt-3 text-sm leading-7 text-slate-600">{selectedArticle.summary}</p>
-
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-                    <div className="flex items-center gap-2 text-xs uppercase tracking-[0.1em] text-slate-500">
-                      <UserRound className="size-3.5" />
-                      {copy.author}
-                    </div>
-                    <p className="mt-2 text-sm font-semibold text-slate-900">
-                      {selectedArticle.authorName}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-500">
-                      {copy.created} {formatDateTime(selectedArticle.createdAt)}
-                    </p>
-                  </div>
-
-                  <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-                    <div className="flex items-center gap-2 text-xs uppercase tracking-[0.1em] text-slate-500">
-                      <PenSquare className="size-3.5" />
-                      {copy.lastEditor}
-                    </div>
-                    <p className="mt-2 text-sm font-semibold text-slate-900">
-                      {selectedArticle.updatedByName}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-500">
-                      {copy.updated} {formatDateTime(selectedArticle.updatedAt)}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-5 rounded-xl border border-slate-200 bg-white p-4">
-                  <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-700">
-                    <BookOpenText className="size-4 text-sky-700" />
-                    {copy.reading}
-                  </div>
-                  <ArticleContent
-                    html={selectedArticle.contentHtml}
-                    wikiLinks={wikiLinks}
-                    className="nook-editor-light max-w-none space-y-4 text-[15px] leading-7 text-slate-700"
-                  />
-                </div>
-              </>
-            ) : (
-              <div className="flex min-h-[380px] flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-8 text-center">
-                <div className="flex size-14 items-center justify-center rounded-2xl bg-sky-100 text-sky-700">
-                  <SearchSlash className="size-6" />
-                </div>
-                <h2 className="mt-4 text-2xl font-semibold text-slate-900">{copy.nothingToRead}</h2>
-                <p className="mt-2 max-w-md text-sm leading-7 text-slate-600">{copy.nothingToReadText}</p>
-              </div>
-            )}
-          </section>
-        </main>
-
-        <aside className="order-3 space-y-4">
-          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-              {copy.workspace}
-            </p>
-            <div className="mt-3 flex items-center gap-3">
-              <UserAvatar
-                image={session.user.image}
-                name={displayName}
-                className="size-11 rounded-xl border border-slate-300 bg-slate-100"
-                fallbackClassName="text-sky-700"
-              />
-              <div className="min-w-0">
-                <h3 className="truncate text-base font-semibold text-slate-900">{displayName}</h3>
-                <p className="truncate text-xs text-slate-500">{session.user.email}</p>
-              </div>
-            </div>
-            <p className="mt-3 text-sm leading-6 text-slate-600">{copy.workspaceText}</p>
-          </section>
-
-          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-              {copy.snapshot}
-            </p>
-            <div className="mt-3 grid gap-2">
-              <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-                <p className="text-[11px] uppercase tracking-[0.1em] text-slate-500">{copy.allArticles}</p>
-                <p className="mt-1 text-xl font-semibold text-slate-900">{totalArticles}</p>
-              </div>
-              <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-                <p className="text-[11px] uppercase tracking-[0.1em] text-slate-500">Категория</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">{selectedCategory}</p>
-              </div>
-              <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2">
-                <p className="text-[11px] uppercase tracking-[0.1em] text-slate-500">{copy.lastUpdate}</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">
-                  {articles[0] ? formatDateTime(articles[0].updatedAt) : copy.emptyValue}
-                </p>
-              </div>
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
-              {copy.editor}
-            </p>
-            <h2 className="mt-2 text-xl font-semibold text-slate-900">
-              {selectedArticle ? copy.editArticle : copy.newNote}
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">{copy.editorText}</p>
-
-            <div className="mt-4">
-              <ThoughtEditor
-                article={selectedArticle}
-                topics={articleTopics.map((topic) => topic.name)}
-                defaultTopic={selectedTopic}
-                topicCategories={topicCategoryMap as Record<
-                  (typeof articleTopics)[number]["name"],
-                  string[]
-                >}
-                defaultCategory={selectedCategory}
-                canDeleteArticle={
-                  selectedArticle
-                    ? selectedArticle.authorId === session.user.id || isAdmin
-                    : false
-                }
-                wikiLinks={wikiLinks}
-              />
-            </div>
-          </section>
-        </aside>
+        <WorkspacePanels
+          selectedArticle={selectedArticle}
+          selectedTopic={selectedTopic}
+          selectedCategory={selectedCategory}
+          topics={articleTopics.map((topic) => topic.name)}
+          topicCategories={topicCategoryMap}
+          totalArticles={totalArticles}
+          lastUpdatedAt={lastUpdatedAt}
+          isAdmin={isAdmin}
+          currentUserId={session.user.id}
+          displayName={displayName}
+          userEmail={session.user.email}
+          userImage={session.user.image}
+          wikiLinks={wikiLinks}
+        />
       </div>
     </div>
   );
