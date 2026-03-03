@@ -84,6 +84,21 @@ export default async function AuthPage() {
                 </div>
               </div>
 
+              <div className="nook-devops-steps nook-auth-reveal-2">
+                <span className="nook-devops-step nook-devops-step-1">commit</span>
+                <span className="nook-devops-step nook-devops-step-2">build</span>
+                <span className="nook-devops-step nook-devops-step-3">scan</span>
+                <span className="nook-devops-step nook-devops-step-4">deploy</span>
+                <span className="nook-devops-step nook-devops-step-5">release</span>
+              </div>
+
+              <div className="nook-devops-log nook-auth-reveal-3">
+                <p className="nook-devops-log-line nook-devops-log-line-1">git push origin main</p>
+                <p className="nook-devops-log-line nook-devops-log-line-2">build passed • 87s</p>
+                <p className="nook-devops-log-line nook-devops-log-line-3">security scan clean</p>
+                <p className="nook-devops-log-line nook-devops-log-line-4">deploy production done</p>
+              </div>
+
               <div className="nook-devops-status-strip nook-auth-reveal-3">
                 <div className="nook-devops-status-chip">
                   <span className="nook-devops-status-dot" />
