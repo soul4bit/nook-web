@@ -115,7 +115,7 @@ func (a *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		data := a.authViewData("Р’С…РѕРґ")
+		data := a.authViewData("Р вЂ™РЎвЂ¦Р С•Р Т‘")
 		data.Success = strings.TrimSpace(r.URL.Query().Get("success"))
 		data.Next = strings.TrimSpace(r.URL.Query().Get("next"))
 		a.renderTemplate(w, "login.tmpl", data)
@@ -129,12 +129,12 @@ func (a *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
 		password := r.FormValue("password")
 		next := strings.TrimSpace(r.FormValue("next"))
 
-		data := a.authViewData("Р’С…РѕРґ")
+		data := a.authViewData("Р вЂ™РЎвЂ¦Р С•Р Т‘")
 		data.Email = email
 		data.Next = next
 
 		if email == "" || password == "" {
-			data.Error = "Р’РІРµРґРёС‚Рµ email Рё РїР°СЂРѕР»СЊ."
+			data.Error = "Р вЂ™Р Р†Р ВµР Т‘Р С‘РЎвЂљР Вµ email Р С‘ Р С—Р В°РЎР‚Р С•Р В»РЎРЉ."
 			a.renderTemplate(w, "login.tmpl", data)
 			return
 		}
@@ -145,16 +145,16 @@ func (a *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
 				if reg, regErr := a.getRegistrationRequestByEmail(email); regErr == nil {
 					switch reg.Status {
 					case registrationStatusPending:
-						data.Error = "Р—Р°СЏРІРєР° РµС‰Рµ РЅР° СЂР°СЃСЃРјРѕС‚СЂРµРЅРёРё. Р”РѕР¶РґРёС‚РµСЃСЊ СЂРµС€РµРЅРёСЏ РІ РїРёСЃСЊРјРµ."
+						data.Error = "Р вЂ”Р В°РЎРЏР Р†Р С”Р В° Р ВµРЎвЂ°Р Вµ Р Р…Р В° РЎР‚Р В°РЎРѓРЎРѓР СР С•РЎвЂљРЎР‚Р ВµР Р…Р С‘Р С‘. Р вЂќР С•Р В¶Р Т‘Р С‘РЎвЂљР ВµРЎРѓРЎРЉ РЎР‚Р ВµРЎв‚¬Р ВµР Р…Р С‘РЎРЏ Р Р† Р С—Р С‘РЎРѓРЎРЉР СР Вµ."
 					case registrationStatusApproved:
-						data.Error = "Р—Р°СЏРІРєР° РѕРґРѕР±СЂРµРЅР°. РџРѕРґС‚РІРµСЂРґРёС‚Рµ email РїРѕ СЃСЃС‹Р»РєРµ РёР· РїРёСЃСЊРјР°."
+						data.Error = "Р вЂ”Р В°РЎРЏР Р†Р С”Р В° Р С•Р Т‘Р С•Р В±РЎР‚Р ВµР Р…Р В°. Р СџР С•Р Т‘РЎвЂљР Р†Р ВµРЎР‚Р Т‘Р С‘РЎвЂљР Вµ email Р С—Р С• РЎРѓРЎРѓРЎвЂ№Р В»Р С”Р Вµ Р С‘Р В· Р С—Р С‘РЎРѓРЎРЉР СР В°."
 					case registrationStatusRejected:
-						data.Error = "Р—Р°СЏРІРєР° РѕС‚РєР»РѕРЅРµРЅР°. РњРѕР¶РЅРѕ РѕС‚РїСЂР°РІРёС‚СЊ РЅРѕРІСѓСЋ СЂРµРіРёСЃС‚СЂР°С†РёСЋ."
+						data.Error = "Р вЂ”Р В°РЎРЏР Р†Р С”Р В° Р С•РЎвЂљР С”Р В»Р С•Р Р…Р ВµР Р…Р В°. Р СљР С•Р В¶Р Р…Р С• Р С•РЎвЂљР С—РЎР‚Р В°Р Р†Р С‘РЎвЂљРЎРЉ Р Р…Р С•Р Р†РЎС“РЎР‹ РЎР‚Р ВµР С–Р С‘РЎРѓРЎвЂљРЎР‚Р В°РЎвЂ Р С‘РЎР‹."
 					default:
-						data.Error = "РќРµРІРµСЂРЅС‹Р№ email РёР»Рё РїР°СЂРѕР»СЊ."
+						data.Error = "Р СњР ВµР Р†Р ВµРЎР‚Р Р…РЎвЂ№Р в„– email Р С‘Р В»Р С‘ Р С—Р В°РЎР‚Р С•Р В»РЎРЉ."
 					}
 				} else {
-					data.Error = "РќРµРІРµСЂРЅС‹Р№ email РёР»Рё РїР°СЂРѕР»СЊ."
+					data.Error = "Р СњР ВµР Р†Р ВµРЎР‚Р Р…РЎвЂ№Р в„– email Р С‘Р В»Р С‘ Р С—Р В°РЎР‚Р С•Р В»РЎРЉ."
 				}
 				a.renderTemplate(w, "login.tmpl", data)
 				return
@@ -165,7 +165,7 @@ func (a *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err := bcrypt.CompareHashAndPassword([]byte(creds.PasswordHash), []byte(password)); err != nil {
-			data.Error = "РќРµРІРµСЂРЅС‹Р№ email РёР»Рё РїР°СЂРѕР»СЊ."
+			data.Error = "Р СњР ВµР Р†Р ВµРЎР‚Р Р…РЎвЂ№Р в„– email Р С‘Р В»Р С‘ Р С—Р В°РЎР‚Р С•Р В»РЎРЉ."
 			a.renderTemplate(w, "login.tmpl", data)
 			return
 		}
@@ -203,7 +203,7 @@ func (a *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		a.renderTemplate(w, "register.tmpl", a.authViewData("Р РµРіРёСЃС‚СЂР°С†РёСЏ"))
+		a.renderTemplate(w, "register.tmpl", a.authViewData("Р В Р ВµР С–Р С‘РЎРѓРЎвЂљРЎР‚Р В°РЎвЂ Р С‘РЎРЏ"))
 	case http.MethodPost:
 		if err := r.ParseForm(); err != nil {
 			http.Error(w, "invalid form data", http.StatusBadRequest)
@@ -215,42 +215,42 @@ func (a *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 		password := r.FormValue("password")
 		confirmPassword := r.FormValue("confirm_password")
 
-		data := a.authViewData("Р РµРіРёСЃС‚СЂР°С†РёСЏ")
+		data := a.authViewData("Р В Р ВµР С–Р С‘РЎРѓРЎвЂљРЎР‚Р В°РЎвЂ Р С‘РЎРЏ")
 		data.Name = name
 		data.Email = email
 
 		if !a.hasRegistrationIntegrations() {
-			data.Error = "Р РµРіРёСЃС‚СЂР°С†РёСЏ РІСЂРµРјРµРЅРЅРѕ РЅРµРґРѕСЃС‚СѓРїРЅР°: РЅРµ РЅР°СЃС‚СЂРѕРµРЅС‹ SMTP/Telegram РёРЅС‚РµРіСЂР°С†РёРё."
+			data.Error = "Р В Р ВµР С–Р С‘РЎРѓРЎвЂљРЎР‚Р В°РЎвЂ Р С‘РЎРЏ Р Р†РЎР‚Р ВµР СР ВµР Р…Р Р…Р С• Р Р…Р ВµР Т‘Р С•РЎРѓРЎвЂљРЎС“Р С—Р Р…Р В°: Р Р…Р Вµ Р Р…Р В°РЎРѓРЎвЂљРЎР‚Р С•Р ВµР Р…РЎвЂ№ SMTP/Telegram Р С‘Р Р…РЎвЂљР ВµР С–РЎР‚Р В°РЎвЂ Р С‘Р С‘."
 			a.renderTemplate(w, "register.tmpl", data)
 			return
 		}
 
 		if len(name) < 2 {
-			data.Error = "РќРёРє РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РјРёРЅРёРјСѓРј 2 СЃРёРјРІРѕР»Р°."
+			data.Error = "Р СњР С‘Р С” Р Т‘Р С•Р В»Р В¶Р ВµР Р… Р В±РЎвЂ№РЎвЂљРЎРЉ Р СР С‘Р Р…Р С‘Р СРЎС“Р С 2 РЎРѓР С‘Р СР Р†Р С•Р В»Р В°."
 			a.renderTemplate(w, "register.tmpl", data)
 			return
 		}
 
 		if _, err := mail.ParseAddress(email); err != nil {
-			data.Error = "Р’РІРµРґРёС‚Рµ РєРѕСЂСЂРµРєС‚РЅС‹Р№ email."
+			data.Error = "Р вЂ™Р Р†Р ВµР Т‘Р С‘РЎвЂљР Вµ Р С”Р С•РЎР‚РЎР‚Р ВµР С”РЎвЂљР Р…РЎвЂ№Р в„– email."
 			a.renderTemplate(w, "register.tmpl", data)
 			return
 		}
 
 		if len(password) < 10 {
-			data.Error = "РџР°СЂРѕР»СЊ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РЅРµ РєРѕСЂРѕС‡Рµ 10 СЃРёРјРІРѕР»РѕРІ."
+			data.Error = "Р СџР В°РЎР‚Р С•Р В»РЎРЉ Р Т‘Р С•Р В»Р В¶Р ВµР Р… Р В±РЎвЂ№РЎвЂљРЎРЉ Р Р…Р Вµ Р С”Р С•РЎР‚Р С•РЎвЂЎР Вµ 10 РЎРѓР С‘Р СР Р†Р С•Р В»Р С•Р Р†."
 			a.renderTemplate(w, "register.tmpl", data)
 			return
 		}
 
 		if password != confirmPassword {
-			data.Error = "РџР°СЂРѕР»Рё РЅРµ СЃРѕРІРїР°РґР°СЋС‚."
+			data.Error = "Р СџР В°РЎР‚Р С•Р В»Р С‘ Р Р…Р Вµ РЎРѓР С•Р Р†Р С—Р В°Р Т‘Р В°РЎР‹РЎвЂљ."
 			a.renderTemplate(w, "register.tmpl", data)
 			return
 		}
 
 		if existingUser, err := a.getUserByEmail(email); err == nil && existingUser != nil {
-			data.Error = "РђРєРєР°СѓРЅС‚ СЃ С‚Р°РєРёРј email СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚."
+			data.Error = "Р С’Р С”Р С”Р В°РЎС“Р Р…РЎвЂљ РЎРѓ РЎвЂљР В°Р С”Р С‘Р С email РЎС“Р В¶Р Вµ РЎРѓРЎС“РЎвЂ°Р ВµРЎРѓРЎвЂљР Р†РЎС“Р ВµРЎвЂљ."
 			a.renderTemplate(w, "register.tmpl", data)
 			return
 		} else if err != nil && !errors.Is(err, sql.ErrNoRows) {
@@ -262,15 +262,15 @@ func (a *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 		if existingReq, err := a.getRegistrationRequestByEmail(email); err == nil {
 			switch existingReq.Status {
 			case registrationStatusPending:
-				data.Error = "Р—Р°СЏРІРєР° СѓР¶Рµ РѕС‚РїСЂР°РІР»РµРЅР° Рё Р¶РґРµС‚ СЂРµС€РµРЅРёСЏ РјРѕРґРµСЂР°С‚РѕСЂР°."
+				data.Error = "Р вЂ”Р В°РЎРЏР Р†Р С”Р В° РЎС“Р В¶Р Вµ Р С•РЎвЂљР С—РЎР‚Р В°Р Р†Р В»Р ВµР Р…Р В° Р С‘ Р В¶Р Т‘Р ВµРЎвЂљ РЎР‚Р ВµРЎв‚¬Р ВµР Р…Р С‘РЎРЏ Р СР С•Р Т‘Р ВµРЎР‚Р В°РЎвЂљР С•РЎР‚Р В°."
 				a.renderTemplate(w, "register.tmpl", data)
 				return
 			case registrationStatusApproved:
-				data.Error = "Р—Р°СЏРІРєР° СѓР¶Рµ РѕРґРѕР±СЂРµРЅР°. РџСЂРѕРІРµСЂСЊС‚Рµ РїРёСЃСЊРјРѕ Рё РїРѕРґС‚РІРµСЂРґРёС‚Рµ email."
+				data.Error = "Р вЂ”Р В°РЎРЏР Р†Р С”Р В° РЎС“Р В¶Р Вµ Р С•Р Т‘Р С•Р В±РЎР‚Р ВµР Р…Р В°. Р СџРЎР‚Р С•Р Р†Р ВµРЎР‚РЎРЉРЎвЂљР Вµ Р С—Р С‘РЎРѓРЎРЉР СР С• Р С‘ Р С—Р С•Р Т‘РЎвЂљР Р†Р ВµРЎР‚Р Т‘Р С‘РЎвЂљР Вµ email."
 				a.renderTemplate(w, "register.tmpl", data)
 				return
 			case registrationStatusCompleted:
-				data.Error = "Р­С‚РѕС‚ email СѓР¶Рµ РїРѕРґС‚РІРµСЂР¶РґРµРЅ Рё Р°РєС‚РёРІРёСЂРѕРІР°РЅ. Р’РѕР№РґРёС‚Рµ РІ Р°РєРєР°СѓРЅС‚."
+				data.Error = "Р В­РЎвЂљР С•РЎвЂљ email РЎС“Р В¶Р Вµ Р С—Р С•Р Т‘РЎвЂљР Р†Р ВµРЎР‚Р В¶Р Т‘Р ВµР Р… Р С‘ Р В°Р С”РЎвЂљР С‘Р Р†Р С‘РЎР‚Р С•Р Р†Р В°Р Р…. Р вЂ™Р С•Р в„–Р Т‘Р С‘РЎвЂљР Вµ Р Р† Р В°Р С”Р С”Р В°РЎС“Р Р…РЎвЂљ."
 				a.renderTemplate(w, "register.tmpl", data)
 				return
 			}
@@ -306,12 +306,12 @@ func (a *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 			if delErr := a.deleteRegistrationRequestByEmail(email); delErr != nil {
 				a.logger.Printf("rollback registration request after telegram error: %v", delErr)
 			}
-			data.Error = "РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РїСЂР°РІРёС‚СЊ Р·Р°СЏРІРєСѓ РјРѕРґРµСЂР°С‚РѕСЂСѓ. РџРѕРїСЂРѕР±СѓР№С‚Рµ РµС‰Рµ СЂР°Р· С‡СѓС‚СЊ РїРѕР·Р¶Рµ."
+			data.Error = "Р СњР Вµ РЎС“Р Т‘Р В°Р В»Р С•РЎРѓРЎРЉ Р С•РЎвЂљР С—РЎР‚Р В°Р Р†Р С‘РЎвЂљРЎРЉ Р В·Р В°РЎРЏР Р†Р С”РЎС“ Р СР С•Р Т‘Р ВµРЎР‚Р В°РЎвЂљР С•РЎР‚РЎС“. Р СџР С•Р С—РЎР‚Р С•Р В±РЎС“Р в„–РЎвЂљР Вµ Р ВµРЎвЂ°Р Вµ РЎР‚Р В°Р В· РЎвЂЎРЎС“РЎвЂљРЎРЉ Р С—Р С•Р В·Р В¶Р Вµ."
 			a.renderTemplate(w, "register.tmpl", data)
 			return
 		}
 
-		success := url.QueryEscape("Р—Р°СЏРІРєР° РѕС‚РїСЂР°РІР»РµРЅР°. РџРѕСЃР»Рµ СЂРµС€РµРЅРёСЏ РјРѕРґРµСЂР°С‚РѕСЂР° РїСЂРёРґРµС‚ РїРёСЃСЊРјРѕ.")
+		success := url.QueryEscape("Р вЂ”Р В°РЎРЏР Р†Р С”Р В° Р С•РЎвЂљР С—РЎР‚Р В°Р Р†Р В»Р ВµР Р…Р В°. Р СџР С•РЎРѓР В»Р Вµ РЎР‚Р ВµРЎв‚¬Р ВµР Р…Р С‘РЎРЏ Р СР С•Р Т‘Р ВµРЎР‚Р В°РЎвЂљР С•РЎР‚Р В° Р С—РЎР‚Р С‘Р Т‘Р ВµРЎвЂљ Р С—Р С‘РЎРѓРЎРЉР СР С•.")
 		http.Redirect(w, r, "/auth/login?success="+success, http.StatusSeeOther)
 	default:
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -326,14 +326,14 @@ func (a *Application) handleApproveRegistration(w http.ResponseWriter, r *http.R
 
 	token := strings.TrimSpace(r.URL.Query().Get("token"))
 	if token == "" {
-		a.renderModerationPage(w, http.StatusBadRequest, "РќРµРєРѕСЂСЂРµРєС‚РЅР°СЏ СЃСЃС‹Р»РєР°", "РџСѓСЃС‚РѕР№ С‚РѕРєРµРЅ РјРѕРґРµСЂР°С†РёРё.")
+		a.renderModerationPage(w, http.StatusBadRequest, "Р СњР ВµР С”Р С•РЎР‚РЎР‚Р ВµР С”РЎвЂљР Р…Р В°РЎРЏ РЎРѓРЎРѓРЎвЂ№Р В»Р С”Р В°", "Р СџРЎС“РЎРѓРЎвЂљР С•Р в„– РЎвЂљР С•Р С”Р ВµР Р… Р СР С•Р Т‘Р ВµРЎР‚Р В°РЎвЂ Р С‘Р С‘.")
 		return
 	}
 
 	emailVerifyToken, err := generateSessionToken()
 	if err != nil {
 		a.logger.Printf("generate email verify token: %v", err)
-		a.renderModerationPage(w, http.StatusInternalServerError, "РћС€РёР±РєР° СЃРµСЂРІРµСЂР°", "РќРµ СѓРґР°Р»РѕСЃСЊ СЃРіРµРЅРµСЂРёСЂРѕРІР°С‚СЊ С‚РѕРєРµРЅ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ email.")
+		a.renderModerationPage(w, http.StatusInternalServerError, "Р С›РЎв‚¬Р С‘Р В±Р С”Р В° РЎРѓР ВµРЎР‚Р Р†Р ВµРЎР‚Р В°", "Р СњР Вµ РЎС“Р Т‘Р В°Р В»Р С•РЎРѓРЎРЉ РЎРѓР С–Р ВµР Р…Р ВµРЎР‚Р С‘РЎР‚Р С•Р Р†Р В°РЎвЂљРЎРЉ РЎвЂљР С•Р С”Р ВµР Р… Р С—Р С•Р Т‘РЎвЂљР Р†Р ВµРЎР‚Р В¶Р Т‘Р ВµР Р…Р С‘РЎРЏ email.")
 		return
 	}
 
@@ -342,7 +342,7 @@ func (a *Application) handleApproveRegistration(w http.ResponseWriter, r *http.R
 		if errors.Is(err, sql.ErrNoRows) {
 			existing, lookupErr := a.getRegistrationRequestByModerationToken(token)
 			if lookupErr != nil {
-				a.renderModerationPage(w, http.StatusNotFound, "Р—Р°СЏРІРєР° РЅРµ РЅР°Р№РґРµРЅР°", "Р—Р°СЏРІРєР° РЅРµ РЅР°Р№РґРµРЅР° РёР»Рё СЃСЃС‹Р»РєР° СѓСЃС‚Р°СЂРµР»Р°.")
+				a.renderModerationPage(w, http.StatusNotFound, "Р вЂ”Р В°РЎРЏР Р†Р С”Р В° Р Р…Р Вµ Р Р…Р В°Р в„–Р Т‘Р ВµР Р…Р В°", "Р вЂ”Р В°РЎРЏР Р†Р С”Р В° Р Р…Р Вµ Р Р…Р В°Р в„–Р Т‘Р ВµР Р…Р В° Р С‘Р В»Р С‘ РЎРѓРЎРѓРЎвЂ№Р В»Р С”Р В° РЎС“РЎРѓРЎвЂљР В°РЎР‚Р ВµР В»Р В°.")
 				return
 			}
 
@@ -351,25 +351,25 @@ func (a *Application) handleApproveRegistration(w http.ResponseWriter, r *http.R
 				if existing.EmailVerifyToken.Valid && strings.TrimSpace(existing.EmailVerifyToken.String) != "" {
 					if mailErr := a.sendRegistrationApprovedEmail(existing); mailErr != nil {
 						a.logger.Printf("resend approved email: %v", mailErr)
-						a.renderModerationPage(w, http.StatusInternalServerError, "РџРёСЃСЊРјРѕ РЅРµ РѕС‚РїСЂР°РІР»РµРЅРѕ", "Р—Р°СЏРІРєР° СѓР¶Рµ РѕРґРѕР±СЂРµРЅР°, РЅРѕ РїРёСЃСЊРјРѕ РїРѕРІС‚РѕСЂРЅРѕ РѕС‚РїСЂР°РІРёС‚СЊ РЅРµ СѓРґР°Р»РѕСЃСЊ.")
+						a.renderModerationPage(w, http.StatusInternalServerError, "Р СџР С‘РЎРѓРЎРЉР СР С• Р Р…Р Вµ Р С•РЎвЂљР С—РЎР‚Р В°Р Р†Р В»Р ВµР Р…Р С•", "Р вЂ”Р В°РЎРЏР Р†Р С”Р В° РЎС“Р В¶Р Вµ Р С•Р Т‘Р С•Р В±РЎР‚Р ВµР Р…Р В°, Р Р…Р С• Р С—Р С‘РЎРѓРЎРЉР СР С• Р С—Р С•Р Р†РЎвЂљР С•РЎР‚Р Р…Р С• Р С•РЎвЂљР С—РЎР‚Р В°Р Р†Р С‘РЎвЂљРЎРЉ Р Р…Р Вµ РЎС“Р Т‘Р В°Р В»Р С•РЎРѓРЎРЉ.")
 						return
 					}
-					a.renderModerationPage(w, http.StatusOK, "Р—Р°СЏРІРєР° СѓР¶Рµ РѕРґРѕР±СЂРµРЅР°", "РџРёСЃСЊРјРѕ СЃ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµРј РѕС‚РїСЂР°РІР»РµРЅРѕ РїРѕРІС‚РѕСЂРЅРѕ.")
+					a.renderModerationPage(w, http.StatusOK, "Р вЂ”Р В°РЎРЏР Р†Р С”Р В° РЎС“Р В¶Р Вµ Р С•Р Т‘Р С•Р В±РЎР‚Р ВµР Р…Р В°", "Р СџР С‘РЎРѓРЎРЉР СР С• РЎРѓ Р С—Р С•Р Т‘РЎвЂљР Р†Р ВµРЎР‚Р В¶Р Т‘Р ВµР Р…Р С‘Р ВµР С Р С•РЎвЂљР С—РЎР‚Р В°Р Р†Р В»Р ВµР Р…Р С• Р С—Р С•Р Р†РЎвЂљР С•РЎР‚Р Р…Р С•.")
 					return
 				}
-				a.renderModerationPage(w, http.StatusOK, "Р—Р°СЏРІРєР° СѓР¶Рµ РѕРґРѕР±СЂРµРЅР°", "Р­С‚Р° Р·Р°СЏРІРєР° СѓР¶Рµ Р±С‹Р»Р° РѕР±СЂР°Р±РѕС‚Р°РЅР° СЂР°РЅРµРµ.")
+				a.renderModerationPage(w, http.StatusOK, "Р вЂ”Р В°РЎРЏР Р†Р С”Р В° РЎС“Р В¶Р Вµ Р С•Р Т‘Р С•Р В±РЎР‚Р ВµР Р…Р В°", "Р В­РЎвЂљР В° Р В·Р В°РЎРЏР Р†Р С”Р В° РЎС“Р В¶Р Вµ Р В±РЎвЂ№Р В»Р В° Р С•Р В±РЎР‚Р В°Р В±Р С•РЎвЂљР В°Р Р…Р В° РЎР‚Р В°Р Р…Р ВµР Вµ.")
 			case registrationStatusRejected:
-				a.renderModerationPage(w, http.StatusConflict, "Р—Р°СЏРІРєР° СѓР¶Рµ РѕС‚РєР»РѕРЅРµРЅР°", "Р­С‚Р° Р·Р°СЏРІРєР° СѓР¶Рµ РѕС‚РєР»РѕРЅРµРЅР°.")
+				a.renderModerationPage(w, http.StatusConflict, "Р вЂ”Р В°РЎРЏР Р†Р С”Р В° РЎС“Р В¶Р Вµ Р С•РЎвЂљР С”Р В»Р С•Р Р…Р ВµР Р…Р В°", "Р В­РЎвЂљР В° Р В·Р В°РЎРЏР Р†Р С”Р В° РЎС“Р В¶Р Вµ Р С•РЎвЂљР С”Р В»Р С•Р Р…Р ВµР Р…Р В°.")
 			case registrationStatusCompleted:
-				a.renderModerationPage(w, http.StatusConflict, "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ СѓР¶Рµ Р°РєС‚РёРІРёСЂРѕРІР°РЅ", "Email СѓР¶Рµ РїРѕРґС‚РІРµСЂР¶РґРµРЅ, РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ Р°РєС‚РёРІРёСЂРѕРІР°РЅ.")
+				a.renderModerationPage(w, http.StatusConflict, "Р СџР С•Р В»РЎРЉР В·Р С•Р Р†Р В°РЎвЂљР ВµР В»РЎРЉ РЎС“Р В¶Р Вµ Р В°Р С”РЎвЂљР С‘Р Р†Р С‘РЎР‚Р С•Р Р†Р В°Р Р…", "Email РЎС“Р В¶Р Вµ Р С—Р С•Р Т‘РЎвЂљР Р†Р ВµРЎР‚Р В¶Р Т‘Р ВµР Р…, Р С—Р С•Р В»РЎРЉР В·Р С•Р Р†Р В°РЎвЂљР ВµР В»РЎРЉ Р В°Р С”РЎвЂљР С‘Р Р†Р С‘РЎР‚Р С•Р Р†Р В°Р Р….")
 			default:
-				a.renderModerationPage(w, http.StatusConflict, "Р—Р°СЏРІРєР° СѓР¶Рµ РѕР±СЂР°Р±РѕС‚Р°РЅР°", "Р­С‚Р° СЃСЃС‹Р»РєР° СѓР¶Рµ Р±С‹Р»Р° РёСЃРїРѕР»СЊР·РѕРІР°РЅР°.")
+				a.renderModerationPage(w, http.StatusConflict, "Р вЂ”Р В°РЎРЏР Р†Р С”Р В° РЎС“Р В¶Р Вµ Р С•Р В±РЎР‚Р В°Р В±Р С•РЎвЂљР В°Р Р…Р В°", "Р В­РЎвЂљР В° РЎРѓРЎРѓРЎвЂ№Р В»Р С”Р В° РЎС“Р В¶Р Вµ Р В±РЎвЂ№Р В»Р В° Р С‘РЎРѓР С—Р С•Р В»РЎРЉР В·Р С•Р Р†Р В°Р Р…Р В°.")
 			}
 			return
 		}
 
 		a.logger.Printf("approve registration request: %v", err)
-		a.renderModerationPage(w, http.StatusInternalServerError, "РћС€РёР±РєР° СЃРµСЂРІРµСЂР°", "РћС€РёР±РєР° РїСЂРё РѕРґРѕР±СЂРµРЅРёРё Р·Р°СЏРІРєРё.")
+		a.renderModerationPage(w, http.StatusInternalServerError, "Р С›РЎв‚¬Р С‘Р В±Р С”Р В° РЎРѓР ВµРЎР‚Р Р†Р ВµРЎР‚Р В°", "Р С›РЎв‚¬Р С‘Р В±Р С”Р В° Р С—РЎР‚Р С‘ Р С•Р Т‘Р С•Р В±РЎР‚Р ВµР Р…Р С‘Р С‘ Р В·Р В°РЎРЏР Р†Р С”Р С‘.")
 		return
 	}
 
@@ -378,13 +378,13 @@ func (a *Application) handleApproveRegistration(w http.ResponseWriter, r *http.R
 		a.renderModerationPage(
 			w,
 			http.StatusInternalServerError,
-			"РџРёСЃСЊРјРѕ РЅРµ РѕС‚РїСЂР°РІР»РµРЅРѕ",
-			"Р—Р°СЏРІРєР° РѕРґРѕР±СЂРµРЅР°, РЅРѕ РїРёСЃСЊРјРѕ РѕС‚РїСЂР°РІРёС‚СЊ РЅРµ СѓРґР°Р»РѕСЃСЊ. РќР°Р¶РјРёС‚Рµ СЌС‚Сѓ Р¶Рµ СЃСЃС‹Р»РєСѓ РµС‰Рµ СЂР°Р· РґР»СЏ РїРѕРІС‚РѕСЂРЅРѕР№ РѕС‚РїСЂР°РІРєРё.",
+			"Р СџР С‘РЎРѓРЎРЉР СР С• Р Р…Р Вµ Р С•РЎвЂљР С—РЎР‚Р В°Р Р†Р В»Р ВµР Р…Р С•",
+			"Р вЂ”Р В°РЎРЏР Р†Р С”Р В° Р С•Р Т‘Р С•Р В±РЎР‚Р ВµР Р…Р В°, Р Р…Р С• Р С—Р С‘РЎРѓРЎРЉР СР С• Р С•РЎвЂљР С—РЎР‚Р В°Р Р†Р С‘РЎвЂљРЎРЉ Р Р…Р Вµ РЎС“Р Т‘Р В°Р В»Р С•РЎРѓРЎРЉ. Р СњР В°Р В¶Р СР С‘РЎвЂљР Вµ РЎРЊРЎвЂљРЎС“ Р В¶Р Вµ РЎРѓРЎРѓРЎвЂ№Р В»Р С”РЎС“ Р ВµРЎвЂ°Р Вµ РЎР‚Р В°Р В· Р Т‘Р В»РЎРЏ Р С—Р С•Р Р†РЎвЂљР С•РЎР‚Р Р…Р С•Р в„– Р С•РЎвЂљР С—РЎР‚Р В°Р Р†Р С”Р С‘.",
 		)
 		return
 	}
 
-	a.renderModerationPage(w, http.StatusOK, "Р—Р°СЏРІРєР° РѕРґРѕР±СЂРµРЅР°", fmt.Sprintf("РќР° %s РѕС‚РїСЂР°РІР»РµРЅРѕ РїРёСЃСЊРјРѕ СЃ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРµРј.", req.Email))
+	a.renderModerationPage(w, http.StatusOK, "Р вЂ”Р В°РЎРЏР Р†Р С”Р В° Р С•Р Т‘Р С•Р В±РЎР‚Р ВµР Р…Р В°", fmt.Sprintf("Р СњР В° %s Р С•РЎвЂљР С—РЎР‚Р В°Р Р†Р В»Р ВµР Р…Р С• Р С—Р С‘РЎРѓРЎРЉР СР С• РЎРѓ Р С—Р С•Р Т‘РЎвЂљР Р†Р ВµРЎР‚Р В¶Р Т‘Р ВµР Р…Р С‘Р ВµР С.", req.Email))
 }
 
 func (a *Application) handleRejectRegistration(w http.ResponseWriter, r *http.Request) {
@@ -395,7 +395,7 @@ func (a *Application) handleRejectRegistration(w http.ResponseWriter, r *http.Re
 
 	token := strings.TrimSpace(r.URL.Query().Get("token"))
 	if token == "" {
-		a.renderModerationPage(w, http.StatusBadRequest, "РќРµРєРѕСЂСЂРµРєС‚РЅР°СЏ СЃСЃС‹Р»РєР°", "РџСѓСЃС‚РѕР№ С‚РѕРєРµРЅ РјРѕРґРµСЂР°С†РёРё.")
+		a.renderModerationPage(w, http.StatusBadRequest, "Р СњР ВµР С”Р С•РЎР‚РЎР‚Р ВµР С”РЎвЂљР Р…Р В°РЎРЏ РЎРѓРЎРѓРЎвЂ№Р В»Р С”Р В°", "Р СџРЎС“РЎРѓРЎвЂљР С•Р в„– РЎвЂљР С•Р С”Р ВµР Р… Р СР С•Р Т‘Р ВµРЎР‚Р В°РЎвЂ Р С‘Р С‘.")
 		return
 	}
 
@@ -409,7 +409,7 @@ func (a *Application) handleRejectRegistration(w http.ResponseWriter, r *http.Re
 		if errors.Is(err, sql.ErrNoRows) {
 			existing, lookupErr := a.getRegistrationRequestByModerationToken(token)
 			if lookupErr != nil {
-				a.renderModerationPage(w, http.StatusNotFound, "Р—Р°СЏРІРєР° РЅРµ РЅР°Р№РґРµРЅР°", "Р—Р°СЏРІРєР° РЅРµ РЅР°Р№РґРµРЅР° РёР»Рё СЃСЃС‹Р»РєР° СѓСЃС‚Р°СЂРµР»Р°.")
+				a.renderModerationPage(w, http.StatusNotFound, "Р вЂ”Р В°РЎРЏР Р†Р С”Р В° Р Р…Р Вµ Р Р…Р В°Р в„–Р Т‘Р ВµР Р…Р В°", "Р вЂ”Р В°РЎРЏР Р†Р С”Р В° Р Р…Р Вµ Р Р…Р В°Р в„–Р Т‘Р ВµР Р…Р В° Р С‘Р В»Р С‘ РЎРѓРЎРѓРЎвЂ№Р В»Р С”Р В° РЎС“РЎРѓРЎвЂљР В°РЎР‚Р ВµР В»Р В°.")
 				return
 			}
 
@@ -421,22 +421,22 @@ func (a *Application) handleRejectRegistration(w http.ResponseWriter, r *http.Re
 				}
 				if mailErr := a.sendRegistrationRejectedEmail(existing, rejectReason); mailErr != nil {
 					a.logger.Printf("resend rejected email: %v", mailErr)
-					a.renderModerationPage(w, http.StatusInternalServerError, "РџРёСЃСЊРјРѕ РЅРµ РѕС‚РїСЂР°РІР»РµРЅРѕ", "Р—Р°СЏРІРєР° СѓР¶Рµ РѕС‚РєР»РѕРЅРµРЅР°, РЅРѕ РїРѕРІС‚РѕСЂРЅРѕ РѕС‚РїСЂР°РІРёС‚СЊ РїРёСЃСЊРјРѕ РЅРµ СѓРґР°Р»РѕСЃСЊ.")
+					a.renderModerationPage(w, http.StatusInternalServerError, "Р СџР С‘РЎРѓРЎРЉР СР С• Р Р…Р Вµ Р С•РЎвЂљР С—РЎР‚Р В°Р Р†Р В»Р ВµР Р…Р С•", "Р вЂ”Р В°РЎРЏР Р†Р С”Р В° РЎС“Р В¶Р Вµ Р С•РЎвЂљР С”Р В»Р С•Р Р…Р ВµР Р…Р В°, Р Р…Р С• Р С—Р С•Р Р†РЎвЂљР С•РЎР‚Р Р…Р С• Р С•РЎвЂљР С—РЎР‚Р В°Р Р†Р С‘РЎвЂљРЎРЉ Р С—Р С‘РЎРѓРЎРЉР СР С• Р Р…Р Вµ РЎС“Р Т‘Р В°Р В»Р С•РЎРѓРЎРЉ.")
 					return
 				}
-				a.renderModerationPage(w, http.StatusOK, "Р—Р°СЏРІРєР° СѓР¶Рµ РѕС‚РєР»РѕРЅРµРЅР°", "РџРёСЃСЊРјРѕ СЃ СЂРµС€РµРЅРёРµРј РѕС‚РїСЂР°РІР»РµРЅРѕ РїРѕРІС‚РѕСЂРЅРѕ.")
+				a.renderModerationPage(w, http.StatusOK, "Р вЂ”Р В°РЎРЏР Р†Р С”Р В° РЎС“Р В¶Р Вµ Р С•РЎвЂљР С”Р В»Р С•Р Р…Р ВµР Р…Р В°", "Р СџР С‘РЎРѓРЎРЉР СР С• РЎРѓ РЎР‚Р ВµРЎв‚¬Р ВµР Р…Р С‘Р ВµР С Р С•РЎвЂљР С—РЎР‚Р В°Р Р†Р В»Р ВµР Р…Р С• Р С—Р С•Р Р†РЎвЂљР С•РЎР‚Р Р…Р С•.")
 			case registrationStatusApproved:
-				a.renderModerationPage(w, http.StatusConflict, "Р—Р°СЏРІРєР° СѓР¶Рµ РѕРґРѕР±СЂРµРЅР°", "Р­С‚Р° Р·Р°СЏРІРєР° СѓР¶Рµ РѕРґРѕР±СЂРµРЅР°.")
+				a.renderModerationPage(w, http.StatusConflict, "Р вЂ”Р В°РЎРЏР Р†Р С”Р В° РЎС“Р В¶Р Вµ Р С•Р Т‘Р С•Р В±РЎР‚Р ВµР Р…Р В°", "Р В­РЎвЂљР В° Р В·Р В°РЎРЏР Р†Р С”Р В° РЎС“Р В¶Р Вµ Р С•Р Т‘Р С•Р В±РЎР‚Р ВµР Р…Р В°.")
 			case registrationStatusCompleted:
-				a.renderModerationPage(w, http.StatusConflict, "РџРѕР»СЊР·РѕРІР°С‚РµР»СЊ СѓР¶Рµ Р°РєС‚РёРІРёСЂРѕРІР°РЅ", "Email СѓР¶Рµ РїРѕРґС‚РІРµСЂР¶РґРµРЅ, РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ Р°РєС‚РёРІРёСЂРѕРІР°РЅ.")
+				a.renderModerationPage(w, http.StatusConflict, "Р СџР С•Р В»РЎРЉР В·Р С•Р Р†Р В°РЎвЂљР ВµР В»РЎРЉ РЎС“Р В¶Р Вµ Р В°Р С”РЎвЂљР С‘Р Р†Р С‘РЎР‚Р С•Р Р†Р В°Р Р…", "Email РЎС“Р В¶Р Вµ Р С—Р С•Р Т‘РЎвЂљР Р†Р ВµРЎР‚Р В¶Р Т‘Р ВµР Р…, Р С—Р С•Р В»РЎРЉР В·Р С•Р Р†Р В°РЎвЂљР ВµР В»РЎРЉ Р В°Р С”РЎвЂљР С‘Р Р†Р С‘РЎР‚Р С•Р Р†Р В°Р Р….")
 			default:
-				a.renderModerationPage(w, http.StatusConflict, "Р—Р°СЏРІРєР° СѓР¶Рµ РѕР±СЂР°Р±РѕС‚Р°РЅР°", "Р­С‚Р° СЃСЃС‹Р»РєР° СѓР¶Рµ Р±С‹Р»Р° РёСЃРїРѕР»СЊР·РѕРІР°РЅР°.")
+				a.renderModerationPage(w, http.StatusConflict, "Р вЂ”Р В°РЎРЏР Р†Р С”Р В° РЎС“Р В¶Р Вµ Р С•Р В±РЎР‚Р В°Р В±Р С•РЎвЂљР В°Р Р…Р В°", "Р В­РЎвЂљР В° РЎРѓРЎРѓРЎвЂ№Р В»Р С”Р В° РЎС“Р В¶Р Вµ Р В±РЎвЂ№Р В»Р В° Р С‘РЎРѓР С—Р С•Р В»РЎРЉР В·Р С•Р Р†Р В°Р Р…Р В°.")
 			}
 			return
 		}
 
 		a.logger.Printf("reject registration request: %v", err)
-		a.renderModerationPage(w, http.StatusInternalServerError, "РћС€РёР±РєР° СЃРµСЂРІРµСЂР°", "РћС€РёР±РєР° РїСЂРё РѕС‚РєР»РѕРЅРµРЅРёРё Р·Р°СЏРІРєРё.")
+		a.renderModerationPage(w, http.StatusInternalServerError, "Р С›РЎв‚¬Р С‘Р В±Р С”Р В° РЎРѓР ВµРЎР‚Р Р†Р ВµРЎР‚Р В°", "Р С›РЎв‚¬Р С‘Р В±Р С”Р В° Р С—РЎР‚Р С‘ Р С•РЎвЂљР С”Р В»Р С•Р Р…Р ВµР Р…Р С‘Р С‘ Р В·Р В°РЎРЏР Р†Р С”Р С‘.")
 		return
 	}
 
@@ -445,13 +445,13 @@ func (a *Application) handleRejectRegistration(w http.ResponseWriter, r *http.Re
 		a.renderModerationPage(
 			w,
 			http.StatusInternalServerError,
-			"РџРёСЃСЊРјРѕ РЅРµ РѕС‚РїСЂР°РІР»РµРЅРѕ",
-			"Р—Р°СЏРІРєР° РѕС‚РєР»РѕРЅРµРЅР°, РЅРѕ РїРёСЃСЊРјРѕ РѕС‚РїСЂР°РІРёС‚СЊ РЅРµ СѓРґР°Р»РѕСЃСЊ. РќР°Р¶РјРёС‚Рµ СЌС‚Сѓ Р¶Рµ СЃСЃС‹Р»РєСѓ РµС‰Рµ СЂР°Р· РґР»СЏ РїРѕРІС‚РѕСЂРЅРѕР№ РѕС‚РїСЂР°РІРєРё.",
+			"Р СџР С‘РЎРѓРЎРЉР СР С• Р Р…Р Вµ Р С•РЎвЂљР С—РЎР‚Р В°Р Р†Р В»Р ВµР Р…Р С•",
+			"Р вЂ”Р В°РЎРЏР Р†Р С”Р В° Р С•РЎвЂљР С”Р В»Р С•Р Р…Р ВµР Р…Р В°, Р Р…Р С• Р С—Р С‘РЎРѓРЎРЉР СР С• Р С•РЎвЂљР С—РЎР‚Р В°Р Р†Р С‘РЎвЂљРЎРЉ Р Р…Р Вµ РЎС“Р Т‘Р В°Р В»Р С•РЎРѓРЎРЉ. Р СњР В°Р В¶Р СР С‘РЎвЂљР Вµ РЎРЊРЎвЂљРЎС“ Р В¶Р Вµ РЎРѓРЎРѓРЎвЂ№Р В»Р С”РЎС“ Р ВµРЎвЂ°Р Вµ РЎР‚Р В°Р В· Р Т‘Р В»РЎРЏ Р С—Р С•Р Р†РЎвЂљР С•РЎР‚Р Р…Р С•Р в„– Р С•РЎвЂљР С—РЎР‚Р В°Р Р†Р С”Р С‘.",
 		)
 		return
 	}
 
-	a.renderModerationPage(w, http.StatusOK, "Р—Р°СЏРІРєР° РѕС‚РєР»РѕРЅРµРЅР°", fmt.Sprintf("РќР° %s РѕС‚РїСЂР°РІР»РµРЅРѕ РїРёСЃСЊРјРѕ СЃ СЂРµС€РµРЅРёРµРј.", req.Email))
+	a.renderModerationPage(w, http.StatusOK, "Р вЂ”Р В°РЎРЏР Р†Р С”Р В° Р С•РЎвЂљР С”Р В»Р С•Р Р…Р ВµР Р…Р В°", fmt.Sprintf("Р СњР В° %s Р С•РЎвЂљР С—РЎР‚Р В°Р Р†Р В»Р ВµР Р…Р С• Р С—Р С‘РЎРѓРЎРЉР СР С• РЎРѓ РЎР‚Р ВµРЎв‚¬Р ВµР Р…Р С‘Р ВµР С.", req.Email))
 }
 
 func (a *Application) handleVerifyEmail(w http.ResponseWriter, r *http.Request) {
@@ -462,25 +462,25 @@ func (a *Application) handleVerifyEmail(w http.ResponseWriter, r *http.Request) 
 
 	token := strings.TrimSpace(r.URL.Query().Get("token"))
 	if token == "" {
-		a.renderPlainMessage(w, http.StatusBadRequest, "РџСѓСЃС‚РѕР№ С‚РѕРєРµРЅ РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ email.")
+		a.renderPlainMessage(w, http.StatusBadRequest, "Р СџРЎС“РЎРѓРЎвЂљР С•Р в„– РЎвЂљР С•Р С”Р ВµР Р… Р С—Р С•Р Т‘РЎвЂљР Р†Р ВµРЎР‚Р В¶Р Т‘Р ВµР Р…Р С‘РЎРЏ email.")
 		return
 	}
 
 	user, err := a.completeRegistrationByVerifyToken(token)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			a.renderPlainMessage(w, http.StatusBadRequest, "РЎСЃС‹Р»РєР° РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ РЅРµРґРµР№СЃС‚РІРёС‚РµР»СЊРЅР° РёР»Рё СѓР¶Рµ РёСЃРїРѕР»СЊР·РѕРІР°РЅР°.")
+			a.renderPlainMessage(w, http.StatusBadRequest, "Р РЋРЎРѓРЎвЂ№Р В»Р С”Р В° Р С—Р С•Р Т‘РЎвЂљР Р†Р ВµРЎР‚Р В¶Р Т‘Р ВµР Р…Р С‘РЎРЏ Р Р…Р ВµР Т‘Р ВµР в„–РЎРѓРЎвЂљР Р†Р С‘РЎвЂљР ВµР В»РЎРЉР Р…Р В° Р С‘Р В»Р С‘ РЎС“Р В¶Р Вµ Р С‘РЎРѓР С—Р С•Р В»РЎРЉР В·Р С•Р Р†Р В°Р Р…Р В°.")
 			return
 		}
 		a.logger.Printf("complete registration by verify token: %v", err)
-		a.renderPlainMessage(w, http.StatusInternalServerError, "РћС€РёР±РєР° РїСЂРё РїРѕРґС‚РІРµСЂР¶РґРµРЅРёРё email.")
+		a.renderPlainMessage(w, http.StatusInternalServerError, "Р С›РЎв‚¬Р С‘Р В±Р С”Р В° Р С—РЎР‚Р С‘ Р С—Р С•Р Т‘РЎвЂљР Р†Р ВµРЎР‚Р В¶Р Т‘Р ВµР Р…Р С‘Р С‘ email.")
 		return
 	}
 
 	sessionToken, expiresAt, err := a.createSession(user.ID)
 	if err != nil {
 		a.logger.Printf("create session after email verify: %v", err)
-		a.renderPlainMessage(w, http.StatusInternalServerError, "Email РїРѕРґС‚РІРµСЂР¶РґРµРЅ, РЅРѕ РІС…РѕРґ РІС‹РїРѕР»РЅРёС‚СЊ РЅРµ СѓРґР°Р»РѕСЃСЊ.")
+		a.renderPlainMessage(w, http.StatusInternalServerError, "Email Р С—Р С•Р Т‘РЎвЂљР Р†Р ВµРЎР‚Р В¶Р Т‘Р ВµР Р…, Р Р…Р С• Р Р†РЎвЂ¦Р С•Р Т‘ Р Р†РЎвЂ№Р С—Р С•Р В»Р Р…Р С‘РЎвЂљРЎРЉ Р Р…Р Вµ РЎС“Р Т‘Р В°Р В»Р С•РЎРѓРЎРЉ.")
 		return
 	}
 
@@ -500,7 +500,7 @@ func (a *Application) handleDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := a.appViewData(user, "Контур знаний")
+	data := a.appViewData(user, "РљРѕРЅС‚СѓСЂ Р·РЅР°РЅРёР№")
 	data.CurrentPage = "dashboard"
 	data.Success = strings.TrimSpace(r.URL.Query().Get("success"))
 
@@ -533,11 +533,13 @@ func (a *Application) handleSection(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	currentSubsection := normalizeSubsection(section, r.URL.Query().Get("sub"))
 
 	data := a.appViewData(user, "Раздел: "+section.Name)
 	data.CurrentPage = "section"
 	data.CurrentSection = &section
 	data.CurrentSectionSlug = section.Slug
+	data.CurrentSubsection = currentSubsection
 	data.Success = strings.TrimSpace(r.URL.Query().Get("success"))
 
 	articles, err := a.getArticlesBySection(section.Slug, 100)
@@ -551,7 +553,6 @@ func (a *Application) handleSection(w http.ResponseWriter, r *http.Request) {
 
 	a.renderTemplate(w, "section.tmpl", data)
 }
-
 func (a *Application) handleArticleNew(w http.ResponseWriter, r *http.Request) {
 	user := userFromContext(r.Context())
 	if user == nil {
@@ -567,11 +568,13 @@ func (a *Application) handleArticleNew(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/app", http.StatusSeeOther)
 			return
 		}
+		currentSubsection := normalizeSubsection(section, r.URL.Query().Get("sub"))
 
 		data := a.appViewData(user, "Новая статья")
 		data.CurrentPage = "article-new"
 		data.CurrentSection = &section
 		data.CurrentSectionSlug = section.Slug
+		data.CurrentSubsection = currentSubsection
 		a.renderTemplate(w, "article_new.tmpl", data)
 	case http.MethodPost:
 		if err := r.ParseForm(); err != nil {
@@ -585,6 +588,7 @@ func (a *Application) handleArticleNew(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "unknown section", http.StatusBadRequest)
 			return
 		}
+		currentSubsection := normalizeSubsection(section, r.FormValue("subsection"))
 
 		title := strings.TrimSpace(r.FormValue("title"))
 		body := strings.TrimSpace(r.FormValue("body"))
@@ -593,6 +597,7 @@ func (a *Application) handleArticleNew(w http.ResponseWriter, r *http.Request) {
 		data.CurrentPage = "article-new"
 		data.CurrentSection = &section
 		data.CurrentSectionSlug = section.Slug
+		data.CurrentSubsection = currentSubsection
 		data.ArticleTitle = title
 		data.ArticleBody = body
 
@@ -615,12 +620,16 @@ func (a *Application) handleArticleNew(w http.ResponseWriter, r *http.Request) {
 		}
 
 		success := url.QueryEscape("Статья сохранена.")
-		http.Redirect(w, r, "/app/section?slug="+url.QueryEscape(section.Slug)+"&success="+success, http.StatusSeeOther)
+		target := "/app/section?slug=" + url.QueryEscape(section.Slug)
+		if currentSubsection != "" {
+			target += "&sub=" + url.QueryEscape(currentSubsection)
+		}
+		target += "&success=" + success
+		http.Redirect(w, r, target, http.StatusSeeOther)
 	default:
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 	}
 }
-
 func (a *Application) handleS3Check(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
@@ -633,7 +642,7 @@ func (a *Application) handleS3Check(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := a.appViewData(user, "Проверка S3")
+	data := a.appViewData(user, "РџСЂРѕРІРµСЂРєР° S3")
 	data.CurrentPage = "s3"
 
 	if strings.TrimSpace(r.URL.Query().Get("run")) == "1" {
@@ -656,18 +665,18 @@ func (a *Application) handleLogout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	a.clearSessionCookie(w)
-	http.Redirect(w, r, "/auth/login?success=Р’С‹ РІС‹С€Р»Рё РёР· СЃРёСЃС‚РµРјС‹.", http.StatusSeeOther)
+	http.Redirect(w, r, "/auth/login?success=Р вЂ™РЎвЂ№ Р Р†РЎвЂ№РЎв‚¬Р В»Р С‘ Р С‘Р В· РЎРѓР С‘РЎРѓРЎвЂљР ВµР СРЎвЂ№.", http.StatusSeeOther)
 }
 
 func (a *Application) renderModerationPage(w http.ResponseWriter, status int, title string, message string) {
 	pageTitle := strings.TrimSpace(title)
 	if pageTitle == "" {
-		pageTitle = "РЎС‚Р°С‚СѓСЃ РјРѕРґРµСЂР°С†РёРё"
+		pageTitle = "Р РЋРЎвЂљР В°РЎвЂљРЎС“РЎРѓ Р СР С•Р Т‘Р ВµРЎР‚Р В°РЎвЂ Р С‘Р С‘"
 	}
 
 	pageMessage := strings.TrimSpace(message)
 	if pageMessage == "" {
-		pageMessage = "РћРїРµСЂР°С†РёСЏ Р·Р°РІРµСЂС€РµРЅР°."
+		pageMessage = "Р С›Р С—Р ВµРЎР‚Р В°РЎвЂ Р С‘РЎРЏ Р В·Р В°Р Р†Р ВµРЎР‚РЎв‚¬Р ВµР Р…Р В°."
 	}
 
 	appName := strings.TrimSpace(a.cfg.AppName)
@@ -677,15 +686,15 @@ func (a *Application) renderModerationPage(w http.ResponseWriter, status int, ti
 
 	accent := "#0d766d"
 	glow := "rgba(13, 118, 109, 0.28)"
-	badge := "РњРѕРґРµСЂР°С†РёСЏ"
+	badge := "Р СљР С•Р Т‘Р ВµРЎР‚Р В°РЎвЂ Р С‘РЎРЏ"
 	if status >= http.StatusInternalServerError {
 		accent = "#8f2d3f"
 		glow = "rgba(143, 45, 63, 0.28)"
-		badge = "РЎР±РѕР№"
+		badge = "Р РЋР В±Р С•Р в„–"
 	} else if status >= http.StatusBadRequest {
 		accent = "#9a5b2f"
 		glow = "rgba(154, 91, 47, 0.28)"
-		badge = "Р’РЅРёРјР°РЅРёРµ"
+		badge = "Р вЂ™Р Р…Р С‘Р СР В°Р Р…Р С‘Р Вµ"
 	}
 
 	escapedTitle := html.EscapeString(pageTitle)
@@ -695,10 +704,10 @@ func (a *Application) renderModerationPage(w http.ResponseWriter, status int, ti
 	escapedBadge := html.EscapeString(badge)
 
 	actionHref := "/auth/login"
-	actionLabel := "РћС‚РєСЂС‹С‚СЊ РІС…РѕРґ"
+	actionLabel := "Р С›РЎвЂљР С”РЎР‚РЎвЂ№РЎвЂљРЎРЉ Р Р†РЎвЂ¦Р С•Р Т‘"
 	if status >= http.StatusBadRequest {
 		actionHref = "/auth/register"
-		actionLabel = "Р’РµСЂРЅСѓС‚СЊСЃСЏ Рє С„РѕСЂРјРµ"
+		actionLabel = "Р вЂ™Р ВµРЎР‚Р Р…РЎС“РЎвЂљРЎРЉРЎРѓРЎРЏ Р С” РЎвЂћР С•РЎР‚Р СР Вµ"
 	}
 
 	page := fmt.Sprintf(`<!doctype html>
@@ -706,7 +715,7 @@ func (a *Application) renderModerationPage(w http.ResponseWriter, status int, ti
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>%s В· %s</title>
+  <title>%s Р’В· %s</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
@@ -814,7 +823,7 @@ func (a *Application) renderModerationPage(w http.ResponseWriter, status int, ti
 <body>
   <main class="panel">
     <header class="head">
-      <p class="eyebrow">%s В· %s</p>
+      <p class="eyebrow">%s Р’В· %s</p>
       <h1 class="title">%s</h1>
     </header>
     <section class="body">
@@ -822,7 +831,7 @@ func (a *Application) renderModerationPage(w http.ResponseWriter, status int, ti
       <p class="message">%s</p>
       <div class="actions">
         <a class="action-link" href="%s">%s</a>
-        <span class="muted">РњРѕР¶РЅРѕ Р·Р°РєСЂС‹С‚СЊ РІРєР»Р°РґРєСѓ РїРѕСЃР»Рµ РїСЂРѕСЃРјРѕС‚СЂР°.</span>
+        <span class="muted">Р СљР С•Р В¶Р Р…Р С• Р В·Р В°Р С”РЎР‚РЎвЂ№РЎвЂљРЎРЉ Р Р†Р С”Р В»Р В°Р Т‘Р С”РЎС“ Р С—Р С•РЎРѓР В»Р Вµ Р С—РЎР‚Р С•РЎРѓР СР С•РЎвЂљРЎР‚Р В°.</span>
       </div>
     </section>
   </main>

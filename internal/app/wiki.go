@@ -1,5 +1,7 @@
 package app
 
+import "strings"
+
 type wikiSection struct {
 	Slug        string
 	Name        string
@@ -104,4 +106,19 @@ func wikiSectionName(slug string) string {
 		}
 	}
 	return "Разное"
+}
+
+func normalizeSubsection(section wikiSection, raw string) string {
+	trimmed := strings.TrimSpace(raw)
+	if trimmed == "" {
+		return ""
+	}
+
+	for _, subsection := range section.Subsections {
+		if trimmed == subsection {
+			return subsection
+		}
+	}
+
+	return ""
 }

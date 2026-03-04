@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
@@ -12,13 +12,13 @@
 <body class="app-page">
   <main class="atlas-shell">
     <header class="atlas-topbar">
-      <div class="atlas-brand">
+      <a class="atlas-brand atlas-brand-link" href="/app">
         <div class="atlas-mark">KZ</div>
         <div>
           <p class="eyebrow">{{.AppName}}</p>
           <h1 class="atlas-heading">Контур знаний</h1>
         </div>
-      </div>
+      </a>
 
       <div class="atlas-topbar-meta">
         <span class="atlas-user-chip">@{{.User.Name}}</span>
@@ -34,19 +34,21 @@
           <p class="panel-label">Разделы</p>
           <ul class="atlas-nav">
             {{range .Sections}}
-              <li class="atlas-nav-item">
-                <a class="atlas-nav-link {{if eq $.CurrentSectionSlug .Slug}}atlas-nav-link-active{{end}}" href="/app/section?slug={{.Slug}}">
-                  <span class="atlas-nav-title">{{.Name}}</span>
+              {{$section := .}}
+              <li class="atlas-nav-item {{if eq $.CurrentSectionSlug $section.Slug}}atlas-nav-item-active{{end}}">
+                <a class="atlas-nav-link {{if eq $.CurrentSectionSlug $section.Slug}}atlas-nav-link-active{{end}}" href="/app/section?slug={{$section.Slug}}">
+                  <span class="atlas-nav-title">{{$section.Name}}</span>
                 </a>
                 <ul class="atlas-nav-sub">
-                  {{range .Subsections}}
-                    <li>{{.}}</li>
+                  {{range $section.Subsections}}
+                    <li>
+                      <a class="atlas-sub-link {{if and (eq $.CurrentSectionSlug $section.Slug) (eq $.CurrentSubsection .)}}atlas-sub-link-active{{end}}" href="/app/section?slug={{$section.Slug}}&sub={{urlquery .}}">{{.}}</a>
+                    </li>
                   {{end}}
                 </ul>
               </li>
             {{end}}
           </ul>
-          <a class="atlas-side-tool {{if eq .CurrentPage "s3"}}atlas-side-tool-active{{end}}" href="/app/s3">Проверка S3</a>
         </article>
 
         <article class="atlas-card atlas-profile">
@@ -60,14 +62,11 @@
       <section class="atlas-main">
         <article class="atlas-card atlas-hero">
           <p class="panel-label">Панель знаний</p>
-          <h2 class="atlas-hero-title">Всё по делу: разделы слева, статьи внутри разделов.</h2>
+          <h2 class="atlas-hero-title">Навигация слева, заметки по центру, всё под рукой.</h2>
           <p class="atlas-hero-text">
-            Выберите раздел, откройте форму и зафиксируйте рабочую заметку. Формат простой: заголовок, шаги, команда, итог.
+            Открывайте раздел, проваливайтесь в нужный подраздел и фиксируйте рабочие решения,
+            чтобы больше не искать одну и ту же команду в ночном логбуке.
           </p>
-          <div class="atlas-actions">
-            <a class="button button-primary" href="/app/section?slug=linux">Открыть Linux</a>
-            <a class="button button-ghost" href="/app/s3">Проверить S3</a>
-          </div>
         </article>
 
         {{if .Success}}

@@ -536,6 +536,23 @@ body {
   gap: 12px;
 }
 
+.atlas-brand-link {
+  color: inherit;
+  text-decoration: none;
+  border-radius: 14px;
+  padding: 2px 4px;
+  transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+.atlas-brand-link:hover {
+  transform: translateY(-1px);
+  filter: saturate(1.05);
+}
+
+.atlas-brand-link:hover .atlas-mark {
+  box-shadow: 0 14px 30px rgba(11, 97, 88, 0.34);
+}
+
 .atlas-mark {
   width: 46px;
   height: 46px;
@@ -744,13 +761,27 @@ body {
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.72);
   padding: 8px 9px;
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.atlas-nav-item:hover {
+  transform: translateY(-1px);
+  border-color: #b9d3c9;
+  box-shadow: 0 10px 24px rgba(17, 69, 58, 0.08);
+}
+
+.atlas-nav-item-active {
+  border-color: #a6ccc0;
+  box-shadow: 0 8px 20px rgba(14, 93, 83, 0.12);
 }
 
 .atlas-nav-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   text-decoration: none;
   border-radius: 8px;
-  padding: 5px 7px;
+  padding: 6px 8px;
 }
 
 .atlas-nav-link:hover {
@@ -790,20 +821,40 @@ body {
 
 .atlas-nav-sub li {
   position: relative;
-  color: #506760;
-  font-size: 13px;
-  line-height: 1.35;
 }
 
 .atlas-nav-sub li::before {
   content: "";
   position: absolute;
   left: -10px;
-  top: 7px;
+  top: 11px;
   width: 4px;
   height: 4px;
   border-radius: 999px;
   background: #88a79f;
+}
+
+.atlas-sub-link {
+  display: block;
+  border-radius: 8px;
+  padding: 5px 7px;
+  color: #506760;
+  font-size: 13px;
+  line-height: 1.35;
+  text-decoration: none;
+  transition: background-color 0.16s ease, color 0.16s ease, transform 0.16s ease;
+}
+
+.atlas-sub-link:hover {
+  background: rgba(13, 118, 109, 0.08);
+  color: #234f47;
+  transform: translateX(2px);
+}
+
+.atlas-sub-link-active {
+  background: rgba(13, 118, 109, 0.14);
+  color: #164f48;
+  font-weight: 700;
 }
 
 .atlas-cheats-list {
@@ -982,6 +1033,54 @@ body {
   font-size: clamp(24px, 3vw, 34px);
   line-height: 1.12;
   letter-spacing: -0.01em;
+}
+
+.atlas-sub-current {
+  margin: 10px 0 0;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid #b8d3ca;
+  background: rgba(255, 255, 255, 0.82);
+  color: #35645b;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-family: "IBM Plex Mono", "Consolas", monospace;
+  letter-spacing: 0.04em;
+}
+
+.atlas-sub-pills {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.atlas-sub-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  border-radius: 999px;
+  border: 1px solid #c6d9d2;
+  background: rgba(255, 255, 255, 0.78);
+  color: #365e57;
+  text-decoration: none;
+  font-size: 12px;
+  padding: 0 10px;
+  font-family: "IBM Plex Mono", "Consolas", monospace;
+  transition: transform 0.16s ease, border-color 0.16s ease, background-color 0.16s ease;
+}
+
+.atlas-sub-pill:hover {
+  transform: translateY(-1px);
+  border-color: #9fc2b7;
+  background: rgba(13, 118, 109, 0.1);
+}
+
+.atlas-sub-pill-active {
+  border-color: #8eb7aa;
+  background: rgba(13, 118, 109, 0.2);
+  color: #124c46;
 }
 
 .atlas-actions {

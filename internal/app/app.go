@@ -73,6 +73,7 @@ type viewData struct {
 	Sections           []wikiSection
 	CurrentSection     *wikiSection
 	CurrentSectionSlug string
+	CurrentSubsection  string
 	CurrentPage        string
 	RecentArticles     []Article
 	SectionArticles    []Article
