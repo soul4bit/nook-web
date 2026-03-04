@@ -524,7 +524,7 @@ func shouldRetrySMTPWithLoginOnNewConnection(err error) bool {
 }
 
 func smtpAuthCapabilities(client *smtp.Client) (supportsPlain bool, supportsLogin bool) {
-	raw, ok := client.Extension("AUTH")
+	ok, raw := client.Extension("AUTH")
 	if !ok {
 		return false, false
 	}
