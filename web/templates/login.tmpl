@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{.Title}} · {{.AppName}}</title>
+  <link rel="stylesheet" href="/static/app.css" />
+</head>
+<body>
+  <main class="page">
+    <section class="card card-wide">
+      <div class="brand">
+        <div class="brand-mark">КЗ</div>
+        <div>
+          <p class="brand-title">{{.AppName}}</p>
+          <p class="brand-subtitle">Full Go · Авторизация</p>
+        </div>
+      </div>
+
+      <h1 class="title">Вход в Контур Знаний</h1>
+      <p class="subtitle">Новый старт на Full Go. Введите email и пароль, чтобы открыть workspace.</p>
+
+      {{if .Error}}
+      <div class="alert alert-error">{{.Error}}</div>
+      {{end}}
+      {{if .Success}}
+      <div class="alert alert-success">{{.Success}}</div>
+      {{end}}
+
+      <form method="post" action="/auth/login" class="form">
+        <input type="hidden" name="next" value="{{.Next}}" />
+
+        <label class="field">
+          <span>Email</span>
+          <input type="email" name="email" value="{{.Email}}" placeholder="you@example.com" required />
+        </label>
+
+        <label class="field">
+          <span>Пароль</span>
+          <input type="password" name="password" placeholder="Минимум 10 символов" required />
+        </label>
+
+        <button class="button button-primary" type="submit">Войти</button>
+      </form>
+
+      <p class="footnote">
+        Нет аккаунта?
+        <a href="/auth/register">Зарегистрироваться</a>
+      </p>
+    </section>
+  </main>
+</body>
+</html>

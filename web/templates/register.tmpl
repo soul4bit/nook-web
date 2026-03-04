@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{.Title}} · {{.AppName}}</title>
+  <link rel="stylesheet" href="/static/app.css" />
+</head>
+<body>
+  <main class="page">
+    <section class="card card-wide">
+      <div class="brand">
+        <div class="brand-mark">КЗ</div>
+        <div>
+          <p class="brand-title">{{.AppName}}</p>
+          <p class="brand-subtitle">Full Go · Регистрация</p>
+        </div>
+      </div>
+
+      <h1 class="title">Создать аккаунт</h1>
+      <p class="subtitle">Регистрируем первый auth-контур. После регистрации вход выполняется автоматически.</p>
+
+      {{if .Error}}
+      <div class="alert alert-error">{{.Error}}</div>
+      {{end}}
+
+      <form method="post" action="/auth/register" class="form">
+        <label class="field">
+          <span>Имя</span>
+          <input type="text" name="name" value="{{.Name}}" placeholder="Как к вам обращаться" required />
+        </label>
+
+        <label class="field">
+          <span>Email</span>
+          <input type="email" name="email" value="{{.Email}}" placeholder="you@example.com" required />
+        </label>
+
+        <label class="field">
+          <span>Пароль</span>
+          <input type="password" name="password" placeholder="Минимум 10 символов" required />
+        </label>
+
+        <label class="field">
+          <span>Повторите пароль</span>
+          <input type="password" name="confirm_password" placeholder="Повторите пароль" required />
+        </label>
+
+        <button class="button button-primary" type="submit">Зарегистрироваться</button>
+      </form>
+
+      <p class="footnote">
+        Уже есть аккаунт?
+        <a href="/auth/login">Войти</a>
+      </p>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{.Title}} · {{.AppName}}</title>
+  <link rel="stylesheet" href="/static/app.css" />
+</head>
+<body>
+  <main class="page">
+    <section class="card card-wide">
+      <div class="dashboard-header">
+        <div>
+          <p class="brand-title">{{.AppName}}</p>
+          <h1 class="title">Добро пожаловать, {{.User.Name}}</h1>
+          <p class="subtitle">
+            Базовый Full Go auth-контур готов. Следующий шаг: wiki-узлы и граф знаний.
+          </p>
+        </div>
+
+        <form method="post" action="/auth/logout">
+          <button class="button button-ghost" type="submit">Выйти</button>
+        </form>
+      </div>
+
+      <div class="panel">
+        <p><strong>Email:</strong> {{.User.Email}}</p>
+        <p><strong>User ID:</strong> {{.User.ID}}</p>
+        <p><strong>Создан:</strong> {{.User.CreatedAt.Format "02.01.2006 15:04"}}</p>
+      </div>
+
+      <div class="panel panel-soft">
+        <p class="panel-title">Статус перезапуска</p>
+        <ul>
+          <li>Done: Full Go skeleton</li>
+          <li>Done: register/login/logout + session cookie</li>
+          <li>Next: вики-структура и editor</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
