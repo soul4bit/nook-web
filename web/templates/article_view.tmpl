@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
@@ -54,61 +54,30 @@
           </ul>
           <p class="atlas-nav-empty" data-nav-empty hidden>Ничего не нашлось. Попробуйте другое слово.</p>
         </article>
-
       </aside>
 
       <section class="atlas-main">
-        <article class="atlas-card atlas-hero">
-          <p class="panel-label">Панель знаний</p>
-          <h2 class="atlas-hero-title">Навигация слева, заметки по центру, всё под рукой.</h2>
-          <p class="atlas-hero-text">
-            Открывайте раздел, проваливайтесь в нужный подраздел и фиксируйте рабочие решения,
-            чтобы больше не искать одну и ту же команду в ночном логбуке.
-          </p>
-        </article>
-
-        <article class="atlas-card atlas-control-card">
-          <div class="atlas-control-head">
-            <p class="panel-label">Оперативный пульт</p>
-            <a class="button button-new-article button-compact" href="/app/article/new?section=linux">+ Черновик</a>
+        <article class="atlas-card atlas-article-view-head">
+          <p class="panel-label">Статья</p>
+          <h2 class="atlas-section-title">{{.CurrentArticle.Title}}</h2>
+          <div class="atlas-article-view-meta">
+            <span class="atlas-meta-chip">Раздел: {{.CurrentArticle.SectionName}}</span>
+            {{if .CurrentArticle.Subsection}}
+              <span class="atlas-meta-chip">Подраздел: {{.CurrentArticle.Subsection}}</span>
+            {{end}}
+            <span class="atlas-meta-chip">Автор: {{.CurrentArticle.AuthorName}}</span>
+            <span class="atlas-meta-chip">Обновлено: {{.CurrentArticle.UpdatedAt.Format "02.01.2006 15:04"}}</span>
           </div>
-          <div class="atlas-control-grid">
-            {{range .SectionOverviews}}
-              <a class="atlas-control-tile" href="/app/section?slug={{.Slug}}">
-                <span class="atlas-control-name">{{.Name}}</span>
-                <span class="atlas-control-lead">{{.Lead}}</span>
-                <span class="atlas-control-count">{{.Count}} статей</span>
-              </a>
+          <div class="atlas-actions">
+            <a class="button button-ghost button-compact" href="/app/section?slug={{.CurrentArticle.SectionSlug}}{{if .CurrentArticle.Subsection}}&sub={{urlquery .CurrentArticle.Subsection}}{{end}}">Назад в раздел</a>
+            {{if eq .User.ID .CurrentArticle.AuthorID}}
+              <a class="button button-ghost button-compact" href="/app/article/edit?id={{.CurrentArticle.ID}}">Редактировать</a>
             {{end}}
           </div>
         </article>
 
-        {{if .Success}}
-          <p class="alert alert-success">{{.Success}}</p>
-        {{end}}
-
         <article class="atlas-card">
-          <p class="panel-label">Последние статьи</p>
-          {{if .RecentArticles}}
-            <div class="atlas-article-list">
-              {{range .RecentArticles}}
-                <article class="atlas-article-card">
-                  <div class="atlas-article-meta">
-                    <span>{{.SectionName}}{{if .Subsection}} / {{.Subsection}}{{end}}</span>
-                    <span>{{.UpdatedAt.Format "02.01.2006 15:04"}}</span>
-                  </div>
-                  <h3><a class="atlas-article-title-link" href="/app/article?id={{.ID}}">{{.Title}}</a></h3>
-                  <p class="atlas-article-author">Автор: {{.AuthorName}}</p>
-                  <p class="atlas-article-body">{{.Body}}</p>
-                  <div class="atlas-article-actions">
-                    <a class="button button-ghost button-compact" href="/app/article?id={{.ID}}">Открыть статью</a>
-                  </div>
-                </article>
-              {{end}}
-            </div>
-          {{else}}
-            <p class="atlas-empty">Пока пусто. Создайте первую статью из любого раздела.</p>
-          {{end}}
+          <div class="atlas-article-view-body">{{.CurrentArticle.Body}}</div>
         </article>
       </section>
     </section>

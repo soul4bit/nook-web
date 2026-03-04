@@ -1235,6 +1235,16 @@ body {
   word-break: break-word;
 }
 
+.atlas-article-title-link {
+  color: #1d332f;
+  text-decoration: none;
+  transition: color 0.16s ease;
+}
+
+.atlas-article-title-link:hover {
+  color: #0d6f66;
+}
+
 .atlas-article-subsection {
   margin: 10px 0 0;
   color: #4b6b64;
@@ -1265,8 +1275,18 @@ body {
   word-break: break-word;
 }
 
+.atlas-article-author {
+  margin: 10px 0 0;
+  color: #48655f;
+  font-size: 13px;
+  font-family: "IBM Plex Mono", "Consolas", monospace;
+}
+
 .atlas-article-actions {
   margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .atlas-empty {
@@ -1275,69 +1295,107 @@ body {
   line-height: 1.6;
 }
 
-.atlas-rofl-card {
-  border-color: #b8d2ca;
+.atlas-control-card {
+  border-color: #b7d1c8;
   background:
-    radial-gradient(circle at 95% -10%, rgba(13, 118, 109, 0.16), transparent 34%),
-    radial-gradient(circle at 8% 115%, rgba(206, 153, 86, 0.18), transparent 36%),
-    linear-gradient(145deg, rgba(239, 249, 245, 0.94), rgba(249, 252, 251, 0.94));
+    radial-gradient(circle at 100% 0%, rgba(203, 150, 84, 0.16), transparent 34%),
+    linear-gradient(145deg, rgba(233, 246, 240, 0.94), rgba(249, 252, 251, 0.94));
 }
 
-.atlas-rofl-title {
-  margin: 0;
-  font-size: clamp(20px, 2.2vw, 27px);
-  line-height: 1.25;
-  letter-spacing: -0.01em;
-  color: #1c473f;
-}
-
-.atlas-rofl-text {
-  margin: 8px 0 0;
-  color: #44645d;
-  line-height: 1.55;
-}
-
-.atlas-rofl-code {
-  margin: 12px 0 0;
-  border-radius: 12px;
-  border: 1px solid rgba(167, 207, 195, 0.46);
-  background: linear-gradient(160deg, #0a2f2b 0%, #11443d 100%);
-  color: #d8fff2;
-  padding: 12px;
-  overflow-x: auto;
-}
-
-.atlas-rofl-code code {
-  font-size: 12px;
-  font-family: "IBM Plex Mono", "Consolas", monospace;
-}
-
-.atlas-rofl-meta {
-  margin-top: 12px;
+.atlas-control-head {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   gap: 10px;
   flex-wrap: wrap;
 }
 
-.atlas-rofl-badge {
+.atlas-control-head .panel-label {
+  margin: 0;
+}
+
+.atlas-control-grid {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.atlas-control-tile {
+  display: grid;
+  gap: 7px;
+  border: 1px solid #c7dbd3;
+  border-radius: 12px;
+  padding: 11px;
+  background: rgba(255, 255, 255, 0.78);
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.atlas-control-tile:hover {
+  transform: translateY(-1px);
+  border-color: #9ec4b8;
+  box-shadow: 0 10px 24px rgba(17, 69, 58, 0.1);
+}
+
+.atlas-control-name {
+  color: #173f38;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.atlas-control-lead {
+  color: #52726a;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.atlas-control-count {
+  justify-self: start;
   display: inline-flex;
   align-items: center;
-  min-height: 30px;
-  padding: 0 11px;
+  min-height: 26px;
+  padding: 0 9px;
   border-radius: 999px;
-  border: 1px solid #bed8cf;
-  background: rgba(255, 255, 255, 0.82);
-  color: #335f57;
+  border: 1px solid #bad4cb;
+  background: rgba(255, 255, 255, 0.84);
+  color: #35645c;
   font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
   font-family: "IBM Plex Mono", "Consolas", monospace;
 }
 
-.atlas-rofl-refresh {
-  min-width: 122px;
+.atlas-article-view-head {
+  border-color: #c0d9d1;
+  background:
+    radial-gradient(circle at 98% -5%, rgba(206, 153, 86, 0.18), transparent 34%),
+    linear-gradient(145deg, rgba(235, 247, 241, 0.94), rgba(249, 252, 251, 0.94));
+}
+
+.atlas-article-view-meta {
+  margin-top: 12px;
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.atlas-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid #bfd5ce;
+  background: rgba(255, 255, 255, 0.84);
+  color: #3b6159;
+  font-size: 12px;
+  font-family: "IBM Plex Mono", "Consolas", monospace;
+}
+
+.atlas-article-view-body {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.72;
+  color: #2b3f3a;
 }
 
 .atlas-shift-card {

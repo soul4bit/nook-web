@@ -56,6 +56,13 @@ type s3CheckResult struct {
 	Bucket   string
 }
 
+type sectionOverview struct {
+	Slug  string
+	Name  string
+	Lead  string
+	Count int
+}
+
 type userCredentials struct {
 	User
 	PasswordHash string
@@ -77,8 +84,10 @@ type viewData struct {
 	CurrentSectionSlug string
 	CurrentSubsection  string
 	CurrentPage        string
+	SectionOverviews   []sectionOverview
 	RecentArticles     []Article
 	SectionArticles    []Article
+	CurrentArticle     *Article
 	ArticleID          int64
 	ArticleTitle       string
 	ArticleBody        string
@@ -149,6 +158,7 @@ func (a *Application) Routes() http.Handler {
 	mux.HandleFunc("/auth/logout", a.requireAuth(a.handleLogout))
 	mux.HandleFunc("/app", a.requireAuth(a.handleDashboard))
 	mux.HandleFunc("/app/section", a.requireAuth(a.handleSection))
+	mux.HandleFunc("/app/article", a.requireAuth(a.handleArticleView))
 	mux.HandleFunc("/app/article/new", a.requireAuth(a.handleArticleNew))
 	mux.HandleFunc("/app/article/edit", a.requireAuth(a.handleArticleEdit))
 	mux.HandleFunc("/app/s3", a.requireAuth(a.handleS3Check))
@@ -165,6 +175,7 @@ func loadTemplates(staticVersion string) (map[string]*template.Template, error) 
 		"register.tmpl",
 		"dashboard.tmpl",
 		"section.tmpl",
+		"article_view.tmpl",
 		"article_new.tmpl",
 		"article_edit.tmpl",
 		"s3_check.tmpl",

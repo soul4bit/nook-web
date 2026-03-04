@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="860" viewBox="0 0 1600 860" fill="none">
+  <rect width="1600" height="860" rx="34" fill="#EEF4EE"/>
+  <rect x="44" y="44" width="1512" height="772" rx="26" fill="#FFFFFF" stroke="#CBDAD4"/>
+
+  <rect x="86" y="96" width="334" height="672" rx="20" fill="#F6FBF9" stroke="#C4D9D0"/>
+  <text x="114" y="140" fill="#5C736D" font-family="IBM Plex Mono, monospace" font-size="18" letter-spacing="3">РАЗДЕЛЫ</text>
+  <rect x="114" y="166" width="278" height="50" rx="10" fill="#FFFFFF" stroke="#C7D8D2"/>
+  <text x="126" y="198" fill="#7A948D" font-family="Manrope, sans-serif" font-size="22">Найти раздел...</text>
+
+  <rect x="460" y="96" width="1068" height="286" rx="20" fill="#F2FAF6" stroke="#BCD5CD"/>
+  <text x="496" y="140" fill="#5D746E" font-family="IBM Plex Mono, monospace" font-size="18" letter-spacing="3">СТАТЬЯ</text>
+  <text x="496" y="214" fill="#192522" font-family="Manrope, sans-serif" font-size="62" font-weight="800">Как починить systemd unit</text>
+
+  <rect x="496" y="244" width="220" height="38" rx="19" fill="#FFFFFF" stroke="#BFD5CE"/>
+  <rect x="730" y="244" width="260" height="38" rx="19" fill="#FFFFFF" stroke="#BFD5CE"/>
+  <rect x="1004" y="244" width="210" height="38" rx="19" fill="#FFFFFF" stroke="#BFD5CE"/>
+  <text x="514" y="269" fill="#3D625A" font-family="IBM Plex Mono, monospace" font-size="14">Раздел: Linux</text>
+  <text x="748" y="269" fill="#3D625A" font-family="IBM Plex Mono, monospace" font-size="14">Подраздел: systemd</text>
+  <text x="1022" y="269" fill="#3D625A" font-family="IBM Plex Mono, monospace" font-size="14">Автор: soul4bit</text>
+
+  <rect x="460" y="410" width="1068" height="358" rx="20" fill="#FFFFFF" stroke="#CFDDD7"/>
+  <text x="496" y="462" fill="#2F4540" font-family="Manrope, sans-serif" font-size="30">1. Проверяем статус сервиса и последние ошибки.</text>
+  <text x="496" y="510" fill="#2F4540" font-family="IBM Plex Mono, monospace" font-size="26">$ systemctl status app.service -l</text>
+  <text x="496" y="560" fill="#2F4540" font-family="Manrope, sans-serif" font-size="30">2. Смотрим журнал и правим unit.</text>
+  <text x="496" y="608" fill="#2F4540" font-family="IBM Plex Mono, monospace" font-size="26">$ journalctl -u app.service -n 120 --no-pager</text>
+  <text x="496" y="658" fill="#2F4540" font-family="Manrope, sans-serif" font-size="30">3. Reload, restart, проверка health.</text>
+  <text x="496" y="706" fill="#2F4540" font-family="IBM Plex Mono, monospace" font-size="26">$ systemctl daemon-reload && systemctl restart app</text>
+</svg>

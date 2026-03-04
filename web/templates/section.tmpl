@@ -91,13 +91,14 @@
                 {{if .Subsection}}
                   <p class="atlas-article-subsection">Подраздел: {{.Subsection}}</p>
                 {{end}}
-                <h3>{{.Title}}</h3>
+                <h3><a class="atlas-article-title-link" href="/app/article?id={{.ID}}">{{.Title}}</a></h3>
                 <p class="atlas-article-body">{{.Body}}</p>
-                {{if eq $.User.ID .AuthorID}}
-                  <div class="atlas-article-actions">
+                <div class="atlas-article-actions">
+                  <a class="button button-ghost button-compact" href="/app/article?id={{.ID}}">Открыть</a>
+                  {{if eq $.User.ID .AuthorID}}
                     <a class="button button-ghost button-compact" href="/app/article/edit?id={{.ID}}">Редактировать</a>
-                  </div>
-                {{end}}
+                  {{end}}
+                </div>
               </article>
             {{end}}
           </div>

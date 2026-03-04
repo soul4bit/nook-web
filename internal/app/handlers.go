@@ -488,6 +488,27 @@ func (a *Application) handleDashboard(w http.ResponseWriter, r *http.Request) {
 	data.CurrentPage = "dashboard"
 	data.Success = strings.TrimSpace(r.URL.Query().Get("success"))
 
+	sectionCounts, err := a.getArticleCountsBySection()
+	if err != nil {
+		a.logger.Printf("get article counts by section: %v", err)
+		sectionCounts = map[string]int{}
+	}
+	if len(data.Sections) > 0 {
+		data.SectionOverviews = make([]sectionOverview, 0, len(data.Sections))
+		for _, section := range data.Sections {
+			lead := "Без подразделов"
+			if len(section.Subsections) > 0 {
+				lead = section.Subsections[0]
+			}
+			data.SectionOverviews = append(data.SectionOverviews, sectionOverview{
+				Slug:  section.Slug,
+				Name:  section.Name,
+				Lead:  lead,
+				Count: sectionCounts[section.Slug],
+			})
+		}
+	}
+
 	recent, err := a.getRecentArticles(8)
 	if err != nil {
 		a.logger.Printf("get recent articles: %v", err)

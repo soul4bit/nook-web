@@ -396,6 +396,34 @@ func (a *Application) getRecentArticles(limit int) ([]Article, error) {
 	return result, nil
 }
 
+func (a *Application) getArticleCountsBySection() (map[string]int, error) {
+	rows, err := a.db.Query(
+		`select section_slug, count(*)
+		from articles
+		group by section_slug`,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	result := make(map[string]int)
+	for rows.Next() {
+		var sectionSlug string
+		var count int
+		if scanErr := rows.Scan(&sectionSlug, &count); scanErr != nil {
+			return nil, scanErr
+		}
+		result[sectionSlug] = count
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
 func scanRegistrationRequest(scanner interface {
 	Scan(dest ...any) error
 }) (*registrationRequest, error) {
