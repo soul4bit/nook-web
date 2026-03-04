@@ -1222,8 +1222,10 @@ body {
 }
 
 .atlas-article-card {
-  border: 1px solid #cfddd7;
-  background: rgba(255, 255, 255, 0.94);
+  border: 0;
+  border-radius: 16px;
+  background: rgba(247, 251, 249, 0.95);
+  box-shadow: inset 0 0 0 1px rgba(195, 214, 207, 0.7);
   min-width: 0;
 }
 
@@ -1304,7 +1306,7 @@ body {
 
 .atlas-control-head {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
