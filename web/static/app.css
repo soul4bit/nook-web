@@ -438,10 +438,18 @@ body {
 }
 
 .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   height: 46px;
-  border-radius: 12px;
+  border-radius: 13px;
   border: 1px solid transparent;
-  padding: 0 15px;
+  padding: 0 16px;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  vertical-align: middle;
   font: inherit;
   font-weight: 700;
   cursor: pointer;
@@ -459,19 +467,20 @@ body {
 }
 
 .button-new-article {
-  color: #f5fffc;
-  border-color: #0a5952;
+  min-width: 158px;
+  color: #f4fffc;
+  border-color: #0b6f63;
   background:
-    radial-gradient(circle at 14% 22%, rgba(255, 255, 255, 0.22), transparent 36%),
-    linear-gradient(132deg, #0a5f57 0%, #0f7b72 56%, #0a8a76 100%);
+    radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.18), transparent 34%),
+    linear-gradient(136deg, #0a5f57 0%, #0d746a 54%, #0b8b79 100%);
   box-shadow:
-    inset 0 0 0 1px rgba(211, 255, 247, 0.12),
-    0 14px 32px rgba(9, 99, 88, 0.3);
-  letter-spacing: 0.01em;
+    inset 0 0 0 1px rgba(218, 255, 248, 0.1),
+    0 10px 24px rgba(9, 99, 88, 0.24);
+  letter-spacing: 0.012em;
 }
 
 .button-new-article:hover {
-  filter: brightness(1.06) saturate(1.05);
+  filter: brightness(1.05) saturate(1.03);
   transform: translateY(-1px);
 }
 
