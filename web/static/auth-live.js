@@ -7,6 +7,8 @@
     return;
   }
 
+  const mode = (form.dataset.authMode || "login").toLowerCase();
+
   const emailInput = form.querySelector('input[name="email"]');
   const passwordInput = form.querySelector('input[name="password"]');
   if (!emailInput || !passwordInput) {
@@ -48,14 +50,41 @@
     }
 
     if (flow && pulse) {
-      const start = 12;
-      const end = Math.max(start, flow.clientWidth - 22);
-      const left = start + ((end - start) * progress) / 100;
-      pulse.style.left = `${left}px`;
+      const firstNode = flow.querySelector(".flow-node-1");
+      const lastNode = flow.querySelector(".flow-node-3");
+
+      if (firstNode && lastNode) {
+        const startCenter = firstNode.offsetLeft + firstNode.offsetWidth / 2;
+        const endCenter = lastNode.offsetLeft + lastNode.offsetWidth / 2;
+        const pulseHalf = pulse.offsetWidth / 2;
+        const center = startCenter + ((endCenter - startCenter) * progress) / 100;
+        pulse.style.left = `${center - pulseHalf}px`;
+      }
     }
   };
 
+  const setWaitingState = () => {
+    if (emailLine) {
+      emailLine.textContent = "input.email: ожидание...";
+    }
+    if (passwordLine) {
+      passwordLine.textContent = "input.password: ожидание...";
+    }
+    if (eventLine) {
+      eventLine.textContent = "auth.event: ожидание...";
+    }
+    if (statusLine) {
+      statusLine.textContent = "статус: ожидание ввода";
+    }
+    setProgress(0);
+  };
+
   const updateScene = () => {
+    if (mode === "register") {
+      setWaitingState();
+      return;
+    }
+
     const email = emailInput.value.trim();
     const password = passwordInput.value;
 

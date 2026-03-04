@@ -203,33 +203,34 @@ body {
 .scene-flow {
   position: relative;
   margin-top: 16px;
-  height: 30px;
+  height: 34px;
 }
 
 .scene-flow::before {
   content: "";
   position: absolute;
-  left: 14px;
-  right: 14px;
-  top: 14px;
+  left: 19px;
+  right: 19px;
+  top: 16px;
   height: 2px;
+  border-radius: 999px;
   background: linear-gradient(90deg, rgba(170, 225, 212, 0.5), rgba(215, 249, 241, 0.95), rgba(170, 225, 212, 0.5));
 }
 
 .flow-node {
   position: absolute;
-  top: 8px;
+  top: 9px;
   width: 14px;
   height: 14px;
   border-radius: 999px;
   background: #eafbf6;
   border: 2px solid rgba(7, 118, 109, 0.86);
   box-shadow: 0 0 0 4px rgba(185, 236, 224, 0.2);
-  animation: node-breathe 2.4s ease-in-out infinite;
+  animation: node-glow 2.2s ease-in-out infinite;
 }
 
 .flow-node-1 {
-  left: 10px;
+  left: 12px;
 }
 
 .flow-node-2 {
@@ -238,20 +239,20 @@ body {
 }
 
 .flow-node-3 {
-  right: 10px;
+  right: 12px;
   animation-delay: 1.2s;
 }
 
 .flow-pulse {
   position: absolute;
-  top: 10px;
-  left: 12px;
+  top: 11px;
+  left: 14px;
   width: 10px;
   height: 10px;
   border-radius: 999px;
   background: #f5ffff;
   box-shadow: 0 0 0 5px rgba(236, 255, 252, 0.22);
-  transition: left 0.35s ease;
+  transition: left 0.28s ease-out;
   animation: pulse-spark 1.8s ease-in-out infinite;
 }
 
@@ -620,15 +621,15 @@ body {
   }
 }
 
-@keyframes node-breathe {
+@keyframes node-glow {
   0%,
   100% {
-    transform: scale(1);
     box-shadow: 0 0 0 4px rgba(185, 236, 224, 0.2);
+    opacity: 0.94;
   }
   50% {
-    transform: scale(1.12);
     box-shadow: 0 0 0 6px rgba(185, 236, 224, 0.3);
+    opacity: 1;
   }
 }
 
