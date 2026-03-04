@@ -177,6 +177,17 @@ body {
   color: #e8f9f3;
 }
 
+.scene-line-live {
+  max-width: 42ch;
+  opacity: 1;
+  color: #d9fff4;
+  animation: none;
+}
+
+.scene-line-live:last-child {
+  color: #ffd993;
+}
+
 .scene-line:nth-child(2) {
   animation-delay: 0.8s;
 }
@@ -240,7 +251,54 @@ body {
   border-radius: 999px;
   background: #f5ffff;
   box-shadow: 0 0 0 5px rgba(236, 255, 252, 0.22);
-  animation: flow-run 2.8s linear infinite;
+  transition: left 0.35s ease;
+  animation: pulse-spark 1.8s ease-in-out infinite;
+}
+
+.scene-progress {
+  margin-top: 12px;
+  display: grid;
+  gap: 7px;
+}
+
+.scene-progress-bar {
+  position: relative;
+  height: 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(226, 250, 243, 0.32);
+  background: rgba(10, 47, 42, 0.35);
+  overflow: hidden;
+}
+
+.scene-progress-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #86e3cf 0%, #dffcf4 100%);
+  transition: width 0.35s ease;
+}
+
+.scene-progress-thumb {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 2px solid rgba(10, 108, 100, 0.96);
+  background: #f3fffb;
+  box-shadow: 0 0 0 4px rgba(173, 236, 220, 0.24);
+  transform: translate(-50%, -50%);
+  transition: left 0.35s ease;
+}
+
+.scene-progress-label {
+  font-size: 12px;
+  color: rgba(224, 248, 240, 0.92);
+  font-family: "IBM Plex Mono", "Consolas", monospace;
 }
 
 .auth-card {
@@ -574,18 +632,15 @@ body {
   }
 }
 
-@keyframes flow-run {
-  0% {
-    transform: translateX(0);
-    opacity: 0.8;
-  }
-  10%,
-  90% {
-    opacity: 1;
-  }
+@keyframes pulse-spark {
+  0%,
   100% {
-    transform: translateX(calc(100% - 24px));
-    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 0 4px rgba(173, 236, 220, 0.24);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.12);
+    box-shadow: 0 0 0 6px rgba(173, 236, 220, 0.34);
   }
 }
 

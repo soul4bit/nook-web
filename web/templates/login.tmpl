@@ -3,65 +3,67 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{{.Title}} · {{.AppName}}</title>
+  <title>{{.Title}} - {{.AppName}}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/app.css" />
+  <script src="/static/auth-live.js" defer></script>
 </head>
 <body class="auth-page">
   <main class="auth-layout">
     <aside class="auth-aside">
       <p class="eyebrow">Knowledge Atlas</p>
-      <h1 class="aside-title">Контур знаний для DevOps-записей</h1>
+      <h1 class="aside-title">DevOps wiki auth gateway</h1>
       <p class="aside-text">
-        Чистый входной контур с живой статистикой из базы данных.
-        После авторизации вы сразу попадаете в рабочее пространство.
+        Live bash scene reacts to your input. Enter email and password,
+        watch deploy progress move in real time.
       </p>
 
-      <div class="stat-grid">
-        <article class="stat-tile">
-          <span>Пользователей</span>
-          <strong>{{.UsersTotal}}</strong>
-        </article>
-        <article class="stat-tile">
-          <span>Активных сессий</span>
-          <strong>{{.ActiveSessions}}</strong>
-        </article>
-      </div>
-
-      <div class="devops-scene" aria-hidden="true">
+      <div class="devops-scene" data-auth-scene>
         <div class="scene-shell">
           <span class="scene-line">$ terraform apply</span>
           <span class="scene-line">module.vpc: complete after 13s</span>
           <span class="scene-line">module.cluster: complete after 22s</span>
           <span class="scene-line">Outputs: endpoint = ready</span>
+          <span class="scene-line scene-line-live" data-live-email>input.email: waiting...</span>
+          <span class="scene-line scene-line-live" data-live-password>input.password: waiting...</span>
+          <span class="scene-line scene-line-live" data-live-event>auth.event: awaiting credentials</span>
         </div>
-        <div class="scene-flow">
+
+        <div class="scene-flow" data-live-flow>
           <span class="flow-node flow-node-1"></span>
           <span class="flow-node flow-node-2"></span>
           <span class="flow-node flow-node-3"></span>
-          <span class="flow-pulse"></span>
+          <span class="flow-pulse" data-live-pulse></span>
+        </div>
+
+        <div class="scene-progress" role="presentation">
+          <div class="scene-progress-bar">
+            <span class="scene-progress-fill" data-live-fill></span>
+            <span class="scene-progress-thumb" data-live-thumb></span>
+          </div>
+          <span class="scene-progress-label" data-live-status>status: waiting for input</span>
         </div>
       </div>
     </aside>
 
     <section class="auth-card">
       <div class="brand-row">
-        <div class="brand-mark">КЗ</div>
+        <div class="brand-mark">KZ</div>
         <div>
           <p class="brand-title">{{.AppName}}</p>
-          <p class="brand-subtitle">Вход в аккаунт</p>
+          <p class="brand-subtitle">Sign in</p>
         </div>
       </div>
 
-      <nav class="auth-tabs" aria-label="Переключение формы">
-        <a href="/auth/login" class="auth-tab auth-tab-active">Вход</a>
-        <a href="/auth/register" class="auth-tab">Регистрация</a>
+      <nav class="auth-tabs" aria-label="Auth mode">
+        <a href="/auth/login" class="auth-tab auth-tab-active">Sign in</a>
+        <a href="/auth/register" class="auth-tab">Register</a>
       </nav>
 
-      <h2 class="auth-title">С возвращением</h2>
-      <p class="auth-subtitle">Введите email и пароль, чтобы открыть ваш контур знаний.</p>
+      <h2 class="auth-title">Welcome back</h2>
+      <p class="auth-subtitle">Use your email and password to enter the workspace.</p>
 
       {{if .Error}}
       <div class="alert alert-error">{{.Error}}</div>
@@ -70,7 +72,7 @@
       <div class="alert alert-success">{{.Success}}</div>
       {{end}}
 
-      <form method="post" action="/auth/login" class="auth-form">
+      <form method="post" action="/auth/login" class="auth-form" data-auth-form>
         <input type="hidden" name="next" value="{{.Next}}" />
 
         <label class="field">
@@ -79,17 +81,17 @@
         </label>
 
         <label class="field">
-          <span>Пароль</span>
-          <input type="password" name="password" placeholder="Минимум 10 символов" autocomplete="current-password" required />
-          <small class="field-hint">Минимум 10 символов, лучше с цифрами и спецсимволами.</small>
+          <span>Password</span>
+          <input type="password" name="password" placeholder="Minimum 10 chars" autocomplete="current-password" required />
+          <small class="field-hint">Use numbers and symbols for a stronger password.</small>
         </label>
 
-        <button class="button button-primary" type="submit">Войти</button>
+        <button class="button button-primary" type="submit">Sign in</button>
       </form>
 
       <p class="footnote">
-        Ещё нет аккаунта?
-        <a href="/auth/register">Создать профиль</a>
+        No account yet?
+        <a href="/auth/register">Create one</a>
       </p>
     </section>
   </main>

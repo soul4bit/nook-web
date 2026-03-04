@@ -3,74 +3,76 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{{.Title}} · {{.AppName}}</title>
+  <title>{{.Title}} - {{.AppName}}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/app.css" />
+  <script src="/static/auth-live.js" defer></script>
 </head>
 <body class="auth-page">
   <main class="auth-layout">
     <aside class="auth-aside">
       <p class="eyebrow">Knowledge Atlas</p>
-      <h1 class="aside-title">Создайте личный узел знаний</h1>
+      <h1 class="aside-title">Create your knowledge node</h1>
       <p class="aside-text">
-        Регистрация сразу создаёт пользователя в БД и авторизует без
-        промежуточных экранов.
+        Registration creates a user instantly. Bash scene reacts to
+        email and password input while you type.
       </p>
 
-      <div class="stat-grid">
-        <article class="stat-tile">
-          <span>Пользователей</span>
-          <strong>{{.UsersTotal}}</strong>
-        </article>
-        <article class="stat-tile">
-          <span>Активных сессий</span>
-          <strong>{{.ActiveSessions}}</strong>
-        </article>
-      </div>
-
-      <div class="devops-scene" aria-hidden="true">
+      <div class="devops-scene" data-auth-scene>
         <div class="scene-shell">
-          <span class="scene-line">$ ansible-playbook setup.yml</span>
-          <span class="scene-line">TASK [db] changed=1 ok=6</span>
-          <span class="scene-line">TASK [app] changed=1 ok=4</span>
-          <span class="scene-line">PLAY RECAP: success=100%</span>
+          <span class="scene-line">$ terraform apply</span>
+          <span class="scene-line">module.vpc: complete after 13s</span>
+          <span class="scene-line">module.cluster: complete after 22s</span>
+          <span class="scene-line">Outputs: endpoint = ready</span>
+          <span class="scene-line scene-line-live" data-live-email>input.email: waiting...</span>
+          <span class="scene-line scene-line-live" data-live-password>input.password: waiting...</span>
+          <span class="scene-line scene-line-live" data-live-event>auth.event: awaiting credentials</span>
         </div>
-        <div class="scene-flow">
+
+        <div class="scene-flow" data-live-flow>
           <span class="flow-node flow-node-1"></span>
           <span class="flow-node flow-node-2"></span>
           <span class="flow-node flow-node-3"></span>
-          <span class="flow-pulse"></span>
+          <span class="flow-pulse" data-live-pulse></span>
+        </div>
+
+        <div class="scene-progress" role="presentation">
+          <div class="scene-progress-bar">
+            <span class="scene-progress-fill" data-live-fill></span>
+            <span class="scene-progress-thumb" data-live-thumb></span>
+          </div>
+          <span class="scene-progress-label" data-live-status>status: waiting for input</span>
         </div>
       </div>
     </aside>
 
     <section class="auth-card">
       <div class="brand-row">
-        <div class="brand-mark">КЗ</div>
+        <div class="brand-mark">KZ</div>
         <div>
           <p class="brand-title">{{.AppName}}</p>
-          <p class="brand-subtitle">Регистрация</p>
+          <p class="brand-subtitle">Register</p>
         </div>
       </div>
 
-      <nav class="auth-tabs" aria-label="Переключение формы">
-        <a href="/auth/login" class="auth-tab">Вход</a>
-        <a href="/auth/register" class="auth-tab auth-tab-active">Регистрация</a>
+      <nav class="auth-tabs" aria-label="Auth mode">
+        <a href="/auth/login" class="auth-tab">Sign in</a>
+        <a href="/auth/register" class="auth-tab auth-tab-active">Register</a>
       </nav>
 
-      <h2 class="auth-title">Новый аккаунт</h2>
-      <p class="auth-subtitle">Заполните поля и начните вести DevOps-вики в одном месте.</p>
+      <h2 class="auth-title">New account</h2>
+      <p class="auth-subtitle">Fill the form and start building your DevOps wiki.</p>
 
       {{if .Error}}
       <div class="alert alert-error">{{.Error}}</div>
       {{end}}
 
-      <form method="post" action="/auth/register" class="auth-form">
+      <form method="post" action="/auth/register" class="auth-form" data-auth-form>
         <label class="field">
-          <span>Имя</span>
-          <input type="text" name="name" value="{{.Name}}" placeholder="Как к вам обращаться" autocomplete="name" required />
+          <span>Name</span>
+          <input type="text" name="name" value="{{.Name}}" placeholder="How should we call you" autocomplete="name" required />
         </label>
 
         <label class="field">
@@ -79,22 +81,22 @@
         </label>
 
         <label class="field">
-          <span>Пароль</span>
-          <input type="password" name="password" placeholder="Минимум 10 символов" autocomplete="new-password" required />
-          <small class="field-hint">Используйте уникальный пароль для этого сервиса.</small>
+          <span>Password</span>
+          <input type="password" name="password" placeholder="Minimum 10 chars" autocomplete="new-password" required />
+          <small class="field-hint">Use a unique password for this service.</small>
         </label>
 
         <label class="field">
-          <span>Повторите пароль</span>
-          <input type="password" name="confirm_password" placeholder="Повторите пароль" autocomplete="new-password" required />
+          <span>Confirm password</span>
+          <input type="password" name="confirm_password" placeholder="Repeat password" autocomplete="new-password" required />
         </label>
 
-        <button class="button button-primary" type="submit">Зарегистрироваться</button>
+        <button class="button button-primary" type="submit">Create account</button>
       </form>
 
       <p class="footnote">
-        Уже есть аккаунт?
-        <a href="/auth/login">Войти</a>
+        Already have an account?
+        <a href="/auth/login">Sign in</a>
       </p>
     </section>
   </main>
