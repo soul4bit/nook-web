@@ -114,17 +114,6 @@ body {
   color: rgba(241, 250, 248, 0.86);
 }
 
-.aside-joke {
-  margin-top: 12px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  border: 1px dashed rgba(241, 250, 248, 0.34);
-  background: rgba(5, 38, 34, 0.24);
-  color: rgba(238, 255, 250, 0.95);
-  font-size: 13px;
-  line-height: 1.5;
-}
-
 .stat-grid {
   margin-top: 24px;
   display: grid;
