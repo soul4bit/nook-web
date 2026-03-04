@@ -21,17 +21,17 @@ jobs:
             set -euo pipefail
             APP_DIR=/var/www/kontur-znaniy
             SERVICE_NAME=kontur-znaniy
+            SYSTEMCTL_BIN="$(command -v systemctl)"
 
             run_systemctl() {
               if [ "$(id -u)" -eq 0 ]; then
-                systemctl "$@"
+                "${SYSTEMCTL_BIN}" "$@"
               else
-                if ! sudo -n true 2>/dev/null; then
+                if ! sudo -n "${SYSTEMCTL_BIN}" "$@"; then
                   echo "ERROR: user '$USER' cannot run systemctl without password."
                   echo "Use DEPLOY_USER=root or configure NOPASSWD sudo for systemctl."
                   exit 1
                 fi
-                sudo -n systemctl "$@"
               fi
             }
 
