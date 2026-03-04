@@ -1,0 +1,34 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: |
+            set -euo pipefail
+            cd /var/www/kontur-znaniy
+            git pull --ff-only origin main
+            mkdir -p bin data
+            go mod download
+            go build -o ./bin/kontur-znaniy ./cmd/server
+
+            if systemctl list-unit-files | grep -q '^kontur-znaniy.service'; then
+              sudo systemctl restart kontur-znaniy
+              sudo systemctl status kontur-znaniy --no-pager
+            else
+              sudo systemctl restart nook
+              sudo systemctl status nook --no-pager
+            fi
