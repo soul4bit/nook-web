@@ -130,10 +130,10 @@
   body {
     @apply bg-background text-foreground antialiased;
     background-image:
-      radial-gradient(circle at 8% 10%, rgba(56, 106, 219, 0.16), transparent 34%),
-      radial-gradient(circle at 92% 14%, rgba(130, 208, 227, 0.18), transparent 36%),
-      radial-gradient(circle at 15% 86%, rgba(111, 140, 227, 0.16), transparent 34%),
-      linear-gradient(180deg, #f0f5ff 0%, #e8f0fc 55%, #e4edf9 100%);
+      radial-gradient(circle at 8% 10%, rgba(56, 106, 219, 0.11), transparent 34%),
+      radial-gradient(circle at 92% 14%, rgba(130, 208, 227, 0.13), transparent 36%),
+      radial-gradient(circle at 15% 86%, rgba(111, 140, 227, 0.11), transparent 34%),
+      linear-gradient(180deg, #f1f6ff 0%, #eaf2fd 55%, #e6eef9 100%);
   }
 
   body::before {
@@ -142,14 +142,14 @@
     inset: 0;
     pointer-events: none;
     z-index: -1;
-    opacity: 0.34;
+    opacity: 0.18;
     background-image:
       repeating-radial-gradient(
         circle at 50% 50%,
         transparent 0,
-        transparent 44px,
-        rgba(36, 58, 103, 0.045) 45px,
-        rgba(36, 58, 103, 0.045) 46px
+        transparent 52px,
+        rgba(36, 58, 103, 0.04) 53px,
+        rgba(36, 58, 103, 0.04) 54px
       );
   }
 
@@ -163,12 +163,12 @@
   border: 1px solid color-mix(in oklab, var(--border) 84%, white 16%);
   border-radius: calc(var(--radius) + 10px);
   background:
-    radial-gradient(circle at 85% 12%, rgba(130, 208, 227, 0.14), transparent 33%),
-    radial-gradient(circle at 10% 90%, rgba(95, 142, 249, 0.12), transparent 35%),
+    radial-gradient(circle at 85% 12%, rgba(130, 208, 227, 0.1), transparent 33%),
+    radial-gradient(circle at 10% 90%, rgba(95, 142, 249, 0.09), transparent 35%),
     var(--card);
   box-shadow:
-    0 22px 44px rgba(16, 34, 72, 0.13),
-    0 2px 8px rgba(16, 34, 72, 0.08);
+    0 18px 36px rgba(16, 34, 72, 0.1),
+    0 2px 7px rgba(16, 34, 72, 0.06);
 }
 
 .nook-panel {
@@ -176,7 +176,7 @@
   border-radius: calc(var(--radius) + 4px);
   background: color-mix(in oklab, var(--card) 95%, #eff5ff 5%);
   box-shadow:
-    0 10px 24px rgba(20, 38, 74, 0.09),
+    0 8px 18px rgba(20, 38, 74, 0.075),
     0 1px 0 rgba(255, 255, 255, 0.65) inset;
 }
 
@@ -238,9 +238,9 @@
   border-radius: calc(var(--radius) + 6px);
   border: 1px solid color-mix(in oklab, var(--border) 86%, white 14%);
   background:
-    radial-gradient(circle at 18% 14%, rgba(110, 141, 226, 0.18), transparent 32%),
-    radial-gradient(circle at 90% 18%, rgba(130, 208, 227, 0.2), transparent 34%),
-    linear-gradient(180deg, #f6faff 0%, #edf3ff 56%, #e7effd 100%);
+    radial-gradient(circle at 18% 14%, rgba(110, 141, 226, 0.12), transparent 32%),
+    radial-gradient(circle at 90% 18%, rgba(130, 208, 227, 0.14), transparent 34%),
+    linear-gradient(180deg, #f8fbff 0%, #f0f5ff 56%, #eaf1fd 100%);
 }
 
 .atlas-field::before {
@@ -252,57 +252,101 @@
     repeating-radial-gradient(
       circle at 52% 49%,
       transparent 0,
-      transparent 30px,
-      rgba(33, 57, 102, 0.06) 31px,
-      rgba(33, 57, 102, 0.06) 32px
+      transparent 34px,
+      rgba(33, 57, 102, 0.05) 35px,
+      rgba(33, 57, 102, 0.05) 36px
     );
-  opacity: 0.42;
+  opacity: 0.24;
 }
 
 .atlas-node {
   border-radius: 0.72rem;
   border: 1px solid color-mix(in oklab, var(--border) 84%, white 16%);
-  background: color-mix(in oklab, var(--card) 90%, #deebff 10%);
+  background: color-mix(in oklab, var(--card) 92%, #deebff 8%);
   color: var(--foreground);
-  box-shadow: 0 7px 14px rgba(16, 35, 73, 0.11);
-  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+  box-shadow: 0 5px 12px rgba(16, 35, 73, 0.1);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
 }
 
 .atlas-node:hover {
   transform: translateY(-2px);
   border-color: color-mix(in oklab, var(--primary) 50%, var(--border) 50%);
-  box-shadow: 0 12px 20px rgba(16, 35, 73, 0.15);
+  box-shadow: 0 10px 18px rgba(16, 35, 73, 0.13);
 }
 
 .atlas-node-active {
   border-color: color-mix(in oklab, var(--primary) 65%, var(--border) 35%);
   background: color-mix(in oklab, var(--primary) 14%, var(--card) 86%);
   box-shadow:
-    0 0 0 2px color-mix(in oklab, var(--primary) 26%, transparent),
-    0 12px 22px rgba(16, 35, 73, 0.16);
+    0 0 0 2px color-mix(in oklab, var(--primary) 24%, transparent),
+    0 10px 18px rgba(16, 35, 73, 0.14);
 }
 
 .atlas-center-node {
   border-radius: 1rem;
   border: 1px solid color-mix(in oklab, var(--primary) 60%, var(--border) 40%);
   background:
-    radial-gradient(circle at 15% 16%, rgba(135, 163, 245, 0.4), transparent 42%),
+    radial-gradient(circle at 15% 16%, rgba(135, 163, 245, 0.32), transparent 42%),
     color-mix(in oklab, var(--primary) 18%, var(--card) 82%);
   box-shadow:
-    0 0 0 3px color-mix(in oklab, var(--primary) 24%, transparent),
-    0 14px 28px rgba(16, 35, 73, 0.2);
+    0 0 0 2px color-mix(in oklab, var(--primary) 24%, transparent),
+    0 12px 22px rgba(16, 35, 73, 0.16);
+  animation: atlasGlow 5.6s ease-in-out infinite;
 }
 
 @keyframes atlasPulse {
   0%,
   100% {
     transform: scale(1);
-    opacity: 0.5;
+    opacity: 0.35;
   }
   50% {
-    transform: scale(1.08);
-    opacity: 0.2;
+    transform: scale(1.06);
+    opacity: 0.14;
   }
+}
+
+@keyframes atlasNodeEnter {
+  0% {
+    opacity: 0;
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+@keyframes atlasNodeFloat {
+  0%,
+  100% {
+    box-shadow: 0 5px 12px rgba(16, 35, 73, 0.1);
+  }
+  50% {
+    box-shadow: 0 8px 15px rgba(16, 35, 73, 0.13);
+  }
+}
+
+@keyframes atlasGlow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 2px color-mix(in oklab, var(--primary) 24%, transparent),
+      0 12px 22px rgba(16, 35, 73, 0.16);
+  }
+  50% {
+    box-shadow:
+      0 0 0 3px color-mix(in oklab, var(--primary) 28%, transparent),
+      0 15px 28px rgba(16, 35, 73, 0.2);
+  }
+}
+
+.atlas-node-enter {
+  animation: atlasNodeEnter 0.38s ease-out both;
+}
+
+.atlas-node-float {
+  animation: atlasNodeFloat 4.2s ease-in-out infinite;
 }
 
 .atlas-center-node::after {
@@ -312,7 +356,16 @@
   border-radius: 1.2rem;
   border: 1px solid color-mix(in oklab, var(--primary) 42%, transparent);
   pointer-events: none;
-  animation: atlasPulse 2.8s ease-in-out infinite;
+  animation: atlasPulse 4.1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atlas-center-node,
+  .atlas-center-node::after,
+  .atlas-node-enter,
+  .atlas-node-float {
+    animation: none !important;
+  }
 }
 
 .nook-editor h2 {

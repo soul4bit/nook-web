@@ -169,7 +169,8 @@ export function WorkspacePanels({
 
               <Link
                 href={buildAppHref(selectedTopic, { query: searchQuery || undefined })}
-                className="atlas-center-node absolute left-1/2 top-1/2 z-20 w-44 -translate-x-1/2 -translate-y-1/2 px-4 py-3 text-center text-sm font-semibold text-foreground"
+                className="atlas-center-node atlas-node-enter absolute left-1/2 top-1/2 z-20 w-44 -translate-x-1/2 -translate-y-1/2 px-4 py-3 text-center text-sm font-semibold text-foreground"
+                style={{ animationDelay: "80ms" }}
               >
                 <div className="inline-flex items-center gap-1.5">
                   <Network className="size-4 text-primary" />
@@ -178,7 +179,7 @@ export function WorkspacePanels({
                 <p className="mt-1 text-xs font-medium text-muted-foreground">Центральный узел раздела</p>
               </Link>
 
-              {categoryNodes.map((node) => {
+              {categoryNodes.map((node, nodeIndex) => {
                 const isActive = node.category === selectedCategory;
                 return (
                   <Link
@@ -187,17 +188,21 @@ export function WorkspacePanels({
                       category: node.category,
                       query: searchQuery || undefined,
                     })}
-                    className={`atlas-node absolute z-10 w-36 -translate-x-1/2 -translate-y-1/2 px-3 py-2 text-xs font-semibold ${
+                    className={`atlas-node atlas-node-enter absolute z-10 w-36 -translate-x-1/2 -translate-y-1/2 px-3 py-2 text-xs font-semibold ${
                       isActive ? "atlas-node-active" : ""
                     }`}
-                    style={{ left: `${node.x}%`, top: `${node.y}%` }}
+                    style={{
+                      left: `${node.x}%`,
+                      top: `${node.y}%`,
+                      animationDelay: `${120 + nodeIndex * 45}ms`,
+                    }}
                   >
                     <p className="truncate">{node.category}</p>
                   </Link>
                 );
               })}
 
-              {categoryArticleNodes.map((node) => {
+              {categoryArticleNodes.map((node, index) => {
                 const isSelected = node.article.id === selectedArticle?.id;
                 return (
                   <Link
@@ -207,10 +212,14 @@ export function WorkspacePanels({
                       category: node.article.category,
                       query: searchQuery || undefined,
                     })}
-                    className={`atlas-node absolute z-10 w-44 -translate-x-1/2 -translate-y-1/2 px-3 py-2 ${
+                    className={`atlas-node atlas-node-enter absolute z-10 w-44 -translate-x-1/2 -translate-y-1/2 px-3 py-2 ${
                       isSelected ? "atlas-node-active" : ""
                     }`}
-                    style={{ left: `${node.x}%`, top: `${node.y}%` }}
+                    style={{
+                      left: `${node.x}%`,
+                      top: `${node.y}%`,
+                      animationDelay: `${220 + index * 55}ms`,
+                    }}
                   >
                     <p className="truncate text-xs font-semibold text-foreground">{node.article.title}</p>
                     <p className="mt-0.5 truncate text-[11px] text-muted-foreground">{node.article.summary}</p>

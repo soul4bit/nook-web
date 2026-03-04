@@ -75,10 +75,14 @@ export default async function AuthPage() {
                 {mapNodes.map((node, index) => (
                   <div
                     key={node.id}
-                    className={`atlas-node absolute w-40 -translate-x-1/2 -translate-y-1/2 px-3 py-2 text-xs font-semibold ${
-                      index === 2 ? "atlas-node-active" : ""
+                    className={`atlas-node atlas-node-enter absolute w-40 -translate-x-1/2 -translate-y-1/2 px-3 py-2 text-xs font-semibold ${
+                      index === 2 ? "atlas-node-active atlas-node-float" : ""
                     }`}
-                    style={{ top: `${node.top}%`, left: `${node.left}%` }}
+                    style={{
+                      top: `${node.top}%`,
+                      left: `${node.left}%`,
+                      animationDelay: `${70 + index * 70}ms`,
+                    }}
                   >
                     {node.label}
                   </div>

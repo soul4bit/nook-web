@@ -374,7 +374,7 @@ export function AuthForms() {
       </div>
 
       <div className="grid gap-2 sm:grid-cols-3">
-        {(Object.keys(modeMeta) as AuthMode[]).map((option) => {
+        {(Object.keys(modeMeta) as AuthMode[]).map((option, index) => {
           const Icon = modeMeta[option].icon;
           const selected = mode === option;
 
@@ -382,9 +382,10 @@ export function AuthForms() {
             <button
               key={option}
               type="button"
-              className={`atlas-node rounded-2xl px-3 py-3 text-left ${
+              className={`atlas-node atlas-node-enter rounded-2xl px-3 py-3 text-left ${
                 selected ? "atlas-node-active" : "hover:border-primary/40"
               }`}
+              style={{ animationDelay: `${index * 60}ms` }}
               onClick={() => {
                 openMode(option);
                 if (option === "sign-up") {
@@ -534,7 +535,11 @@ export function AuthForms() {
               </p>
               <div className="mt-3 space-y-2.5">
                 {modeFlow[mode].map((step, index) => (
-                  <div key={step.title} className="atlas-node rounded-xl px-3 py-2.5">
+                  <div
+                    key={step.title}
+                    className="atlas-node atlas-node-enter rounded-xl px-3 py-2.5"
+                    style={{ animationDelay: `${120 + index * 70}ms` }}
+                  >
                     <div className="flex items-start gap-2.5">
                       <span className="mt-0.5 inline-flex size-7 items-center justify-center rounded-lg border border-border bg-card/80">
                         <step.icon className="size-3.5 text-primary" />
