@@ -458,6 +458,23 @@ body {
   filter: brightness(1.04);
 }
 
+.button-new-article {
+  color: #f5fffc;
+  border-color: #0a5952;
+  background:
+    radial-gradient(circle at 14% 22%, rgba(255, 255, 255, 0.22), transparent 36%),
+    linear-gradient(132deg, #0a5f57 0%, #0f7b72 56%, #0a8a76 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(211, 255, 247, 0.12),
+    0 14px 32px rgba(9, 99, 88, 0.3);
+  letter-spacing: 0.01em;
+}
+
+.button-new-article:hover {
+  filter: brightness(1.06) saturate(1.05);
+  transform: translateY(-1px);
+}
+
 .button-ghost {
   color: var(--text);
   border-color: var(--line);
