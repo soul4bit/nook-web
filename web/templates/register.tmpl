@@ -30,16 +30,19 @@
         </article>
       </div>
 
-      <ul class="aside-list">
-        <li>Проверка email и длины пароля</li>
-        <li>Уникальность аккаунта по email</li>
-        <li>Сессия создаётся в таблице sessions</li>
-      </ul>
-
-      <div class="tech-tags">
-        <span>Go</span>
-        <span>PostgreSQL</span>
-        <span>sessions</span>
+      <div class="devops-scene" aria-hidden="true">
+        <div class="scene-shell">
+          <span class="scene-line">$ ansible-playbook setup.yml</span>
+          <span class="scene-line">TASK [db] changed=1 ok=6</span>
+          <span class="scene-line">TASK [app] changed=1 ok=4</span>
+          <span class="scene-line">PLAY RECAP: success=100%</span>
+        </div>
+        <div class="scene-flow">
+          <span class="flow-node flow-node-1"></span>
+          <span class="flow-node flow-node-2"></span>
+          <span class="flow-node flow-node-3"></span>
+          <span class="flow-pulse"></span>
+        </div>
       </div>
     </aside>
 

@@ -30,16 +30,19 @@
         </article>
       </div>
 
-      <ul class="aside-list">
-        <li>PostgreSQL хранит аккаунты и сессии</li>
-        <li>Пароли защищены через bcrypt</li>
-        <li>HttpOnly cookie и безопасный redirect</li>
-      </ul>
-
-      <div class="tech-tags">
-        <span>Go</span>
-        <span>PostgreSQL</span>
-        <span>bcrypt</span>
+      <div class="devops-scene" aria-hidden="true">
+        <div class="scene-shell">
+          <span class="scene-line">$ terraform apply</span>
+          <span class="scene-line">module.vpc: complete after 13s</span>
+          <span class="scene-line">module.cluster: complete after 22s</span>
+          <span class="scene-line">Outputs: endpoint = ready</span>
+        </div>
+        <div class="scene-flow">
+          <span class="flow-node flow-node-1"></span>
+          <span class="flow-node flow-node-2"></span>
+          <span class="flow-node flow-node-3"></span>
+          <span class="flow-pulse"></span>
+        </div>
       </div>
     </aside>
 
