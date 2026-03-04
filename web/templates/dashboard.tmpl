@@ -73,28 +73,61 @@
         </article>
 
         <div class="atlas-grid">
-          <article class="atlas-card">
-            <p class="panel-label">Карта фокуса</p>
-            <div class="atlas-columns">
-              <section class="atlas-column">
-                <h3>Инфра</h3>
-                <ul>
-                  <li>Обновить runbook по бэкапам</li>
-                  <li>Проверить лимиты по VPS</li>
+          <article class="atlas-card atlas-sections">
+            <p class="panel-label">Разделы базы знаний</p>
+            <div class="atlas-section-grid">
+              <section class="atlas-section-card">
+                <h3>Linux</h3>
+                <ul class="atlas-subsections">
+                  <li>Файловая система</li>
+                  <li>systemd и сервисы</li>
+                  <li>Shell и bash</li>
+                  <li>Права и пользователи</li>
                 </ul>
               </section>
-              <section class="atlas-column">
-                <h3>Сервисы</h3>
-                <ul>
-                  <li>Синхронизировать healthcheck</li>
-                  <li>Свести логи auth в один поток</li>
+              <section class="atlas-section-card">
+                <h3>Docker</h3>
+                <ul class="atlas-subsections">
+                  <li>Dockerfile паттерны</li>
+                  <li>Compose и окружения</li>
+                  <li>Volumes и сети</li>
+                  <li>Registry и образы</li>
                 </ul>
               </section>
-              <section class="atlas-column">
-                <h3>Автоматизация</h3>
-                <ul>
-                  <li>Скрипт еженедельного smoke-test</li>
-                  <li>Шаблон changelog релиза</li>
+              <section class="atlas-section-card">
+                <h3>Сети</h3>
+                <ul class="atlas-subsections">
+                  <li>DNS и домены</li>
+                  <li>Nginx reverse proxy</li>
+                  <li>Firewall правила</li>
+                  <li>SSL и сертификаты</li>
+                </ul>
+              </section>
+              <section class="atlas-section-card">
+                <h3>K8s</h3>
+                <ul class="atlas-subsections">
+                  <li>Pods и Deployments</li>
+                  <li>Services и Ingress</li>
+                  <li>ConfigMap/Secrets</li>
+                  <li>Helm chart notes</li>
+                </ul>
+              </section>
+              <section class="atlas-section-card">
+                <h3>CI/CD</h3>
+                <ul class="atlas-subsections">
+                  <li>GitHub Actions</li>
+                  <li>Стратегии деплоя</li>
+                  <li>Rollback сценарии</li>
+                  <li>Release checklist</li>
+                </ul>
+              </section>
+              <section class="atlas-section-card">
+                <h3>Общее</h3>
+                <ul class="atlas-subsections">
+                  <li>Чеклисты дежурств</li>
+                  <li>FAQ и шпаргалки</li>
+                  <li>Postmortem шаблоны</li>
+                  <li>Внутренние стандарты</li>
                 </ul>
               </section>
             </div>

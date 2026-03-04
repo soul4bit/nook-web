@@ -720,31 +720,50 @@ body {
   gap: 14px;
 }
 
-.atlas-columns {
+.atlas-section-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
-.atlas-column {
+.atlas-section-card {
   border: 1px solid #d5e2dc;
   border-radius: 12px;
   background: #f8fbf9;
-  padding: 10px;
+  padding: 11px;
 }
 
-.atlas-column h3 {
+.atlas-section-card h3 {
   margin: 0;
   font-size: 14px;
+  color: #20453f;
+  letter-spacing: 0.01em;
 }
 
-.atlas-column ul {
+.atlas-subsections {
+  list-style: none;
   margin: 8px 0 0;
-  padding-left: 17px;
-  color: #4d625c;
+  padding: 0;
   display: grid;
   gap: 6px;
   font-size: 14px;
+}
+
+.atlas-subsections li {
+  position: relative;
+  padding-left: 14px;
+  color: #4d625c;
+}
+
+.atlas-subsections li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 9px;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: #86a89f;
 }
 
 .atlas-terminal pre {
@@ -798,20 +817,17 @@ body {
   color: var(--muted);
 }
 
-.atlas-column li,
 .atlas-note,
 .atlas-profile-meta {
   text-wrap: pretty;
 }
 
-.atlas-column ul,
 .atlas-list,
 .atlas-status,
 .atlas-note {
   margin-block: 0;
 }
 
-.atlas-column li:last-child,
 .atlas-list li:last-child,
 .atlas-status li:last-child {
   margin-bottom: 0;
@@ -822,20 +838,14 @@ body {
   color: var(--muted);
 }
 
-.atlas-column ul,
 .atlas-list,
 .atlas-status {
   line-height: 1.45;
 }
 
-.atlas-column li,
 .atlas-list li,
 .atlas-status li {
   min-height: 20px;
-}
-
-.atlas-column li::marker {
-  color: #6e8b83;
 }
 
 .atlas-list li,
@@ -857,22 +867,6 @@ body {
 
 .atlas-main .atlas-card {
   background: rgba(255, 255, 255, 0.94);
-}
-
-.atlas-column ul {
-  margin-bottom: 2px;
-}
-
-.atlas-column li {
-  padding-right: 4px;
-}
-
-.atlas-column li:last-child {
-  margin-bottom: 0;
-}
-
-.atlas-column h3 {
-  color: #20453f;
 }
 
 .atlas-layout {
@@ -928,11 +922,6 @@ body {
 .atlas-right .atlas-card,
 .atlas-rail .atlas-card {
   backdrop-filter: blur(2px);
-}
-
-.atlas-column ul {
-  margin: 0;
-  padding-left: 18px;
 }
 
 @keyframes scene-shell-float {
@@ -1030,7 +1019,7 @@ body {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .atlas-columns {
+  .atlas-section-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -1079,7 +1068,7 @@ body {
   .atlas-layout,
   .atlas-grid,
   .atlas-right,
-  .atlas-columns {
+  .atlas-section-grid {
     grid-template-columns: 1fr;
   }
 
