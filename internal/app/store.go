@@ -3,6 +3,7 @@ package app
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -216,6 +217,7 @@ func scanArticle(scanner interface {
 		&article.AuthorID,
 		&article.AuthorName,
 		&article.SectionSlug,
+		&article.Subsection,
 		&article.Title,
 		&article.Body,
 		&article.CreatedAt,
@@ -226,22 +228,24 @@ func scanArticle(scanner interface {
 	return &article, nil
 }
 
-func (a *Application) createArticle(authorID int64, sectionSlug string, title string, body string) (*Article, error) {
+func (a *Application) createArticle(authorID int64, sectionSlug string, subsection string, title string, body string) (*Article, error) {
 	now := time.Now().UTC()
 	row := a.db.QueryRow(
-		`insert into articles (author_id, section_slug, title, body, created_at, updated_at)
-		 values ($1, $2, $3, $4, $5, $5)
+		`insert into articles (author_id, section_slug, subsection, title, body, created_at, updated_at)
+		 values ($1, $2, $3, $4, $5, $6, $6)
 		 returning
 			id,
 			author_id,
 			'' as author_name,
 			section_slug,
+			subsection,
 			title,
 			body,
 			created_at,
 			updated_at`,
 		authorID,
 		sectionSlug,
+		subsection,
 		title,
 		body,
 		now,
@@ -249,29 +253,85 @@ func (a *Application) createArticle(authorID int64, sectionSlug string, title st
 	return scanArticle(row)
 }
 
-func (a *Application) getArticlesBySection(sectionSlug string, limit int) ([]Article, error) {
-	if limit < 1 {
-		limit = 1
-	}
-
-	rows, err := a.db.Query(
+func (a *Application) getArticleByID(articleID int64) (*Article, error) {
+	row := a.db.QueryRow(
 		`select
 			a.id,
 			a.author_id,
 			u.name as author_name,
 			a.section_slug,
+			a.subsection,
 			a.title,
 			a.body,
 			a.created_at,
 			a.updated_at
 		from articles a
 		join users u on u.id = a.author_id
-		where a.section_slug = $1
-		order by a.updated_at desc
-		limit $2`,
-		sectionSlug,
-		limit,
+		where a.id = $1
+		limit 1`,
+		articleID,
 	)
+	return scanArticle(row)
+}
+
+func (a *Application) updateArticleByAuthor(articleID int64, authorID int64, subsection string, title string, body string) (*Article, error) {
+	now := time.Now().UTC()
+	row := a.db.QueryRow(
+		`update articles
+		set
+			subsection = $3,
+			title = $4,
+			body = $5,
+			updated_at = $6
+		where id = $1 and author_id = $2
+		returning
+			id,
+			author_id,
+			'' as author_name,
+			section_slug,
+			subsection,
+			title,
+			body,
+			created_at,
+			updated_at`,
+		articleID,
+		authorID,
+		subsection,
+		title,
+		body,
+		now,
+	)
+	return scanArticle(row)
+}
+
+func (a *Application) getArticlesBySection(sectionSlug string, subsection string, limit int) ([]Article, error) {
+	if limit < 1 {
+		limit = 1
+	}
+
+	query := `select
+			a.id,
+			a.author_id,
+			u.name as author_name,
+			a.section_slug,
+			a.subsection,
+			a.title,
+			a.body,
+			a.created_at,
+			a.updated_at
+		from articles a
+		join users u on u.id = a.author_id
+		where a.section_slug = $1`
+	args := []any{sectionSlug}
+	if subsection != "" {
+		query += ` and a.subsection = $2`
+		args = append(args, subsection)
+	}
+	query += ` order by a.updated_at desc`
+	query += fmt.Sprintf(" limit $%d", len(args)+1)
+	args = append(args, limit)
+
+	rows, err := a.db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -304,6 +364,7 @@ func (a *Application) getRecentArticles(limit int) ([]Article, error) {
 			a.author_id,
 			u.name as author_name,
 			a.section_slug,
+			a.subsection,
 			a.title,
 			a.body,
 			a.created_at,

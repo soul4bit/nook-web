@@ -39,6 +39,7 @@ type Article struct {
 	AuthorID    int64
 	AuthorName  string
 	SectionSlug string
+	Subsection  string
 	SectionName string
 	Title       string
 	Body        string
@@ -77,6 +78,7 @@ type viewData struct {
 	CurrentPage        string
 	RecentArticles     []Article
 	SectionArticles    []Article
+	ArticleID          int64
 	ArticleTitle       string
 	ArticleBody        string
 	S3Check            *s3CheckResult
@@ -140,6 +142,7 @@ func (a *Application) Routes() http.Handler {
 	mux.HandleFunc("/app", a.requireAuth(a.handleDashboard))
 	mux.HandleFunc("/app/section", a.requireAuth(a.handleSection))
 	mux.HandleFunc("/app/article/new", a.requireAuth(a.handleArticleNew))
+	mux.HandleFunc("/app/article/edit", a.requireAuth(a.handleArticleEdit))
 	mux.HandleFunc("/app/s3", a.requireAuth(a.handleS3Check))
 	mux.HandleFunc("/admin/registration/approve", a.handleApproveRegistration)
 	mux.HandleFunc("/admin/registration/reject", a.handleRejectRegistration)
@@ -155,6 +158,7 @@ func loadTemplates() (map[string]*template.Template, error) {
 		"dashboard.tmpl",
 		"section.tmpl",
 		"article_new.tmpl",
+		"article_edit.tmpl",
 		"s3_check.tmpl",
 	}
 
@@ -206,16 +210,19 @@ func runMigrations(db *sql.DB) error {
 			id bigserial primary key,
 			author_id bigint not null,
 			section_slug text not null,
+			subsection text not null default '',
 			title text not null,
 			body text not null,
 			created_at timestamptz not null default now(),
 			updated_at timestamptz not null default now(),
 			foreign key(author_id) references users(id) on delete cascade
 		);`,
+		`alter table if exists articles add column if not exists subsection text not null default '';`,
 		`create index if not exists idx_sessions_user_id on sessions(user_id);`,
 		`create index if not exists idx_sessions_expires_at on sessions(expires_at);`,
 		`create index if not exists idx_articles_author_id on articles(author_id);`,
 		`create index if not exists idx_articles_section_updated_at on articles(section_slug, updated_at desc);`,
+		`create index if not exists idx_articles_section_subsection_updated_at on articles(section_slug, subsection, updated_at desc);`,
 		`create unique index if not exists idx_registration_requests_email_verify_token
 			on registration_requests(email_verify_token)
 			where email_verify_token is not null;`,

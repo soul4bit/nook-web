@@ -526,7 +526,7 @@ func (a *Application) handleSection(w http.ResponseWriter, r *http.Request) {
 	data.CurrentSubsection = currentSubsection
 	data.Success = strings.TrimSpace(r.URL.Query().Get("success"))
 
-	articles, err := a.getArticlesBySection(section.Slug, 100)
+	articles, err := a.getArticlesBySection(section.Slug, currentSubsection, 100)
 	if err != nil {
 		a.logger.Printf("get articles by section: %v", err)
 		http.Error(w, "internal server error", http.StatusInternalServerError)
@@ -598,7 +598,7 @@ func (a *Application) handleArticleNew(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if _, err := a.createArticle(user.ID, section.Slug, title, body); err != nil {
+		if _, err := a.createArticle(user.ID, section.Slug, currentSubsection, title, body); err != nil {
 			a.logger.Printf("create article: %v", err)
 			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return

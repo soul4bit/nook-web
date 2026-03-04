@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="ru">
 <head>
   <meta charset="utf-8" />
@@ -21,10 +21,8 @@
       </a>
 
       <div class="atlas-topbar-meta">
+        <a class="button button-ghost" href="/app/section?slug={{.CurrentSection.Slug}}{{if .CurrentSubsection}}&sub={{urlquery .CurrentSubsection}}{{end}}">Назад в раздел</a>
         <span class="atlas-user-chip">@{{.User.Name}}</span>
-        <form method="post" action="/auth/logout">
-          <button class="button button-ghost" type="submit">Выйти</button>
-        </form>
       </div>
     </header>
 
@@ -58,54 +56,48 @@
 
       <section class="atlas-main">
         <article class="atlas-card atlas-main-head">
-          <p class="panel-label">Раздел</p>
+          <p class="panel-label">Редактирование</p>
           <h2 class="atlas-section-title">{{.CurrentSection.Name}}</h2>
           {{if .CurrentSubsection}}
             <p class="atlas-sub-current">Подраздел: {{.CurrentSubsection}}</p>
           {{end}}
-          <p class="atlas-hero-text">Собирайте рабочие заметки коротко и конкретно, чтобы возвращаться к ним без боли.</p>
-
-          <div class="atlas-sub-pills">
-            {{range .CurrentSection.Subsections}}
-              <a class="atlas-sub-pill {{if eq $.CurrentSubsection .}}atlas-sub-pill-active{{end}}" href="/app/section?slug={{$.CurrentSection.Slug}}&sub={{urlquery .}}">{{.}}</a>
-            {{end}}
-          </div>
-
-          <div class="atlas-actions">
-            <a class="button button-new-article" href="/app/article/new?section={{.CurrentSection.Slug}}{{if .CurrentSubsection}}&sub={{urlquery .CurrentSubsection}}{{end}}">+ Новая статья</a>
-          </div>
+          <p class="atlas-hero-text">Обновите заметку, чтобы в следующий раз решение нашлось за секунды, а не за полночь.</p>
         </article>
 
-        {{if .Success}}
-          <p class="alert alert-success">{{.Success}}</p>
+        {{if .Error}}
+          <p class="alert alert-error">{{.Error}}</p>
         {{end}}
 
-        {{if .SectionArticles}}
-          <div class="atlas-article-list">
-            {{range .SectionArticles}}
-              <article class="atlas-card atlas-article-card">
-                <div class="atlas-article-meta">
-                  <span>Автор: {{.AuthorName}}</span>
-                  <span>{{.UpdatedAt.Format "02.01.2006 15:04"}}</span>
-                </div>
-                {{if .Subsection}}
-                  <p class="atlas-article-subsection">Подраздел: {{.Subsection}}</p>
+        <article class="atlas-card">
+          <form class="article-form" method="post" action="/app/article/edit">
+            <input type="hidden" name="id" value="{{.ArticleID}}" />
+
+            <label class="field">
+              <span>Подраздел</span>
+              <select class="field-select" name="subsection">
+                <option value="">Без подраздела</option>
+                {{range .CurrentSection.Subsections}}
+                  <option value="{{.}}" {{if eq $.CurrentSubsection .}}selected{{end}}>{{.}}</option>
                 {{end}}
-                <h3>{{.Title}}</h3>
-                <p class="atlas-article-body">{{.Body}}</p>
-                {{if eq $.User.ID .AuthorID}}
-                  <div class="atlas-article-actions">
-                    <a class="button button-ghost button-compact" href="/app/article/edit?id={{.ID}}">Редактировать</a>
-                  </div>
-                {{end}}
-              </article>
-            {{end}}
-          </div>
-        {{else}}
-          <article class="atlas-card">
-            <p class="atlas-empty">В этом разделе пока нет статей. Нажмите «Новая статья» и добавьте первую.</p>
-          </article>
-        {{end}}
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Заголовок</span>
+              <input name="title" type="text" maxlength="180" value="{{.ArticleTitle}}" required />
+            </label>
+
+            <label class="field">
+              <span>Текст статьи</span>
+              <textarea name="body" rows="13">{{.ArticleBody}}</textarea>
+            </label>
+
+            <div class="atlas-actions">
+              <button class="button button-primary" type="submit">Сохранить изменения</button>
+              <a class="button button-ghost" href="/app/section?slug={{.CurrentSection.Slug}}{{if .CurrentSubsection}}&sub={{urlquery .CurrentSubsection}}{{end}}">Отмена</a>
+            </div>
+          </form>
+        </article>
       </section>
     </section>
   </main>
