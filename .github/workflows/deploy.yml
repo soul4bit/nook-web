@@ -22,8 +22,10 @@ jobs:
             cd /var/www/kontur-znaniy
             git pull --ff-only origin main
             mkdir -p bin data
-            go mod download
-            go build -o ./bin/kontur-znaniy ./cmd/server
+            export GOTOOLCHAIN=auto
+            go version
+            GOFLAGS=-mod=mod go mod download
+            GOFLAGS=-mod=mod go build -trimpath -ldflags="-s -w" -o ./bin/kontur-znaniy ./cmd/server
 
             if systemctl list-unit-files | grep -q '^kontur-znaniy.service'; then
               sudo systemctl restart kontur-znaniy
