@@ -1198,12 +1198,15 @@ body {
 .atlas-article-card {
   border: 1px solid #cfddd7;
   background: rgba(255, 255, 255, 0.94);
+  min-width: 0;
 }
 
 .atlas-article-card h3 {
   margin: 10px 0 0;
   font-size: 22px;
   line-height: 1.22;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .atlas-article-meta {
@@ -1223,6 +1226,8 @@ body {
   color: #334741;
   line-height: 1.6;
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .atlas-empty {
