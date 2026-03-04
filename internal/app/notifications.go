@@ -561,8 +561,29 @@ func authenticateSMTPClient(client *smtp.Client, host string, user string, pass 
 
 	supportsPlain, supportsLogin := smtpAuthCapabilities(client)
 
-	if supportsLogin && !supportsPlain {
-		return client.Auth(newSMTPLoginAuth(user, pass))
+	if supportsLogin {
+		loginErr := client.Auth(newSMTPLoginAuth(user, pass))
+		if loginErr == nil {
+			return nil
+		}
+
+		if !supportsPlain {
+			return loginErr
+		}
+
+		if isClosedNetworkConnectionError(loginErr) {
+			return &smtpAuthReconnectRequiredError{
+				plainErr: errors.New("login-first failed and connection was closed"),
+				loginErr: loginErr,
+			}
+		}
+
+		plainErr := client.Auth(smtp.PlainAuth("", user, pass, host))
+		if plainErr == nil {
+			return nil
+		}
+
+		return fmt.Errorf("smtp auth failed: login=%v; plain=%w", loginErr, plainErr)
 	}
 
 	plainErr := client.Auth(smtp.PlainAuth("", user, pass, host))
