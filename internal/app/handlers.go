@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"html"
 	"net/http"
 	"net/mail"
 	"net/url"
@@ -306,14 +307,14 @@ func (a *Application) handleApproveRegistration(w http.ResponseWriter, r *http.R
 
 	token := strings.TrimSpace(r.URL.Query().Get("token"))
 	if token == "" {
-		a.renderPlainMessage(w, http.StatusBadRequest, "Пустой токен модерации.")
+		a.renderModerationPage(w, http.StatusBadRequest, "Некорректная ссылка", "Пустой токен модерации.")
 		return
 	}
 
 	emailVerifyToken, err := generateSessionToken()
 	if err != nil {
 		a.logger.Printf("generate email verify token: %v", err)
-		a.renderPlainMessage(w, http.StatusInternalServerError, "Не удалось сгенерировать токен подтверждения email.")
+		a.renderModerationPage(w, http.StatusInternalServerError, "Ошибка сервера", "Не удалось сгенерировать токен подтверждения email.")
 		return
 	}
 
@@ -322,7 +323,7 @@ func (a *Application) handleApproveRegistration(w http.ResponseWriter, r *http.R
 		if errors.Is(err, sql.ErrNoRows) {
 			existing, lookupErr := a.getRegistrationRequestByModerationToken(token)
 			if lookupErr != nil {
-				a.renderPlainMessage(w, http.StatusNotFound, "Заявка не найдена или ссылка устарела.")
+				a.renderModerationPage(w, http.StatusNotFound, "Заявка не найдена", "Заявка не найдена или ссылка устарела.")
 				return
 			}
 
@@ -331,39 +332,40 @@ func (a *Application) handleApproveRegistration(w http.ResponseWriter, r *http.R
 				if existing.EmailVerifyToken.Valid && strings.TrimSpace(existing.EmailVerifyToken.String) != "" {
 					if mailErr := a.sendRegistrationApprovedEmail(existing); mailErr != nil {
 						a.logger.Printf("resend approved email: %v", mailErr)
-						a.renderPlainMessage(w, http.StatusInternalServerError, "Заявка уже одобрена, но письмо повторно отправить не удалось.")
+						a.renderModerationPage(w, http.StatusInternalServerError, "Письмо не отправлено", "Заявка уже одобрена, но письмо повторно отправить не удалось.")
 						return
 					}
-					a.renderPlainMessage(w, http.StatusOK, "Заявка уже была одобрена. Письмо с подтверждением отправлено повторно.")
+					a.renderModerationPage(w, http.StatusOK, "Заявка уже одобрена", "Письмо с подтверждением отправлено повторно.")
 					return
 				}
-				a.renderPlainMessage(w, http.StatusOK, "Заявка уже одобрена.")
+				a.renderModerationPage(w, http.StatusOK, "Заявка уже одобрена", "Эта заявка уже была обработана ранее.")
 			case registrationStatusRejected:
-				a.renderPlainMessage(w, http.StatusConflict, "Заявка уже отклонена.")
+				a.renderModerationPage(w, http.StatusConflict, "Заявка уже отклонена", "Эта заявка уже отклонена.")
 			case registrationStatusCompleted:
-				a.renderPlainMessage(w, http.StatusConflict, "Email уже подтвержден, пользователь активирован.")
+				a.renderModerationPage(w, http.StatusConflict, "Пользователь уже активирован", "Email уже подтвержден, пользователь активирован.")
 			default:
-				a.renderPlainMessage(w, http.StatusConflict, "Заявка уже обработана.")
+				a.renderModerationPage(w, http.StatusConflict, "Заявка уже обработана", "Эта ссылка уже была использована.")
 			}
 			return
 		}
 
 		a.logger.Printf("approve registration request: %v", err)
-		a.renderPlainMessage(w, http.StatusInternalServerError, "Ошибка при одобрении заявки.")
+		a.renderModerationPage(w, http.StatusInternalServerError, "Ошибка сервера", "Ошибка при одобрении заявки.")
 		return
 	}
 
 	if err := a.sendRegistrationApprovedEmail(req); err != nil {
 		a.logger.Printf("send approved email: %v", err)
-		a.renderPlainMessage(
+		a.renderModerationPage(
 			w,
 			http.StatusInternalServerError,
+			"Письмо не отправлено",
 			"Заявка одобрена, но письмо отправить не удалось. Нажмите эту же ссылку еще раз для повторной отправки.",
 		)
 		return
 	}
 
-	a.renderPlainMessage(w, http.StatusOK, fmt.Sprintf("Заявка одобрена. На %s отправлено письмо с подтверждением.", req.Email))
+	a.renderModerationPage(w, http.StatusOK, "Заявка одобрена", fmt.Sprintf("На %s отправлено письмо с подтверждением.", req.Email))
 }
 
 func (a *Application) handleRejectRegistration(w http.ResponseWriter, r *http.Request) {
@@ -374,7 +376,7 @@ func (a *Application) handleRejectRegistration(w http.ResponseWriter, r *http.Re
 
 	token := strings.TrimSpace(r.URL.Query().Get("token"))
 	if token == "" {
-		a.renderPlainMessage(w, http.StatusBadRequest, "Пустой токен модерации.")
+		a.renderModerationPage(w, http.StatusBadRequest, "Некорректная ссылка", "Пустой токен модерации.")
 		return
 	}
 
@@ -388,7 +390,7 @@ func (a *Application) handleRejectRegistration(w http.ResponseWriter, r *http.Re
 		if errors.Is(err, sql.ErrNoRows) {
 			existing, lookupErr := a.getRegistrationRequestByModerationToken(token)
 			if lookupErr != nil {
-				a.renderPlainMessage(w, http.StatusNotFound, "Заявка не найдена или ссылка устарела.")
+				a.renderModerationPage(w, http.StatusNotFound, "Заявка не найдена", "Заявка не найдена или ссылка устарела.")
 				return
 			}
 
@@ -400,36 +402,37 @@ func (a *Application) handleRejectRegistration(w http.ResponseWriter, r *http.Re
 				}
 				if mailErr := a.sendRegistrationRejectedEmail(existing, rejectReason); mailErr != nil {
 					a.logger.Printf("resend rejected email: %v", mailErr)
-					a.renderPlainMessage(w, http.StatusInternalServerError, "Заявка уже отклонена, но повторно отправить письмо не удалось.")
+					a.renderModerationPage(w, http.StatusInternalServerError, "Письмо не отправлено", "Заявка уже отклонена, но повторно отправить письмо не удалось.")
 					return
 				}
-				a.renderPlainMessage(w, http.StatusOK, "Заявка уже была отклонена. Письмо отправлено повторно.")
+				a.renderModerationPage(w, http.StatusOK, "Заявка уже отклонена", "Письмо с решением отправлено повторно.")
 			case registrationStatusApproved:
-				a.renderPlainMessage(w, http.StatusConflict, "Заявка уже одобрена.")
+				a.renderModerationPage(w, http.StatusConflict, "Заявка уже одобрена", "Эта заявка уже одобрена.")
 			case registrationStatusCompleted:
-				a.renderPlainMessage(w, http.StatusConflict, "Email уже подтвержден, пользователь активирован.")
+				a.renderModerationPage(w, http.StatusConflict, "Пользователь уже активирован", "Email уже подтвержден, пользователь активирован.")
 			default:
-				a.renderPlainMessage(w, http.StatusConflict, "Заявка уже обработана.")
+				a.renderModerationPage(w, http.StatusConflict, "Заявка уже обработана", "Эта ссылка уже была использована.")
 			}
 			return
 		}
 
 		a.logger.Printf("reject registration request: %v", err)
-		a.renderPlainMessage(w, http.StatusInternalServerError, "Ошибка при отклонении заявки.")
+		a.renderModerationPage(w, http.StatusInternalServerError, "Ошибка сервера", "Ошибка при отклонении заявки.")
 		return
 	}
 
 	if err := a.sendRegistrationRejectedEmail(req, reason); err != nil {
 		a.logger.Printf("send rejected email: %v", err)
-		a.renderPlainMessage(
+		a.renderModerationPage(
 			w,
 			http.StatusInternalServerError,
+			"Письмо не отправлено",
 			"Заявка отклонена, но письмо отправить не удалось. Нажмите эту же ссылку еще раз для повторной отправки.",
 		)
 		return
 	}
 
-	a.renderPlainMessage(w, http.StatusOK, fmt.Sprintf("Заявка отклонена. На %s отправлено письмо.", req.Email))
+	a.renderModerationPage(w, http.StatusOK, "Заявка отклонена", fmt.Sprintf("На %s отправлено письмо с решением.", req.Email))
 }
 
 func (a *Application) handleVerifyEmail(w http.ResponseWriter, r *http.Request) {
@@ -509,6 +512,194 @@ func (a *Application) handleLogout(w http.ResponseWriter, r *http.Request) {
 
 	a.clearSessionCookie(w)
 	http.Redirect(w, r, "/auth/login?success=Вы вышли из системы.", http.StatusSeeOther)
+}
+
+func (a *Application) renderModerationPage(w http.ResponseWriter, status int, title string, message string) {
+	pageTitle := strings.TrimSpace(title)
+	if pageTitle == "" {
+		pageTitle = "Статус модерации"
+	}
+
+	pageMessage := strings.TrimSpace(message)
+	if pageMessage == "" {
+		pageMessage = "Операция завершена."
+	}
+
+	appName := strings.TrimSpace(a.cfg.AppName)
+	if appName == "" {
+		appName = "Kontur Znaniy"
+	}
+
+	accent := "#0d766d"
+	glow := "rgba(13, 118, 109, 0.28)"
+	badge := "Модерация"
+	if status >= http.StatusInternalServerError {
+		accent = "#8f2d3f"
+		glow = "rgba(143, 45, 63, 0.28)"
+		badge = "Сбой"
+	} else if status >= http.StatusBadRequest {
+		accent = "#9a5b2f"
+		glow = "rgba(154, 91, 47, 0.28)"
+		badge = "Внимание"
+	}
+
+	escapedTitle := html.EscapeString(pageTitle)
+	escapedMessage := html.EscapeString(pageMessage)
+	escapedMessage = strings.ReplaceAll(escapedMessage, "\n", "<br />")
+	escapedAppName := html.EscapeString(appName)
+	escapedBadge := html.EscapeString(badge)
+
+	actionHref := "/auth/login"
+	actionLabel := "Открыть вход"
+	if status >= http.StatusBadRequest {
+		actionHref = "/auth/register"
+		actionLabel = "Вернуться к форме"
+	}
+
+	page := fmt.Sprintf(`<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>%s · %s</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root { color-scheme: only light; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      font-family: "Manrope", "Segoe UI", "Trebuchet MS", sans-serif;
+      background:
+        radial-gradient(circle at 12%% 10%%, rgba(13, 118, 109, 0.25), transparent 36%%),
+        radial-gradient(circle at 86%% 8%%, rgba(201, 153, 96, 0.22), transparent 30%%),
+        linear-gradient(160deg, #f2f4ee 0%%, #e7ece4 100%%);
+      color: #17211f;
+    }
+    .panel {
+      width: min(640px, 100%%);
+      border: 1px solid #d3ddd7;
+      border-radius: 22px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 22px 58px %s;
+      animation: panel-in .28s ease-out both;
+    }
+    .head {
+      padding: 20px 24px;
+      color: #f4fffc;
+      background: linear-gradient(145deg, #0b5e57 0%%, #0d766d 58%%, #1a8d84 100%%);
+    }
+    .eyebrow {
+      margin: 0 0 8px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      font-size: 12px;
+      font-family: "IBM Plex Mono", "Consolas", monospace;
+      color: rgba(237, 253, 248, .88);
+    }
+    .title {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 34px);
+      line-height: 1.1;
+    }
+    .body {
+      padding: 22px 24px 24px;
+      display: grid;
+      gap: 16px;
+    }
+    .badge {
+      width: fit-content;
+      border-radius: 999px;
+      padding: 6px 12px;
+      border: 1px solid rgba(23, 33, 31, 0.14);
+      background: #f8fbf8;
+      color: #52645e;
+      font-size: 12px;
+      font-family: "IBM Plex Mono", "Consolas", monospace;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .message {
+      margin: 0;
+      line-height: 1.65;
+      color: #31413c;
+      font-size: 16px;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+      padding-top: 6px;
+    }
+    .action-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      padding: 11px 16px;
+      font-weight: 700;
+      color: #ffffff;
+      text-decoration: none;
+      background: %s;
+      box-shadow: 0 14px 34px %s;
+    }
+    .action-link:hover { filter: brightness(1.05); }
+    .muted {
+      font-size: 13px;
+      color: #63766f;
+    }
+    @keyframes panel-in {
+      from { opacity: 0; transform: translateY(8px) scale(.992); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @media (max-width: 680px) {
+      .head { padding: 18px 18px; }
+      .body { padding: 18px 18px 20px; }
+      .title { font-size: 27px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="panel">
+    <header class="head">
+      <p class="eyebrow">%s · %s</p>
+      <h1 class="title">%s</h1>
+    </header>
+    <section class="body">
+      <span class="badge">%s</span>
+      <p class="message">%s</p>
+      <div class="actions">
+        <a class="action-link" href="%s">%s</a>
+        <span class="muted">Можно закрыть вкладку после просмотра.</span>
+      </div>
+    </section>
+  </main>
+</body>
+</html>`,
+		escapedTitle,
+		escapedAppName,
+		glow,
+		accent,
+		glow,
+		escapedAppName,
+		escapedBadge,
+		escapedTitle,
+		escapedBadge,
+		escapedMessage,
+		html.EscapeString(actionHref),
+		html.EscapeString(actionLabel),
+	)
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(status)
+	_, _ = w.Write([]byte(page))
 }
 
 func (a *Application) renderPlainMessage(w http.ResponseWriter, status int, message string) {

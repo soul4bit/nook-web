@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html"
 	"io"
 	"mime"
 	"net"
@@ -317,13 +318,24 @@ func (a *Application) sendRegistrationApprovedEmail(req *registrationRequest) er
 
 	verifyURL := a.absoluteURL("/auth/verify-email", url.Values{"token": []string{req.EmailVerifyToken.String}})
 	subject := "Заявка одобрена: подтвердите email"
-	body := fmt.Sprintf(
+	plainBody := fmt.Sprintf(
 		"Привет, %s!\n\nВаша заявка в %s одобрена.\nОстался последний шаг: подтвердите email по ссылке:\n%s\n\nЕсли это были не вы, просто проигнорируйте письмо.",
 		req.Name,
 		a.cfg.AppName,
 		verifyURL,
 	)
-	return a.sendEmail(req.Email, subject, body)
+	htmlBody := buildDecisionEmailHTML(emailDecisionParams{
+		AppName:     a.cfg.AppName,
+		Title:       "Заявка одобрена",
+		Greeting:    fmt.Sprintf("Привет, %s!", req.Name),
+		Message:     fmt.Sprintf("Ваша заявка в %s одобрена.\nОстался последний шаг: подтвердите email.", a.cfg.AppName),
+		CTAURL:      verifyURL,
+		CTAText:     "Подтвердить email",
+		Footnote:    "Если это были не вы, просто проигнорируйте письмо.",
+		IsApproved:  true,
+		RawLinkNote: "Если кнопка не сработала, используйте ссылку ниже.",
+	})
+	return a.sendEmail(req.Email, subject, plainBody, htmlBody)
 }
 
 func (a *Application) sendRegistrationRejectedEmail(req *registrationRequest, reason string) error {
@@ -333,16 +345,24 @@ func (a *Application) sendRegistrationRejectedEmail(req *registrationRequest, re
 	}
 
 	subject := "Заявка отклонена"
-	body := fmt.Sprintf(
+	plainBody := fmt.Sprintf(
 		"Привет, %s!\n\nК сожалению, заявка в %s отклонена.\nПричина: %s\n\nМожно отправить новую заявку позже.",
 		req.Name,
 		a.cfg.AppName,
 		rejectReason,
 	)
-	return a.sendEmail(req.Email, subject, body)
+	htmlBody := buildDecisionEmailHTML(emailDecisionParams{
+		AppName:    a.cfg.AppName,
+		Title:      "Заявка отклонена",
+		Greeting:   fmt.Sprintf("Привет, %s!", req.Name),
+		Message:    fmt.Sprintf("К сожалению, заявка в %s отклонена.\nПричина: %s", a.cfg.AppName, rejectReason),
+		Footnote:   "Можно отправить новую заявку позже.",
+		IsApproved: false,
+	})
+	return a.sendEmail(req.Email, subject, plainBody, htmlBody)
 }
 
-func (a *Application) sendEmail(to string, subject string, body string) error {
+func (a *Application) sendEmail(to string, subject string, plainBody string, htmlBody string) error {
 	toAddr, err := mail.ParseAddress(strings.TrimSpace(to))
 	if err != nil {
 		return fmt.Errorf("invalid recipient address: %w", err)
@@ -353,16 +373,7 @@ func (a *Application) sendEmail(to string, subject string, body string) error {
 		return err
 	}
 
-	headers := []string{
-		fmt.Sprintf("From: %s", fromHeader),
-		fmt.Sprintf("To: %s", toAddr.String()),
-		fmt.Sprintf("Subject: %s", mime.BEncoding.Encode("UTF-8", subject)),
-		"MIME-Version: 1.0",
-		"Content-Type: text/plain; charset=UTF-8",
-		"Content-Transfer-Encoding: 8bit",
-		fmt.Sprintf("Date: %s", time.Now().UTC().Format(time.RFC1123Z)),
-	}
-	msg := strings.Join(headers, "\r\n") + "\r\n\r\n" + body
+	msg := buildEmailMIMEMessage(fromHeader, toAddr.String(), subject, plainBody, htmlBody)
 
 	host := strings.TrimSpace(a.cfg.SMTPHost)
 	port := a.cfg.SMTPPort
@@ -375,6 +386,163 @@ func (a *Application) sendEmail(to string, subject string, body string) error {
 		return sendMailWithImplicitTLS(addr, host, a.cfg.SMTPUser, a.cfg.SMTPPassword, fromAddr, toAddr.Address, msg)
 	}
 	return sendMailWithSMTP(addr, host, a.cfg.SMTPUser, a.cfg.SMTPPassword, fromAddr, toAddr.Address, msg)
+}
+
+type emailDecisionParams struct {
+	AppName     string
+	Title       string
+	Greeting    string
+	Message     string
+	CTAURL      string
+	CTAText     string
+	Footnote    string
+	RawLinkNote string
+	IsApproved  bool
+}
+
+func buildDecisionEmailHTML(p emailDecisionParams) string {
+	statusBadge := "Решение модератора"
+	accent := "#0d766d"
+	cardGlow := "rgba(13, 118, 109, 0.16)"
+	if !p.IsApproved {
+		statusBadge = "Статус заявки"
+		accent = "#9a2f44"
+		cardGlow = "rgba(154, 47, 68, 0.16)"
+	}
+
+	greeting := html.EscapeString(strings.TrimSpace(p.Greeting))
+	if greeting == "" {
+		greeting = "Привет!"
+	}
+
+	message := html.EscapeString(strings.TrimSpace(p.Message))
+	message = strings.ReplaceAll(message, "\n", "<br />")
+	footnote := html.EscapeString(strings.TrimSpace(p.Footnote))
+	appName := html.EscapeString(strings.TrimSpace(p.AppName))
+	title := html.EscapeString(strings.TrimSpace(p.Title))
+	ctaText := html.EscapeString(strings.TrimSpace(p.CTAText))
+	ctaURL := html.EscapeString(strings.TrimSpace(p.CTAURL))
+	rawLinkNote := html.EscapeString(strings.TrimSpace(p.RawLinkNote))
+
+	ctaBlock := ""
+	if ctaURL != "" && ctaText != "" {
+		ctaBlock = fmt.Sprintf(
+			`<div style="margin-top:24px;margin-bottom:18px;">
+        <a href="%s" style="display:inline-block;padding:12px 20px;border-radius:12px;background:%s;color:#ffffff;text-decoration:none;font-weight:700;">%s</a>
+      </div>`,
+			ctaURL,
+			accent,
+			ctaText,
+		)
+	}
+
+	rawLinkBlock := ""
+	if ctaURL != "" {
+		note := rawLinkNote
+		if note == "" {
+			note = "Если кнопка не работает, используйте ссылку:"
+		}
+		rawLinkBlock = fmt.Sprintf(
+			`<p style="margin:0 0 8px 0;color:#5d6c67;font-size:13px;">%s</p>
+      <p style="margin:0;word-break:break-all;"><a href="%s" style="color:%s;text-decoration:none;">%s</a></p>`,
+			note,
+			ctaURL,
+			accent,
+			ctaURL,
+		)
+	}
+
+	return fmt.Sprintf(`<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>%s</title>
+</head>
+<body style="margin:0;padding:0;background:#eef3ef;font-family:'Manrope','Segoe UI','Trebuchet MS',sans-serif;color:#17211f;">
+  <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="padding:28px 14px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" style="max-width:640px;background:#ffffff;border-radius:18px;border:1px solid #d9e3dd;overflow:hidden;box-shadow:0 18px 48px %s;">
+          <tr>
+            <td style="padding:22px 24px;background:linear-gradient(140deg,#0b5e57 0%%,#0d766d 65%%,#1a8d84 100%%);color:#f4fffc;">
+              <p style="margin:0 0 8px 0;font-size:12px;letter-spacing:.13em;text-transform:uppercase;opacity:.9;">%s</p>
+              <h1 style="margin:0;font-size:28px;line-height:1.2;">%s</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:24px;">
+              <p style="margin:0 0 10px 0;font-size:18px;font-weight:700;">%s</p>
+              <p style="margin:0 0 14px 0;line-height:1.65;color:#31413c;">%s</p>
+              %s
+              %s
+              <hr style="border:none;border-top:1px solid #e4ece7;margin:20px 0;" />
+              <p style="margin:0;color:#6a7a74;font-size:13px;line-height:1.5;">%s</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`,
+		title,
+		cardGlow,
+		appName,
+		statusBadge,
+		greeting,
+		message,
+		ctaBlock,
+		rawLinkBlock,
+		footnote,
+	)
+}
+
+func buildEmailMIMEMessage(fromHeader string, toHeader string, subject string, plainBody string, htmlBody string) string {
+	commonHeaders := []string{
+		fmt.Sprintf("From: %s", fromHeader),
+		fmt.Sprintf("To: %s", toHeader),
+		fmt.Sprintf("Subject: %s", mime.BEncoding.Encode("UTF-8", subject)),
+		"MIME-Version: 1.0",
+		fmt.Sprintf("Date: %s", time.Now().UTC().Format(time.RFC1123Z)),
+	}
+
+	plain := strings.TrimSpace(plainBody)
+	htmlPart := strings.TrimSpace(htmlBody)
+
+	if htmlPart == "" {
+		headers := append(commonHeaders,
+			"Content-Type: text/plain; charset=UTF-8",
+			"Content-Transfer-Encoding: 8bit",
+		)
+		return strings.Join(headers, "\r\n") + "\r\n\r\n" + plain
+	}
+
+	boundary := fmt.Sprintf("kontur_%d", time.Now().UTC().UnixNano())
+	headers := append(commonHeaders,
+		fmt.Sprintf("Content-Type: multipart/alternative; boundary=%q", boundary),
+	)
+
+	var b strings.Builder
+	b.WriteString(strings.Join(headers, "\r\n"))
+	b.WriteString("\r\n\r\n")
+	b.WriteString("--")
+	b.WriteString(boundary)
+	b.WriteString("\r\n")
+	b.WriteString("Content-Type: text/plain; charset=UTF-8\r\n")
+	b.WriteString("Content-Transfer-Encoding: 8bit\r\n\r\n")
+	b.WriteString(plain)
+	b.WriteString("\r\n\r\n--")
+	b.WriteString(boundary)
+	b.WriteString("\r\n")
+	b.WriteString("Content-Type: text/html; charset=UTF-8\r\n")
+	b.WriteString("Content-Transfer-Encoding: 8bit\r\n\r\n")
+	b.WriteString(htmlPart)
+	b.WriteString("\r\n\r\n--")
+	b.WriteString(boundary)
+	b.WriteString("--")
+
+	return b.String()
 }
 
 func resolveFromAddress(raw string, fallback string) (string, string, error) {
