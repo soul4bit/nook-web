@@ -398,6 +398,18 @@ func resolveFromAddress(raw string, fallback string) (string, string, error) {
 }
 
 func sendMailWithImplicitTLS(addr string, host string, user string, pass string, from string, to string, msg string) error {
+	err := sendMailWithImplicitTLSMode(addr, host, user, pass, from, to, msg, smtpAuthModeAuto)
+	if err != nil && shouldRetrySMTPWithLoginOnNewConnection(err) {
+		retryErr := sendMailWithImplicitTLSMode(addr, host, user, pass, from, to, msg, smtpAuthModeLoginOnly)
+		if retryErr == nil {
+			return nil
+		}
+		return fmt.Errorf("smtp send failed and retry with login also failed: first=%v; retry=%w", err, retryErr)
+	}
+	return err
+}
+
+func sendMailWithImplicitTLSMode(addr string, host string, user string, pass string, from string, to string, msg string, mode smtpAuthMode) error {
 	conn, err := tls.Dial("tcp", addr, &tls.Config{ServerName: host, MinVersion: tls.VersionTLS12})
 	if err != nil {
 		return err
@@ -410,7 +422,7 @@ func sendMailWithImplicitTLS(addr string, host string, user string, pass string,
 	}
 	defer client.Close()
 
-	if err := authenticateSMTPClient(client, host, user, pass); err != nil {
+	if err := authenticateSMTPClient(client, host, user, pass, mode); err != nil {
 		return err
 	}
 
@@ -437,6 +449,18 @@ func sendMailWithImplicitTLS(addr string, host string, user string, pass string,
 }
 
 func sendMailWithSMTP(addr string, host string, user string, pass string, from string, to string, msg string) error {
+	err := sendMailWithSMTPMode(addr, host, user, pass, from, to, msg, smtpAuthModeAuto)
+	if err != nil && shouldRetrySMTPWithLoginOnNewConnection(err) {
+		retryErr := sendMailWithSMTPMode(addr, host, user, pass, from, to, msg, smtpAuthModeLoginOnly)
+		if retryErr == nil {
+			return nil
+		}
+		return fmt.Errorf("smtp send failed and retry with login also failed: first=%v; retry=%w", err, retryErr)
+	}
+	return err
+}
+
+func sendMailWithSMTPMode(addr string, host string, user string, pass string, from string, to string, msg string, mode smtpAuthMode) error {
 	client, err := smtp.Dial(addr)
 	if err != nil {
 		return err
@@ -449,7 +473,7 @@ func sendMailWithSMTP(addr string, host string, user string, pass string, from s
 		}
 	}
 
-	if err := authenticateSMTPClient(client, host, user, pass); err != nil {
+	if err := authenticateSMTPClient(client, host, user, pass, mode); err != nil {
 		return err
 	}
 
@@ -475,9 +499,70 @@ func sendMailWithSMTP(addr string, host string, user string, pass string, from s
 	return client.Quit()
 }
 
-func authenticateSMTPClient(client *smtp.Client, host string, user string, pass string) error {
+type smtpAuthMode int
+
+const (
+	smtpAuthModeAuto smtpAuthMode = iota
+	smtpAuthModeLoginOnly
+)
+
+type smtpAuthReconnectRequiredError struct {
+	plainErr error
+	loginErr error
+}
+
+func (e *smtpAuthReconnectRequiredError) Error() string {
+	if e == nil {
+		return "smtp auth reconnect required"
+	}
+	return fmt.Sprintf("smtp auth requires reconnect: plain=%v; login=%v", e.plainErr, e.loginErr)
+}
+
+func shouldRetrySMTPWithLoginOnNewConnection(err error) bool {
+	var reconnectErr *smtpAuthReconnectRequiredError
+	return errors.As(err, &reconnectErr)
+}
+
+func smtpAuthCapabilities(client *smtp.Client) (supportsPlain bool, supportsLogin bool) {
+	raw, ok := client.Extension("AUTH")
+	if !ok {
+		return false, false
+	}
+
+	upper := strings.ToUpper(raw)
+	fields := strings.Fields(upper)
+	for _, f := range fields {
+		switch f {
+		case "PLAIN":
+			supportsPlain = true
+		case "LOGIN":
+			supportsLogin = true
+		}
+	}
+
+	return supportsPlain, supportsLogin
+}
+
+func isClosedNetworkConnectionError(err error) bool {
+	if err == nil {
+		return false
+	}
+	return strings.Contains(strings.ToLower(err.Error()), "use of closed network connection")
+}
+
+func authenticateSMTPClient(client *smtp.Client, host string, user string, pass string, mode smtpAuthMode) error {
 	if strings.TrimSpace(user) == "" {
 		return nil
+	}
+
+	if mode == smtpAuthModeLoginOnly {
+		return client.Auth(newSMTPLoginAuth(user, pass))
+	}
+
+	supportsPlain, supportsLogin := smtpAuthCapabilities(client)
+
+	if supportsLogin && !supportsPlain {
+		return client.Auth(newSMTPLoginAuth(user, pass))
 	}
 
 	plainErr := client.Auth(smtp.PlainAuth("", user, pass, host))
@@ -485,13 +570,20 @@ func authenticateSMTPClient(client *smtp.Client, host string, user string, pass 
 		return nil
 	}
 
-	if !shouldFallbackToLoginAuth(plainErr) {
+	if !supportsLogin || !shouldFallbackToLoginAuth(plainErr) {
 		return plainErr
 	}
 
 	loginErr := client.Auth(newSMTPLoginAuth(user, pass))
 	if loginErr == nil {
 		return nil
+	}
+
+	if isClosedNetworkConnectionError(loginErr) {
+		return &smtpAuthReconnectRequiredError{
+			plainErr: plainErr,
+			loginErr: loginErr,
+		}
 	}
 
 	return fmt.Errorf("smtp auth failed: plain=%v; login=%w", plainErr, loginErr)
