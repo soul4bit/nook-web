@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"mime"
 	"net"
 	"net/http"
@@ -103,8 +104,28 @@ func (a *Application) sendRegistrationRequestToTelegram(req *registrationRequest
 	}
 	defer resp.Body.Close()
 
+	respBody, _ := io.ReadAll(io.LimitReader(resp.Body, 16*1024))
+	type telegramAPIResponse struct {
+		OK          bool   `json:"ok"`
+		ErrorCode   int    `json:"error_code"`
+		Description string `json:"description"`
+	}
+
+	var apiResp telegramAPIResponse
+	if err := json.Unmarshal(respBody, &apiResp); err == nil && !apiResp.OK {
+		return fmt.Errorf(
+			"telegram sendMessage rejected: error_code=%d description=%q",
+			apiResp.ErrorCode,
+			apiResp.Description,
+		)
+	}
+
 	if resp.StatusCode >= 300 {
-		return fmt.Errorf("telegram sendMessage failed with status %s", resp.Status)
+		return fmt.Errorf(
+			"telegram sendMessage failed with status %s body=%q",
+			resp.Status,
+			strings.TrimSpace(string(respBody)),
+		)
 	}
 
 	return nil
