@@ -187,7 +187,7 @@ func (a *Application) handleArticleCommentAdd(w http.ResponseWriter, r *http.Req
 		http.Redirect(
 			w,
 			r,
-			articleViewRedirectURL(articleID, "", "Comment is too short."),
+			articleViewRedirectURL(articleID, "", "Комментарий слишком короткий."),
 			http.StatusSeeOther,
 		)
 		return
@@ -196,7 +196,7 @@ func (a *Application) handleArticleCommentAdd(w http.ResponseWriter, r *http.Req
 		http.Redirect(
 			w,
 			r,
-			articleViewRedirectURL(articleID, "", "Comment is too long (max 2000 chars)."),
+			articleViewRedirectURL(articleID, "", "Комментарий слишком длинный (максимум 2000 символов)."),
 			http.StatusSeeOther,
 		)
 		return
@@ -217,7 +217,7 @@ func (a *Application) handleArticleCommentAdd(w http.ResponseWriter, r *http.Req
 		http.Redirect(
 			w,
 			r,
-			articleViewRedirectURL(articleID, "", "Could not add comment."),
+			articleViewRedirectURL(articleID, "", "Не удалось добавить комментарий."),
 			http.StatusSeeOther,
 		)
 		return
@@ -226,7 +226,7 @@ func (a *Application) handleArticleCommentAdd(w http.ResponseWriter, r *http.Req
 	http.Redirect(
 		w,
 		r,
-		articleViewRedirectURL(articleID, "Comment added.", ""),
+		articleViewRedirectURL(articleID, "Комментарий добавлен.", ""),
 		http.StatusSeeOther,
 	)
 }
@@ -265,7 +265,7 @@ func (a *Application) handleArticleCommentDelete(w http.ResponseWriter, r *http.
 			http.Redirect(
 				w,
 				r,
-				articleViewRedirectURL(articleID, "", "Comment not found."),
+				articleViewRedirectURL(articleID, "", "Комментарий не найден."),
 				http.StatusSeeOther,
 			)
 			return
@@ -279,7 +279,7 @@ func (a *Application) handleArticleCommentDelete(w http.ResponseWriter, r *http.
 		http.Redirect(
 			w,
 			r,
-			articleViewRedirectURL(articleID, "", "Comment does not belong to this article."),
+			articleViewRedirectURL(articleID, "", "Комментарий не относится к этой статье."),
 			http.StatusSeeOther,
 		)
 		return
@@ -295,7 +295,7 @@ func (a *Application) handleArticleCommentDelete(w http.ResponseWriter, r *http.
 			http.Redirect(
 				w,
 				r,
-				articleViewRedirectURL(articleID, "", "Comment already removed."),
+				articleViewRedirectURL(articleID, "", "Комментарий уже удалён."),
 				http.StatusSeeOther,
 			)
 			return
@@ -308,7 +308,7 @@ func (a *Application) handleArticleCommentDelete(w http.ResponseWriter, r *http.
 	http.Redirect(
 		w,
 		r,
-		articleViewRedirectURL(articleID, "Comment removed.", ""),
+		articleViewRedirectURL(articleID, "Комментарий удалён.", ""),
 		http.StatusSeeOther,
 	)
 }

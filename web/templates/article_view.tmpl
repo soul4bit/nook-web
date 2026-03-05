@@ -99,7 +99,7 @@
 
         <article class="atlas-card atlas-comments-card">
           <div class="atlas-recent-head">
-            <p class="panel-label">Team Comments</p>
+            <p class="panel-label">Комментарии команды</p>
             {{if .ArticleComments}}
               <span class="atlas-recent-count">{{len .ArticleComments}}</span>
             {{end}}
@@ -108,11 +108,11 @@
           <form class="atlas-comment-form" method="post" action="/app/article/comment/add">
             <input type="hidden" name="article_id" value="{{.CurrentArticle.ID}}" />
             <label class="field">
-              <span>Add comment</span>
-              <textarea name="body" rows="4" maxlength="2000" placeholder="Write concise context for the team: resolution, root cause, caveats..." required></textarea>
+              <span>Добавить комментарий</span>
+              <textarea name="body" rows="4" maxlength="2000" placeholder="Напишите коротко, что важно команде: решение, контекст, подводные камни..." required></textarea>
             </label>
             <div class="atlas-actions">
-              <button class="button button-primary button-compact" type="submit">Send</button>
+              <button class="button button-primary button-compact" type="submit">Отправить</button>
             </div>
           </form>
 
@@ -126,17 +126,17 @@
                   </div>
                   <div class="atlas-comment-body">{{markdown .Body}}</div>
                   {{if .CanDelete}}
-                    <form method="post" action="/app/article/comment/delete" onsubmit="return confirm('Delete this comment?');">
+                    <form method="post" action="/app/article/comment/delete" onsubmit="return confirm('Удалить комментарий?');">
                       <input type="hidden" name="article_id" value="{{$.CurrentArticle.ID}}" />
                       <input type="hidden" name="comment_id" value="{{.ID}}" />
-                      <button class="button button-ghost button-compact atlas-danger-button" type="submit">Delete</button>
+                      <button class="button button-ghost button-compact atlas-danger-button" type="submit">Удалить</button>
                     </form>
                   {{end}}
                 </article>
               {{end}}
             </div>
           {{else}}
-            <p class="atlas-empty">No comments yet. Add the first note for your team.</p>
+            <p class="atlas-empty">Комментариев пока нет. Добавьте первую заметку для команды.</p>
           {{end}}
         </article>
 

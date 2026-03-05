@@ -72,7 +72,7 @@
           <p class="alert alert-error">{{.Error}}</p>
         {{end}}
         {{if .DraftLoaded}}
-          <p class="alert alert-success">Autosaved draft restored.</p>
+          <p class="alert alert-success">Черновик восстановлен из автосохранения.</p>
         {{end}}
 
         <article class="atlas-card">
@@ -97,7 +97,7 @@
             <label class="field">
               <span>Текст статьи</span>
               <textarea name="body" data-md-editor="true" rows="15">{{.ArticleBody}}</textarea>
-              <small class="field-hint">Markdown: `# heading`, `**bold**`, `![alt](https://image-url)`</small>
+              <small class="field-hint">Markdown: `# заголовок`, `**жирный**`, `![alt](https://image-url)`</small>
             </label>
 
             <div class="atlas-actions">
