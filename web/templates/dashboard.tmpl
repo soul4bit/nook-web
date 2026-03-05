@@ -61,13 +61,45 @@
       </aside>
 
       <section class="atlas-main">
-        <article class="atlas-card atlas-hero">
-          <p class="panel-label">Панель знаний</p>
-          <h2 class="atlas-hero-title">Навигация слева, заметки по центру, всё под рукой.</h2>
-          <p class="atlas-hero-text">
-            Открывайте раздел, проваливайтесь в нужный подраздел и фиксируйте рабочие решения,
-            чтобы больше не искать одну и ту же команду в ночном логбуке.
-          </p>
+        <article class="atlas-card atlas-hero atlas-hero-devops">
+          <div class="atlas-hero-grid">
+            <div class="atlas-hero-copy">
+              <p class="panel-label">Ops cockpit</p>
+              <h2 class="atlas-hero-title">Runbook в стиле DevOps: деплой, инциденты и фиксы всегда под рукой.</h2>
+              <p class="atlas-hero-text">
+                Держите команды, постмортемы и рабочие инструкции в одном месте: меньше ручного поиска,
+                быстрее восстановление и спокойнее релизы.
+              </p>
+              <div class="atlas-pill-row atlas-hero-pills">
+                <span class="atlas-pill">Разделов: {{len .Sections}}</span>
+                <span class="atlas-pill">В ленте: {{len .RecentArticles}}</span>
+                <span class="atlas-pill">Роль: {{if .User.IsAdmin}}Администратор{{else if .User.CanEdit}}Редактор{{else}}Только просмотр{{end}}</span>
+              </div>
+              <div class="atlas-actions atlas-hero-actions">
+                {{if .SectionOverviews}}
+                  <a class="button button-ghost button-compact" href="/app/section?slug={{(index .SectionOverviews 0).Slug}}">Открыть базу</a>
+                {{end}}
+                {{if .User.CanEdit}}
+                  <a class="button button-new-article button-compact" href="/app/article/new">+ Новая статья</a>
+                {{end}}
+                <a class="button button-ghost button-compact" href="/app/s3">S3 чек</a>
+              </div>
+            </div>
+            <div class="atlas-ops-panel" aria-hidden="true">
+              <p class="atlas-ops-head">deploy.pipeline</p>
+              <ul class="atlas-ops-list">
+                <li><span class="atlas-ops-dot atlas-ops-dot-ok"></span>lint</li>
+                <li><span class="atlas-ops-dot atlas-ops-dot-ok"></span>tests</li>
+                <li><span class="atlas-ops-dot atlas-ops-dot-ok"></span>build</li>
+                <li><span class="atlas-ops-dot atlas-ops-dot-live"></span>docs-sync</li>
+              </ul>
+              <div class="atlas-ops-log">
+                <span>$ kubectl apply -f runbook-sync.yaml</span>
+                <span>sync: {{len .RecentArticles}} entries</span>
+                <span>status: green</span>
+              </div>
+            </div>
+          </div>
         </article>
 
         {{if .Success}}
@@ -76,9 +108,12 @@
 
         <article class="atlas-card atlas-recent-card">
           <div class="atlas-recent-head">
-            <p class="panel-label">Последние статьи</p>
+            <div class="atlas-recent-title-wrap">
+              <p class="panel-label">Последние статьи</p>
+              <p class="atlas-recent-note">Свежие обновления базы знаний по инфраструктуре и поддержке.</p>
+            </div>
             {{if .RecentArticles}}
-              <span class="atlas-recent-count">{{len .RecentArticles}}</span>
+              <span class="atlas-recent-count">{{len .RecentArticles}} в ленте</span>
             {{end}}
           </div>
           {{if .RecentArticles}}
