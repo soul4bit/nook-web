@@ -1655,14 +1655,35 @@ body {
 }
 
 .atlas-admin-role-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  margin: 0;
+}
+
+.atlas-admin-user-actions {
+  display: grid;
+  gap: 8px;
+  min-width: 320px;
+  max-width: 460px;
+}
+
+.atlas-admin-user-secondary-actions {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
   align-items: center;
 }
 
+.atlas-admin-user-actions form,
+.atlas-admin-user-secondary-actions form {
+  margin: 0;
+}
+
 .atlas-admin-role-select {
-  min-width: 185px;
+  width: 100%;
+  min-width: 0;
   height: 38px;
 }
 
@@ -2002,6 +2023,18 @@ body {
 
   .atlas-admin-inline-input {
     min-width: 180px;
+  }
+
+  .atlas-admin-user-actions {
+    min-width: 260px;
+  }
+
+  .atlas-admin-role-form {
+    grid-template-columns: 1fr;
+  }
+
+  .atlas-admin-role-form .button {
+    width: 100%;
   }
 
   .atlas-admin-users-table {

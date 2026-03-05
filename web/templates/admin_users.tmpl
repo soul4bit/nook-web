@@ -138,20 +138,7 @@
                         <p class="atlas-admin-meta">Создан: {{.CreatedAt.Format "02.01.2006"}}</p>
                       </td>
                       <td>
-                        <div class="atlas-admin-actions">
-                          {{if ne .ID $.User.ID}}
-                            {{if .Blocked}}
-                              <form method="post" action="/app/admin/users/unblock">
-                                <input type="hidden" name="user_id" value="{{.ID}}" />
-                                <button class="button button-ghost button-compact" type="submit">Разблокировать</button>
-                              </form>
-                            {{else}}
-                              <form method="post" action="/app/admin/users/block" onsubmit="return confirm('Заблокировать пользователя {{.Email}}?');">
-                                <input type="hidden" name="user_id" value="{{.ID}}" />
-                                <button class="button button-ghost button-compact atlas-warning-button" type="submit">Блокировать</button>
-                              </form>
-                            {{end}}
-                          {{end}}
+                        <div class="atlas-admin-user-actions">
                           <form method="post" action="/app/admin/users/role" class="atlas-admin-role-form">
                             <input type="hidden" name="user_id" value="{{.ID}}" />
                             <select class="field-select atlas-admin-role-select" name="role">
@@ -162,10 +149,23 @@
                             <button class="button button-ghost button-compact" type="submit">Сменить роль</button>
                           </form>
                           {{if ne .ID $.User.ID}}
-                            <form method="post" action="/app/admin/users/delete" onsubmit="return confirm('Удалить пользователя {{.Email}}?');">
-                              <input type="hidden" name="user_id" value="{{.ID}}" />
-                              <button class="button button-ghost button-compact atlas-danger-button" type="submit">Удалить</button>
-                            </form>
+                            <div class="atlas-admin-user-secondary-actions">
+                              {{if .Blocked}}
+                                <form method="post" action="/app/admin/users/unblock">
+                                  <input type="hidden" name="user_id" value="{{.ID}}" />
+                                  <button class="button button-ghost button-compact" type="submit">Разблокировать</button>
+                                </form>
+                              {{else}}
+                                <form method="post" action="/app/admin/users/block" onsubmit="return confirm('Заблокировать пользователя {{.Email}}?');">
+                                  <input type="hidden" name="user_id" value="{{.ID}}" />
+                                  <button class="button button-ghost button-compact atlas-warning-button" type="submit">Блокировать</button>
+                                </form>
+                              {{end}}
+                              <form method="post" action="/app/admin/users/delete" onsubmit="return confirm('Удалить пользователя {{.Email}}?');">
+                                <input type="hidden" name="user_id" value="{{.ID}}" />
+                                <button class="button button-ghost button-compact atlas-danger-button" type="submit">Удалить</button>
+                              </form>
+                            </div>
                           {{end}}
                         </div>
                       </td>
