@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/images/hero.svg" alt="Kontur Znaniy hero" width="100%" />
+  <img src="docs/images/hero.png" alt="Kontur Znaniy hero" width="100%" />
 </p>
 
 Self-hosted DevOps wiki для команды: статьи, runbook-заметки, роли доступа и админка с модерацией.
@@ -36,11 +36,7 @@ Self-hosted DevOps wiki для команды: статьи, runbook-замет�
 ## Интерфейс
 
 <p align="center">
-  <img src="docs/images/dashboard.svg" alt="Dashboard preview" width="100%" />
-</p>
-
-<p align="center">
-  <img src="docs/images/article.svg" alt="Article view preview" width="100%" />
+  <img src="docs/images/dashboard.png" alt="Dashboard preview" width="100%" />
 </p>
 
 ## Стек
