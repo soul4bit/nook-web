@@ -636,6 +636,8 @@ body {
 }
 
 .app-page {
+  display: flex;
+  flex-direction: column;
   background:
     radial-gradient(circle at 10% 8%, rgba(15, 111, 103, 0.18), transparent 32%),
     radial-gradient(circle at 86% 14%, rgba(210, 163, 104, 0.2), transparent 30%),
@@ -659,6 +661,35 @@ body {
   box-shadow: var(--shadow-soft);
   padding: 18px;
   animation: rise-in 0.45s ease both;
+}
+
+.atlas-site-footer {
+  width: min(1320px, 100%);
+  margin: 12px auto 0;
+  padding: 10px 14px;
+  border: 1px solid rgba(193, 206, 199, 0.9);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  color: #49665f;
+  font-size: 12px;
+  line-height: 1.5;
+  font-family: "IBM Plex Mono", "Consolas", monospace;
+}
+
+.atlas-site-footer-link {
+  color: #0d766d !important;
+  text-decoration: underline !important;
+  text-underline-offset: 2px;
+  font-weight: 600;
+}
+
+.atlas-site-footer-link:hover {
+  color: #0a5b54 !important;
 }
 
 .atlas-topbar {
@@ -2128,6 +2159,11 @@ body {
 
   .atlas-shell {
     padding: 12px;
+  }
+
+  .atlas-site-footer {
+    padding: 9px 11px;
+    justify-content: flex-start;
   }
 
   .atlas-topbar {
