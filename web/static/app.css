@@ -359,9 +359,10 @@ body {
 .atlas-mark::after {
   content: "";
   position: absolute;
-  inset: 4px;
+  inset: 3px;
   border-radius: 9px;
   border: 1px solid rgba(222, 255, 248, 0.36);
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.12), transparent 62%);
   box-shadow: inset 0 0 0 1px rgba(7, 51, 46, 0.2);
   z-index: 0;
 }
@@ -369,11 +370,8 @@ body {
 .brand-mark-glyph,
 .atlas-mark-glyph {
   position: relative;
-  width: 42%;
-  aspect-ratio: 1 / 1;
-  border-radius: 999px;
-  border: 2px solid rgba(236, 255, 250, 0.92);
-  box-shadow: 0 0 0 3px rgba(8, 70, 62, 0.22);
+  width: 56%;
+  height: 56%;
   z-index: 1;
   transition: transform 0.2s ease;
 }
@@ -382,26 +380,25 @@ body {
 .atlas-mark-glyph::before {
   content: "";
   position: absolute;
-  left: 50%;
-  top: -16%;
-  width: 2px;
-  height: 132%;
-  border-radius: 999px;
-  background: linear-gradient(180deg, #f4fffd 0%, #a8efe0 100%);
-  transform: translateX(-50%) rotate(34deg);
+  inset: 0;
+  border-radius: 2px;
+  background:
+    linear-gradient(90deg, rgba(241, 255, 251, 0.98) 0 22%, transparent 22% 78%, rgba(241, 255, 251, 0.98) 78% 100%),
+    linear-gradient(58deg, transparent 34%, rgba(212, 255, 245, 0.96) 34% 52%, transparent 52%);
+  box-shadow: 0 2px 8px rgba(4, 52, 46, 0.24);
 }
 
 .brand-mark-glyph::after,
 .atlas-mark-glyph::after {
   content: "";
   position: absolute;
-  width: 34%;
-  aspect-ratio: 1 / 1;
-  right: -18%;
-  top: 8%;
+  width: 29%;
+  height: 29%;
+  right: -14%;
+  bottom: -10%;
   border-radius: 999px;
   background: #ffd491;
-  box-shadow: 0 0 0 3px rgba(255, 212, 145, 0.22);
+  box-shadow: 0 0 0 3px rgba(255, 212, 145, 0.2);
   z-index: 1;
 }
 
