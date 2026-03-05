@@ -123,6 +123,7 @@ type viewData struct {
 	ArticleID          int64
 	ArticleTitle       string
 	ArticleBody        string
+	ArticleBodyHTML    template.HTML
 	ArticleVersions    []ArticleVersion
 	AdminUsers         []adminUserListItem
 	PendingRequests    []registrationRequestListItem

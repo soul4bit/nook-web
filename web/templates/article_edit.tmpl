@@ -92,7 +92,8 @@
 
             <label class="field">
               <span>Текст статьи</span>
-              <textarea name="body" rows="13">{{.ArticleBody}}</textarea>
+              <textarea name="body" data-md-editor="true" rows="15">{{.ArticleBody}}</textarea>
+              <small class="field-hint">Markdown: `# heading`, `**bold**`, `![alt](https://image-url)`</small>
             </label>
 
             <div class="atlas-actions">
@@ -109,5 +110,6 @@
     <a class="atlas-site-footer-link" href="https://github.com/soul4bit/kontur-znaniy" target="_blank" rel="noopener noreferrer">GitHub: soul4bit/kontur-znaniy</a>
   </footer>
   <script src="{{asset "wiki-ui.js"}}"></script>
+  <script src="{{asset "markdown-editor.js"}}"></script>
 </body>
 </html>

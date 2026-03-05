@@ -47,6 +47,7 @@ func (a *Application) handleArticleView(w http.ResponseWriter, r *http.Request) 
 	data.ArticleID = article.ID
 	data.ArticleTitle = article.Title
 	data.ArticleBody = article.Body
+	data.ArticleBodyHTML = renderMarkdownHTML(article.Body)
 
 	if user.IsAdmin() {
 		versions, err := a.listArticleVersions(article.ID, 25)
