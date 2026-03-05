@@ -65,12 +65,16 @@
         <article class="atlas-card atlas-hero atlas-hero-devops">
           <div class="atlas-hero-grid">
             <div class="atlas-hero-copy">
-              <p class="panel-label">Ops cockpit</p>
-              <h2 class="atlas-hero-title">Runbook в стиле DevOps: деплой, инциденты и фиксы всегда под рукой.</h2>
+              <p class="panel-label">Дежурка: мем-режим</p>
+              <h2 class="atlas-hero-title">Рукбук для тех, кто любит стабильный прод и шутки про “не деплоим в пятницу”.</h2>
               <p class="atlas-hero-text">
-                Держите команды, постмортемы и рабочие инструкции в одном месте: меньше ручного поиска,
-                быстрее восстановление и спокойнее релизы.
+                Команды, постмортемы и практические фиксы в одном месте: меньше хаоса в чате,
+                быстрее восстановление и релизы без сюрпризов в 03:00.
               </p>
+              <div class="atlas-hero-motto">
+                <p class="atlas-hero-motto-label">Рофл-монитор</p>
+                <p class="atlas-hero-motto-text">Если всё зелёное уже третьи сутки, сначала проверьте: мониторинг точно не уснул?</p>
+              </div>
               <div class="atlas-pill-row atlas-hero-pills">
                 <span class="atlas-pill">Разделов: {{len .Sections}}</span>
                 <span class="atlas-pill">В ленте: {{len .RecentArticles}}</span>
@@ -86,17 +90,22 @@
               </div>
             </div>
             <div class="atlas-ops-panel" aria-hidden="true">
-              <p class="atlas-ops-head">deploy.pipeline</p>
+              <p class="atlas-ops-head">статус.пайплайна</p>
               <ul class="atlas-ops-list">
-                <li><span class="atlas-ops-dot atlas-ops-dot-ok"></span>lint</li>
-                <li><span class="atlas-ops-dot atlas-ops-dot-ok"></span>tests</li>
-                <li><span class="atlas-ops-dot atlas-ops-dot-ok"></span>build</li>
-                <li><span class="atlas-ops-dot atlas-ops-dot-live"></span>docs-sync</li>
+                <li><span class="atlas-ops-dot atlas-ops-dot-ok"></span>алерты: тихо</li>
+                <li><span class="atlas-ops-dot atlas-ops-dot-ok"></span>ошибки: низко</li>
+                <li><span class="atlas-ops-dot atlas-ops-dot-warn"></span>деплой-в-пятницу: блок</li>
+                <li><span class="atlas-ops-dot atlas-ops-dot-live"></span>синхронизация-рукбука: активна</li>
               </ul>
               <div class="atlas-ops-log">
                 <span>$ kubectl apply -f runbook-sync.yaml</span>
-                <span>sync: {{len .RecentArticles}} entries</span>
-                <span>status: green</span>
+                <span>синхронизация: {{len .RecentArticles}} записей</span>
+                <span>статус: зелёный</span>
+              </div>
+              <div class="atlas-ops-tape">
+                <span>[11:32] разбор-инцидента обновлён</span>
+                <span>[11:41] план-отката найден, паники нет</span>
+                <span>[11:47] прод жив, кофе тоже</span>
               </div>
             </div>
           </div>
@@ -106,11 +115,50 @@
           <p class="alert alert-success">{{.Success}}</p>
         {{end}}
 
+        <section class="atlas-fun-grid">
+          <article class="atlas-card atlas-fun-card atlas-fun-radar">
+            <p class="panel-label">Инцидент-радар</p>
+            <h3 class="atlas-fun-title">Сводка смены: шум в норме, но бдительность не выключаем.</h3>
+            <p class="atlas-fun-text">
+              Быстрый взгляд на контуры дежурки. Если один из баров внезапно “улетел”, значит пора в рукбук, а не в гадания.
+            </p>
+            <ul class="atlas-radar-list">
+              <li>
+                <span class="atlas-radar-label">Задержка</span>
+                <span class="atlas-radar-bar"><i style="--w: 38%;"></i></span>
+                <em class="atlas-radar-state">ровно</em>
+              </li>
+              <li>
+                <span class="atlas-radar-label">Ошибки</span>
+                <span class="atlas-radar-bar"><i style="--w: 24%;"></i></span>
+                <em class="atlas-radar-state">тихо</em>
+              </li>
+              <li>
+                <span class="atlas-radar-label">Очередь</span>
+                <span class="atlas-radar-bar"><i style="--w: 56%;"></i></span>
+                <em class="atlas-radar-state">под контролем</em>
+              </li>
+            </ul>
+          </article>
+
+          <article class="atlas-card atlas-fun-card atlas-fun-bingo">
+            <p class="panel-label">Релиз-бинго</p>
+            <h3 class="atlas-fun-title">Перед выкатом закрываем базовые пункты, чтобы потом не писать “починил наверное”.</h3>
+            <ul class="atlas-bingo-list">
+              <li class="is-done">Тесты прогнаны до релиза, а не после инцидента</li>
+              <li class="is-done">План отката написан человеческим языком</li>
+              <li class="{{if .User.CanEdit}}is-done{{end}}">Рукбук пополнен свежими шагами</li>
+              <li>Деплой в пятницу вечером заблокирован внутренним дзеном</li>
+            </ul>
+            <p class="atlas-bingo-note">Правило смены: сначала читаем инструкцию, потом героически спасаем прод.</p>
+          </article>
+        </section>
+
         <article class="atlas-card atlas-recent-card">
           <div class="atlas-recent-head">
             <div class="atlas-recent-title-wrap">
               <p class="panel-label">Последние статьи</p>
-              <p class="atlas-recent-note">Свежие обновления базы знаний по инфраструктуре и поддержке.</p>
+              <p class="atlas-recent-note">Свежие апдейты по инфраструктуре: что починили, что оптимизировали и как больше не повторять тот же квест.</p>
             </div>
             {{if .RecentArticles}}
               <span class="atlas-recent-count">{{len .RecentArticles}} в ленте</span>

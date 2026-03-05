@@ -943,6 +943,32 @@ body {
   color: var(--muted);
 }
 
+.atlas-hero-motto {
+  margin-top: 14px;
+  border: 1px solid rgba(173, 205, 195, 0.88);
+  border-radius: 12px;
+  padding: 10px 11px;
+  background:
+    radial-gradient(circle at 102% -12%, rgba(204, 151, 86, 0.14), transparent 40%),
+    rgba(255, 255, 255, 0.7);
+}
+
+.atlas-hero-motto-label {
+  margin: 0;
+  color: #2f6157;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  font-family: "IBM Plex Mono", "Consolas", monospace;
+}
+
+.atlas-hero-motto-text {
+  margin: 6px 0 0;
+  color: #3b625a;
+  line-height: 1.5;
+  font-size: 13px;
+}
+
 .atlas-pill-row {
   margin-top: 14px;
   display: flex;
@@ -1033,6 +1059,12 @@ body {
   animation: pulse-spark 1.9s ease-in-out infinite;
 }
 
+.atlas-ops-dot-warn {
+  background: #ffc98b;
+  border-color: rgba(255, 211, 159, 0.96);
+  box-shadow: 0 0 0 3px rgba(255, 201, 139, 0.2);
+}
+
 .atlas-ops-log {
   border-radius: 11px;
   border: 1px solid rgba(174, 221, 208, 0.22);
@@ -1052,6 +1084,163 @@ body {
 
 .atlas-ops-log span:last-child {
   color: #b3f3db;
+}
+
+.atlas-ops-tape {
+  border-radius: 11px;
+  border: 1px dashed rgba(193, 230, 220, 0.3);
+  background: rgba(6, 30, 26, 0.44);
+  padding: 9px 10px;
+  display: grid;
+  gap: 5px;
+}
+
+.atlas-ops-tape span {
+  color: #cdeee3;
+  font-size: 11px;
+  line-height: 1.36;
+  font-family: "IBM Plex Mono", "Consolas", monospace;
+  overflow-wrap: anywhere;
+}
+
+.atlas-fun-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.atlas-fun-card {
+  border-color: #bcd4cc;
+  background:
+    radial-gradient(circle at 104% -8%, rgba(204, 151, 86, 0.14), transparent 34%),
+    linear-gradient(152deg, rgba(238, 248, 244, 0.95), rgba(251, 253, 252, 0.96));
+}
+
+.atlas-fun-title {
+  margin: 0;
+  color: #21483f;
+  font-size: 22px;
+  line-height: 1.24;
+  letter-spacing: -0.01em;
+}
+
+.atlas-fun-text {
+  margin: 10px 0 0;
+  color: #4a6a63;
+  line-height: 1.56;
+}
+
+.atlas-fun-radar {
+  overflow: hidden;
+  position: relative;
+}
+
+.atlas-fun-radar::before {
+  content: "";
+  position: absolute;
+  left: -35%;
+  top: -100px;
+  width: 170px;
+  height: 320px;
+  background: linear-gradient(180deg, rgba(13, 118, 109, 0.16), rgba(13, 118, 109, 0));
+  transform: rotate(16deg);
+  pointer-events: none;
+  animation: radar-sweep 6.3s ease-in-out infinite;
+}
+
+.atlas-radar-list {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 9px;
+}
+
+.atlas-radar-list li {
+  display: grid;
+  grid-template-columns: 66px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+}
+
+.atlas-radar-label {
+  color: #2e5e54;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: "IBM Plex Mono", "Consolas", monospace;
+}
+
+.atlas-radar-bar {
+  position: relative;
+  min-width: 0;
+  height: 10px;
+  border-radius: 999px;
+  border: 1px solid #b8d2c9;
+  background: rgba(255, 255, 255, 0.78);
+  overflow: hidden;
+}
+
+.atlas-radar-bar i {
+  display: block;
+  width: var(--w, 50%);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #0b685f, #16a18d);
+  box-shadow: 0 0 0 2px rgba(113, 206, 183, 0.2);
+}
+
+.atlas-radar-state {
+  color: #54726b;
+  font-style: normal;
+  font-size: 11px;
+  font-family: "IBM Plex Mono", "Consolas", monospace;
+}
+
+.atlas-bingo-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.atlas-bingo-list li {
+  position: relative;
+  border: 1px solid #c4d8d0;
+  border-radius: 11px;
+  padding: 9px 10px 9px 34px;
+  background: rgba(255, 255, 255, 0.85);
+  color: #345b53;
+  line-height: 1.45;
+}
+
+.atlas-bingo-list li::before {
+  content: "";
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1px solid #a9c9bf;
+  background: #f4fbf8;
+  transform: translateY(-50%);
+}
+
+.atlas-bingo-list li.is-done::before {
+  border-color: #0f7469;
+  background:
+    linear-gradient(45deg, transparent 43%, #f3fff9 43% 55%, transparent 55%) 4px 3px / 6px 7px no-repeat,
+    linear-gradient(-45deg, transparent 48%, #f3fff9 48% 60%, transparent 60%) 8px 2px / 8px 10px no-repeat,
+    #0f7469;
+}
+
+.atlas-bingo-note {
+  margin: 11px 0 0;
+  color: #4a6962;
+  font-size: 13px;
+  line-height: 1.55;
 }
 
 .atlas-grid {
@@ -2653,6 +2842,18 @@ body {
   }
 }
 
+@keyframes radar-sweep {
+  0%,
+  100% {
+    transform: rotate(16deg) translateX(-18px);
+    opacity: 0.2;
+  }
+  50% {
+    transform: rotate(16deg) translateX(22px);
+    opacity: 0.46;
+  }
+}
+
 @media (max-width: 980px) {
   .auth-layout {
     grid-template-columns: 1fr;
@@ -2676,6 +2877,10 @@ body {
   }
 
   .atlas-hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .atlas-fun-grid {
     grid-template-columns: 1fr;
   }
 
@@ -2754,6 +2959,23 @@ body {
 
   .atlas-ops-panel {
     padding: 11px;
+  }
+
+  .atlas-fun-title {
+    font-size: 20px;
+  }
+
+  .atlas-radar-list li {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .atlas-radar-label {
+    font-size: 11px;
+  }
+
+  .atlas-radar-state {
+    justify-self: start;
   }
 
   .atlas-recent-actions {
