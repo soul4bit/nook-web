@@ -97,7 +97,7 @@
                   <p class="atlas-article-subsection">Подраздел: {{.Subsection}}</p>
                 {{end}}
                 <h3><a class="atlas-article-title-link" href="/app/article?id={{.ID}}">{{.Title}}</a></h3>
-                <p class="atlas-article-body">{{.Body}}</p>
+                <div class="atlas-article-body atlas-md-snippet">{{markdown .Body}}</div>
                 <div class="atlas-article-actions">
                   <a class="button button-ghost button-compact" href="/app/article?id={{.ID}}">Открыть</a>
                   {{if and $.User.CanEdit (or (eq $.User.ID .AuthorID) $.User.IsAdmin)}}

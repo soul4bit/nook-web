@@ -231,6 +231,9 @@ func loadTemplates(staticVersion string) (map[string]*template.Template, error) 
 			}
 			return path + "?v=" + staticVersion
 		},
+		"markdown": func(value string) template.HTML {
+			return renderMarkdownHTML(value)
+		},
 	}
 
 	result := make(map[string]*template.Template, len(names))

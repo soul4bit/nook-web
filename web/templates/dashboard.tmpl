@@ -124,7 +124,7 @@
                     <span class="atlas-recent-date">{{.UpdatedAt.Format "02.01.2006 15:04"}}</span>
                   </div>
                   <h3><a class="atlas-article-title-link" href="/app/article?id={{.ID}}">{{.Title}}</a></h3>
-                  <p class="atlas-article-body atlas-recent-body">{{.Body}}</p>
+                  <div class="atlas-article-body atlas-recent-body atlas-md-snippet">{{markdown .Body}}</div>
                   <div class="atlas-article-actions atlas-recent-actions">
                     <p class="atlas-article-author atlas-recent-author">Автор: {{.AuthorName}}</p>
                     <a class="button button-ghost button-compact" href="/app/article?id={{.ID}}">Открыть</a>

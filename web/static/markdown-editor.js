@@ -6,6 +6,7 @@
     quote: "> ",
     ul: "- ",
     ol: "1. ",
+    task: "- [ ] ",
   };
 
   function escapeHTML(value) {
@@ -71,6 +72,21 @@
 
     textarea.setRangeText(prefixed, lineStart, lineEnd, "end");
     textarea.setSelectionRange(lineStart, lineStart + prefixed.length);
+    textarea.dispatchEvent(new Event("input", { bubbles: true }));
+    textarea.focus();
+  }
+
+  function insertSnippet(textarea, snippet) {
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const source = textarea.value;
+    const before = source.slice(0, start);
+    const needsLeadingBreak = before !== "" && !before.endsWith("\n");
+    const replacement = `${needsLeadingBreak ? "\n" : ""}${snippet}\n`;
+
+    textarea.setRangeText(replacement, start, end, "end");
+    const cursorPos = start + replacement.length;
+    textarea.setSelectionRange(cursorPos, cursorPos);
     textarea.dispatchEvent(new Event("input", { bubbles: true }));
     textarea.focus();
   }
@@ -142,6 +158,26 @@
     return safe;
   }
 
+  function renderListItem(item) {
+    const task = item.match(/^\[([ xX])\]\s+(.*)$/);
+    if (!task) {
+      return `<li>${renderInline(item)}</li>`;
+    }
+
+    const checked = task[1].toLowerCase() === "x";
+    const label = renderInline(task[2]);
+    return `<li><label><input type="checkbox" disabled${checked ? " checked" : ""} /> ${label}</label></li>`;
+  }
+
+  function isTableSeparatorLine(line) {
+    return /^\s*\|?(?:\s*:?-{3,}:?\s*\|)+\s*:?-{3,}:?\s*\|?\s*$/.test(line);
+  }
+
+  function splitTableRow(line) {
+    const trimmed = line.trim().replace(/^\|/, "").replace(/\|$/, "");
+    return trimmed.split("|").map((cell) => cell.trim());
+  }
+
   function renderMarkdown(markdown) {
     const lines = markdown.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
     const chunks = [];
@@ -154,6 +190,7 @@
         /^```/.test(line) ||
         /^[-*+]\s+/.test(line) ||
         /^\d+\.\s+/.test(line) ||
+        /^\s*\|.+\|\s*$/.test(line) ||
         /^\s*([-*_]){3,}\s*$/.test(line)
       );
     };
@@ -196,6 +233,31 @@
         continue;
       }
 
+      if (line.includes("|") && index + 1 < lines.length && isTableSeparatorLine(lines[index + 1])) {
+        const headerCells = splitTableRow(line);
+        index += 2;
+
+        const bodyRows = [];
+        while (index < lines.length && !/^\s*$/.test(lines[index]) && lines[index].includes("|")) {
+          bodyRows.push(splitTableRow(lines[index]));
+          index += 1;
+        }
+
+        const head = `<thead><tr>${headerCells.map((cell) => `<th>${renderInline(cell)}</th>`).join("")}</tr></thead>`;
+        const body = `<tbody>${bodyRows
+          .map((row) => {
+            const normalized = [...row];
+            while (normalized.length < headerCells.length) {
+              normalized.push("");
+            }
+            return `<tr>${normalized.slice(0, headerCells.length).map((cell) => `<td>${renderInline(cell)}</td>`).join("")}</tr>`;
+          })
+          .join("")}</tbody>`;
+
+        chunks.push(`<table>${head}${body}</table>`);
+        continue;
+      }
+
       if (/^>\s?/.test(line)) {
         const quote = [];
         while (index < lines.length && /^>\s?/.test(lines[index])) {
@@ -212,7 +274,7 @@
           items.push(lines[index].replace(/^[-*+]\s+/, ""));
           index += 1;
         }
-        chunks.push(`<ul>${items.map((item) => `<li>${renderInline(item)}</li>`).join("")}</ul>`);
+        chunks.push(`<ul>${items.map((item) => renderListItem(item)).join("")}</ul>`);
         continue;
       }
 
@@ -222,7 +284,7 @@
           items.push(lines[index].replace(/^\d+\.\s+/, ""));
           index += 1;
         }
-        chunks.push(`<ol>${items.map((item) => `<li>${renderInline(item)}</li>`).join("")}</ol>`);
+        chunks.push(`<ol>${items.map((item) => renderListItem(item)).join("")}</ol>`);
         continue;
       }
 
@@ -261,9 +323,13 @@
       ["B", "bold", "Bold"],
       ["I", "italic", "Italic"],
       ["Code", "code", "Inline code"],
+      ["Code+", "codeblock", "Code block"],
       ["Quote", "quote", "Quote block"],
       ["List", "ul", "Bulleted list"],
       ["1.", "ol", "Numbered list"],
+      ["Task", "task", "Checklist item"],
+      ["Table", "table", "Insert table"],
+      ["Hr", "hr", "Horizontal rule"],
       ["Link", "link", "Insert link"],
       ["Image", "image", "Insert image URL"],
     ];
@@ -327,6 +393,15 @@
         case "code":
           replaceSelection(textarea, "`", "`", "code");
           break;
+        case "codeblock":
+          insertSnippet(textarea, "```bash\n# command\n```");
+          break;
+        case "table":
+          insertSnippet(textarea, "| Column 1 | Column 2 |\n| --- | --- |\n| Value | Value |");
+          break;
+        case "hr":
+          insertSnippet(textarea, "---");
+          break;
         case "link":
           insertLink(textarea, false);
           break;
@@ -339,6 +414,7 @@
         case "quote":
         case "ul":
         case "ol":
+        case "task":
           prefixSelectionLines(textarea, BLOCK_ACTIONS[action]);
           break;
         case "mode-write":

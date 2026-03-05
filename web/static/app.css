@@ -1503,9 +1503,86 @@ body {
   margin: 10px 0 0;
   color: #334741;
   line-height: 1.6;
-  white-space: pre-wrap;
   overflow-wrap: anywhere;
   word-break: break-word;
+}
+
+.atlas-md-snippet {
+  position: relative;
+  max-height: 142px;
+  overflow: hidden;
+}
+
+.atlas-md-snippet::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 26px;
+  background: linear-gradient(to bottom, rgba(247, 251, 249, 0), rgba(247, 251, 249, 0.96));
+  pointer-events: none;
+}
+
+.atlas-article-body > :first-child {
+  margin-top: 0;
+}
+
+.atlas-article-body > :last-child {
+  margin-bottom: 0;
+}
+
+.atlas-article-body h1,
+.atlas-article-body h2,
+.atlas-article-body h3 {
+  margin: 0.7em 0 0.35em;
+  color: #183f37;
+  line-height: 1.25;
+}
+
+.atlas-article-body p,
+.atlas-article-body ul,
+.atlas-article-body ol,
+.atlas-article-body blockquote,
+.atlas-article-body pre {
+  margin: 0.55em 0;
+}
+
+.atlas-article-body code {
+  font-family: "IBM Plex Mono", "Consolas", monospace;
+  font-size: 0.92em;
+  background: rgba(16, 89, 81, 0.1);
+  padding: 0.1em 0.3em;
+  border-radius: 5px;
+}
+
+.atlas-article-body pre {
+  background: #142823;
+  color: #d7ece3;
+  border-radius: 10px;
+  padding: 10px 11px;
+  overflow: auto;
+}
+
+.atlas-article-body pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+}
+
+.atlas-article-body img {
+  display: block;
+  max-width: 100%;
+  border: 1px solid #c6dcd4;
+  border-radius: 10px;
+}
+
+.atlas-article-body a {
+  color: #1b5c50;
+}
+
+.atlas-article-body a:hover {
+  color: #15473d;
 }
 
 .atlas-article-author {
@@ -2308,6 +2385,29 @@ body {
   border-left: 3px solid #9cbcb2;
   padding-left: 10px;
   color: #42635d;
+}
+
+.atlas-md-preview table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.8em 0;
+}
+
+.atlas-md-preview th,
+.atlas-md-preview td {
+  border: 1px solid #c6dad3;
+  padding: 7px 8px;
+  vertical-align: top;
+}
+
+.atlas-md-preview th {
+  text-align: left;
+  background: rgba(20, 96, 87, 0.08);
+}
+
+.atlas-md-preview input[type="checkbox"] {
+  pointer-events: none;
+  margin-right: 6px;
 }
 
 .atlas-md-bad-url {
