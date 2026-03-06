@@ -114,6 +114,6 @@ func (a *Application) handleArticleDelete(w http.ResponseWriter, r *http.Request
 	}
 
 	target := sectionLinkWithSubsection(article.SectionSlug, article.Subsection) +
-		"&success=" + url.QueryEscape("РЎС‚Р°С‚СЊСЏ СѓРґР°Р»РµРЅР°.")
+		"&success=" + url.QueryEscape("Статья удалена.")
 	http.Redirect(w, r, target, http.StatusSeeOther)
 }
