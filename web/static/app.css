@@ -2745,8 +2745,7 @@ body {
   font-size: 17px;
 }
 
-.atlas-shell::before,
-.atlas-shell::after {
+.atlas-shell::before {
   content: "";
   position: absolute;
   pointer-events: none;
@@ -2759,14 +2758,6 @@ body {
   height: 360px;
   border-radius: 999px;
   background: radial-gradient(circle, rgba(20, 137, 123, 0.16) 0%, rgba(20, 137, 123, 0) 70%);
-}
-
-.atlas-shell::after {
-  left: 18px;
-  right: 18px;
-  top: 76px;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(17, 126, 114, 0), rgba(17, 126, 114, 0.3), rgba(17, 126, 114, 0));
 }
 
 .atlas-topbar {
@@ -3324,8 +3315,7 @@ body {
     padding: 12px;
   }
 
-  .atlas-shell::before,
-  .atlas-shell::after {
+  .atlas-shell::before {
     display: none;
   }
 
