@@ -130,10 +130,11 @@ func (a *Application) authViewData(title string) viewData {
 
 func (a *Application) appViewData(user *User, title string) viewData {
 	return viewData{
-		AppName:  a.cfg.AppName,
-		Title:    title,
-		User:     user,
-		Sections: wikiSections(),
+		AppName:             a.cfg.AppName,
+		Title:               title,
+		User:                user,
+		Sections:            wikiSections(),
+		MediaUploadEndpoint: a.mediaUploadEndpoint(),
 	}
 }
 

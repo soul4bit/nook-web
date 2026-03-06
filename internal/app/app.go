@@ -24,6 +24,7 @@ type Application struct {
 	cfg           config.Config
 	logger        *log.Logger
 	db            *sql.DB
+	objectStorage *objectStorage
 	templates     map[string]*template.Template
 	staticVersion string
 	stopCh        chan struct{}
@@ -126,37 +127,38 @@ type userCredentials struct {
 }
 
 type viewData struct {
-	AppName            string
-	Title              string
-	CSRFToken          string
-	Error              string
-	Success            string
-	User               *User
-	Name               string
-	Email              string
-	Next               string
-	UsersTotal         int
-	ActiveSessions     int
-	Sections           []wikiSection
-	CurrentSection     *wikiSection
-	CurrentSectionSlug string
-	CurrentSubsection  string
-	CurrentPage        string
-	SectionOverviews   []sectionOverview
-	RecentArticles     []Article
-	SectionArticles    []Article
-	CurrentArticle     *Article
-	ArticleID          int64
-	ArticleTitle       string
-	ArticleBody        string
-	ArticleBodyHTML    template.HTML
-	ArticleVersions    []ArticleVersion
-	ArticleComments    []ArticleComment
-	DraftLoaded        bool
-	AdminUsers         []adminUserListItem
-	PendingRequests    []registrationRequestListItem
-	AdminAuditEntries  []adminAuditEntry
-	AvailableRoles     []roleOption
+	AppName             string
+	Title               string
+	CSRFToken           string
+	MediaUploadEndpoint string
+	Error               string
+	Success             string
+	User                *User
+	Name                string
+	Email               string
+	Next                string
+	UsersTotal          int
+	ActiveSessions      int
+	Sections            []wikiSection
+	CurrentSection      *wikiSection
+	CurrentSectionSlug  string
+	CurrentSubsection   string
+	CurrentPage         string
+	SectionOverviews    []sectionOverview
+	RecentArticles      []Article
+	SectionArticles     []Article
+	CurrentArticle      *Article
+	ArticleID           int64
+	ArticleTitle        string
+	ArticleBody         string
+	ArticleBodyHTML     template.HTML
+	ArticleVersions     []ArticleVersion
+	ArticleComments     []ArticleComment
+	DraftLoaded         bool
+	AdminUsers          []adminUserListItem
+	PendingRequests     []registrationRequestListItem
+	AdminAuditEntries   []adminAuditEntry
+	AvailableRoles      []roleOption
 }
 
 type contextKey string
@@ -189,10 +191,17 @@ func New(cfg config.Config, logger *log.Logger) (*Application, error) {
 		return nil, err
 	}
 
+	objectStorage, err := newObjectStorage(cfg)
+	if err != nil {
+		_ = db.Close()
+		return nil, err
+	}
+
 	application := &Application{
 		cfg:           cfg,
 		logger:        logger,
 		db:            db,
+		objectStorage: objectStorage,
 		templates:     templates,
 		staticVersion: staticVersion,
 		stopCh:        make(chan struct{}),
@@ -244,6 +253,7 @@ func (a *Application) Routes() http.Handler {
 	mux.HandleFunc("/app/article/new", a.requireAuth(a.withCSRF(a.handleArticleNew)))
 	mux.HandleFunc("/app/article/edit", a.requireAuth(a.withCSRF(a.handleArticleEdit)))
 	mux.HandleFunc("/app/article/draft/save", a.requireAuth(a.withCSRF(a.handleArticleDraftSave)))
+	mux.HandleFunc("/app/media/upload", a.requireAuth(a.withCSRF(a.handleMediaUpload)))
 	mux.HandleFunc("/app/article/restore", a.requireAuth(a.withCSRF(a.handleArticleRestore)))
 	mux.HandleFunc("/app/article/delete", a.requireAuth(a.withCSRF(a.handleArticleDelete)))
 	mux.HandleFunc("/app/article/comment/add", a.requireAuth(a.withCSRF(a.handleArticleCommentAdd)))
@@ -598,6 +608,13 @@ func (a *Application) logRequests(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 		a.logger.Printf("%s %s %s", r.Method, r.URL.Path, time.Since(started))
 	})
+}
+
+func (a *Application) mediaUploadEndpoint() string {
+	if a == nil || a.objectStorage == nil {
+		return ""
+	}
+	return "/app/media/upload"
 }
 
 func normalizeEmail(value string) string {

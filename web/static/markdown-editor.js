@@ -8,6 +8,7 @@
     ol: "1. ",
     task: "- [ ] ",
   };
+  const MAX_IMAGE_UPLOAD_BYTES = 10 * 1024 * 1024;
 
   function escapeHTML(value) {
     return value
@@ -114,6 +115,105 @@
     textarea.setSelectionRange(cursorPos, cursorPos);
     textarea.dispatchEvent(new Event("input", { bubbles: true }));
     textarea.focus();
+  }
+
+  function suggestAltFromFilename(fileName) {
+    const normalized = String(fileName || "")
+      .replace(/\.[^.]+$/, "")
+      .replace(/[_-]+/g, " ")
+      .trim();
+    return normalized || "image";
+  }
+
+  function sanitizeMarkdownAltText(raw) {
+    const value = String(raw || "")
+      .replace(/\r\n/g, " ")
+      .replace(/\r/g, " ")
+      .replace(/\n/g, " ")
+      .trim();
+    if (value === "") {
+      return "image";
+    }
+    return value.replace(/[[\]\\]/g, "\\$&");
+  }
+
+  async function uploadAndInsertImage(textarea, options) {
+    const uploadEndpoint = String(options && options.uploadEndpoint ? options.uploadEndpoint : "").trim();
+    const csrfToken = String(options && options.csrfToken ? options.csrfToken : "").trim();
+
+    if (!uploadEndpoint) {
+      window.alert("Image upload is unavailable in this environment.");
+      return;
+    }
+
+    const selectionStart = textarea.selectionStart;
+    const selectionEnd = textarea.selectionEnd;
+    const selectedText = textarea.value.slice(selectionStart, selectionEnd).trim();
+
+    const picker = document.createElement("input");
+    picker.type = "file";
+    picker.accept = "image/jpeg,image/png,image/gif,image/webp";
+
+    picker.addEventListener(
+      "change",
+      async () => {
+        const file = picker.files && picker.files[0];
+        if (!file) {
+          return;
+        }
+
+        if (typeof file.type === "string" && !file.type.startsWith("image/")) {
+          window.alert("Choose an image file.");
+          return;
+        }
+        if (file.size > MAX_IMAGE_UPLOAD_BYTES) {
+          window.alert("Max file size is 10 MB.");
+          return;
+        }
+
+        const formData = new FormData();
+        formData.set("file", file, file.name || "image");
+
+        try {
+          const response = await fetch(uploadEndpoint, {
+            method: "POST",
+            credentials: "same-origin",
+            headers: {
+              Accept: "application/json",
+              "X-Requested-With": "fetch",
+              ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {}),
+            },
+            body: formData,
+          });
+
+          const data = await response.json().catch(() => null);
+          if (!response.ok || !data || data.ok !== true || typeof data.url !== "string" || data.url.trim() === "") {
+            const message = data && typeof data.error === "string" ? data.error : "Upload failed.";
+            throw new Error(message);
+          }
+
+          const safeURL = sanitizeURL(data.url);
+          if (!safeURL) {
+            throw new Error("Server returned an invalid URL.");
+          }
+
+          const alt = sanitizeMarkdownAltText(selectedText || suggestAltFromFilename(file.name));
+          const markdownImage = `![${alt}](${safeURL})`;
+          textarea.setRangeText(markdownImage, selectionStart, selectionEnd, "end");
+          const cursorPos = selectionStart + markdownImage.length;
+          textarea.setSelectionRange(cursorPos, cursorPos);
+          textarea.dispatchEvent(new Event("input", { bubbles: true }));
+          textarea.focus();
+        } catch (error) {
+          const fallback = "Image upload failed.";
+          const message = error instanceof Error && error.message ? error.message : fallback;
+          window.alert(message);
+        }
+      },
+      { once: true }
+    );
+
+    picker.click();
   }
 
   function renderInline(markdown) {
@@ -315,6 +415,10 @@
 
     const toolbar = document.createElement("div");
     toolbar.className = "atlas-md-toolbar";
+    const form = textarea.closest("form");
+    const uploadEndpoint = form instanceof HTMLFormElement ? (form.dataset.mediaUploadEndpoint || "").trim() : "";
+    const csrfInput = form instanceof HTMLFormElement ? form.querySelector("input[name='csrf_token']") : null;
+    const csrfToken = csrfInput instanceof HTMLInputElement ? csrfInput.value.trim() : "";
 
     const toolbarButtons = [
       ["H1", "h1", "Big title"],
@@ -333,6 +437,9 @@
       ["Link", "link", "Insert link"],
       ["Image", "image", "Insert image URL"],
     ];
+    if (uploadEndpoint) {
+      toolbarButtons.push(["Upload", "upload-image", "Upload image from device"]);
+    }
 
     for (const [label, action, titleText] of toolbarButtons) {
       toolbar.append(buildToolbarButton(label, action, titleText));
@@ -407,6 +514,9 @@
           break;
         case "image":
           insertLink(textarea, true);
+          break;
+        case "upload-image":
+          void uploadAndInsertImage(textarea, { uploadEndpoint, csrfToken });
           break;
         case "h1":
         case "h2":

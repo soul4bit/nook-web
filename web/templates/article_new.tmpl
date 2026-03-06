@@ -76,7 +76,7 @@
         {{end}}
 
         <article class="atlas-card">
-          <form class="article-form" method="post" action="/app/article/new" data-article-autosave data-autosave-endpoint="/app/article/draft/save" data-autosave-section="{{.CurrentSection.Slug}}" data-autosave-subsection="{{.CurrentSubsection}}">
+          <form class="article-form" method="post" action="/app/article/new" data-article-autosave data-autosave-endpoint="/app/article/draft/save" data-autosave-section="{{.CurrentSection.Slug}}" data-autosave-subsection="{{.CurrentSubsection}}" data-media-upload-endpoint="{{.MediaUploadEndpoint}}">
             <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
             <input type="hidden" name="section" value="{{.CurrentSection.Slug}}" />
             <input type="hidden" name="subsection" value="{{.CurrentSubsection}}" />
