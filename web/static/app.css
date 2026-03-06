@@ -730,7 +730,7 @@ body {
 }
 
 .atlas-shell {
-  width: min(1380px, 100%);
+  width: min(1460px, 100%);
   margin: 0 auto;
   position: relative;
   z-index: 1;
@@ -743,7 +743,7 @@ body {
 }
 
 .atlas-site-footer {
-  width: min(1380px, 100%);
+  width: min(1460px, 100%);
   margin: 12px auto 0;
   position: relative;
   z-index: 1;
