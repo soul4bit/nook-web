@@ -115,45 +115,6 @@
           <p class="alert alert-success">{{.Success}}</p>
         {{end}}
 
-        <section class="atlas-fun-grid">
-          <article class="atlas-card atlas-fun-card atlas-fun-radar">
-            <p class="panel-label">Инцидент-радар</p>
-            <h3 class="atlas-fun-title">Сводка смены: шум в норме, но бдительность не выключаем.</h3>
-            <p class="atlas-fun-text">
-              Быстрый взгляд на контуры дежурки. Если один из баров внезапно “улетел”, значит пора в рукбук, а не в гадания.
-            </p>
-            <ul class="atlas-radar-list">
-              <li>
-                <span class="atlas-radar-label">Задержка</span>
-                <span class="atlas-radar-bar"><i style="--w: 38%;"></i></span>
-                <em class="atlas-radar-state">ровно</em>
-              </li>
-              <li>
-                <span class="atlas-radar-label">Ошибки</span>
-                <span class="atlas-radar-bar"><i style="--w: 24%;"></i></span>
-                <em class="atlas-radar-state">тихо</em>
-              </li>
-              <li>
-                <span class="atlas-radar-label">Очередь</span>
-                <span class="atlas-radar-bar"><i style="--w: 56%;"></i></span>
-                <em class="atlas-radar-state">под контролем</em>
-              </li>
-            </ul>
-          </article>
-
-          <article class="atlas-card atlas-fun-card atlas-fun-bingo">
-            <p class="panel-label">Релиз-бинго</p>
-            <h3 class="atlas-fun-title">Перед выкатом закрываем базовые пункты, чтобы потом не писать “починил наверное”.</h3>
-            <ul class="atlas-bingo-list">
-              <li class="is-done">Тесты прогнаны до релиза, а не после инцидента</li>
-              <li class="is-done">План отката написан человеческим языком</li>
-              <li class="{{if .User.CanEdit}}is-done{{end}}">Рукбук пополнен свежими шагами</li>
-              <li>Деплой в пятницу вечером заблокирован внутренним дзеном</li>
-            </ul>
-            <p class="atlas-bingo-note">Правило смены: сначала читаем инструкцию, потом героически спасаем прод.</p>
-          </article>
-        </section>
-
         <article class="atlas-card atlas-recent-card">
           <div class="atlas-recent-head">
             <div class="atlas-recent-title-wrap">
