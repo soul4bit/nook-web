@@ -574,6 +574,27 @@ body {
   font: inherit;
   font-weight: 700;
   cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.button:focus-visible,
+.atlas-nav-search:focus-visible,
+.field input:focus-visible,
+.field textarea:focus-visible,
+.field select:focus-visible {
+  outline: 2px solid rgba(13, 118, 109, 0.46);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .button:hover {
+    transform: translateY(-1px);
+  }
 }
 
 .button-primary {
@@ -661,10 +682,43 @@ body {
 .app-page {
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow-x: clip;
+  isolation: isolate;
   background:
     radial-gradient(circle at 10% 8%, rgba(15, 111, 103, 0.18), transparent 32%),
     radial-gradient(circle at 86% 14%, rgba(210, 163, 104, 0.2), transparent 30%),
     linear-gradient(172deg, #f6f8f4 0%, #e9ede6 100%);
+}
+
+.app-page::before,
+.app-page::after {
+  content: "";
+  position: fixed;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 999px;
+  filter: blur(6px);
+  opacity: 0.5;
+  animation: ambient-drift 20s ease-in-out infinite;
+}
+
+.app-page::before {
+  width: 280px;
+  height: 280px;
+  left: -90px;
+  top: 72px;
+  background: radial-gradient(circle, rgba(16, 120, 111, 0.2) 0%, rgba(16, 120, 111, 0) 68%);
+}
+
+.app-page::after {
+  width: 320px;
+  height: 320px;
+  right: -120px;
+  top: 220px;
+  opacity: 0.42;
+  animation-delay: -8s;
+  background: radial-gradient(circle, rgba(198, 147, 86, 0.2) 0%, rgba(198, 147, 86, 0) 70%);
 }
 
 .app-page a,
@@ -678,6 +732,8 @@ body {
 .atlas-shell {
   width: min(1320px, 100%);
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
   border: 1px solid rgba(199, 210, 203, 0.9);
   border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.82);
@@ -689,6 +745,8 @@ body {
 .atlas-site-footer {
   width: min(1320px, 100%);
   margin: 12px auto 0;
+  position: relative;
+  z-index: 1;
   padding: 10px 14px;
   border: 1px solid rgba(193, 206, 199, 0.9);
   border-radius: 12px;
@@ -815,6 +873,60 @@ body {
   background: rgba(255, 255, 255, 0.92);
   padding: 16px;
   box-shadow: 0 7px 20px rgba(24, 51, 44, 0.07);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.24s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: atlas-card-in 0.46s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.atlas-rail > .atlas-card:nth-child(1),
+.atlas-main > .atlas-card:nth-child(1),
+.atlas-right > .atlas-card:nth-child(1) {
+  animation-delay: 40ms;
+}
+
+.atlas-rail > .atlas-card:nth-child(2),
+.atlas-main > .atlas-card:nth-child(2),
+.atlas-right > .atlas-card:nth-child(2) {
+  animation-delay: 90ms;
+}
+
+.atlas-rail > .atlas-card:nth-child(3),
+.atlas-main > .atlas-card:nth-child(3),
+.atlas-right > .atlas-card:nth-child(3) {
+  animation-delay: 140ms;
+}
+
+.atlas-rail > .atlas-card:nth-child(4),
+.atlas-main > .atlas-card:nth-child(4),
+.atlas-right > .atlas-card:nth-child(4) {
+  animation-delay: 190ms;
+}
+
+.atlas-rail > .atlas-card:nth-child(5),
+.atlas-main > .atlas-card:nth-child(5),
+.atlas-right > .atlas-card:nth-child(5) {
+  animation-delay: 230ms;
+}
+
+.atlas-rail > .atlas-card:nth-child(6),
+.atlas-main > .atlas-card:nth-child(6),
+.atlas-right > .atlas-card:nth-child(6) {
+  animation-delay: 270ms;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .atlas-main .atlas-card:hover,
+  .atlas-right .atlas-card:hover,
+  .atlas-rail .atlas-card:hover {
+    transform: translateY(-2px);
+    border-color: #c2d5ce;
+    box-shadow: 0 14px 30px rgba(24, 51, 44, 0.11);
+  }
 }
 
 .atlas-profile-name {
@@ -2624,6 +2736,27 @@ body {
   }
 }
 
+@keyframes ambient-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(0, -12px, 0) scale(1.06);
+  }
+}
+
+@keyframes atlas-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes scene-line-type {
   0% {
     opacity: 0;
@@ -2683,6 +2816,26 @@ body {
   50% {
     transform: scale(1.07);
     opacity: 0.7;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-layout,
+  .atlas-shell,
+  .atlas-card,
+  .app-page::before,
+  .app-page::after,
+  .scene-shell,
+  .scene-line,
+  .flow-node,
+  .flow-pulse,
+  .auth-aside::after {
+    animation: none !important;
+  }
+
+  .atlas-card {
+    opacity: 1;
+    transform: none;
   }
 }
 
