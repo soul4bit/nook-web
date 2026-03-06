@@ -1,51 +1,50 @@
-# Changelog
+# История изменений
 
-All notable changes to this project will be documented in this file.
+В этом файле фиксируются все заметные изменения проекта.
 
 ## [1.0.0] - 2026-03-06
 
-First public release.
+Первый публичный релиз.
 
-### Added
+### Добавлено
 
-- Auth flow with moderation and email verification:
-  - registration request via Telegram moderation
-  - email verification link activation
-  - session-based login/logout
-- Role model:
+- Поток авторизации с модерацией и подтверждением email:
+  - заявка на регистрацию через модерацию в Telegram
+  - активация по ссылке подтверждения email
+  - вход/выход на основе сессий
+- Ролевая модель:
   - `viewer`, `editor`, `admin`
-- Wiki core:
-  - section/subsection navigation
-  - article create/edit/delete
-  - article comments
-- Markdown UX:
-  - editor toolbar
-  - live preview rendering
-  - autosave drafts
-- Media upload:
-  - S3-compatible storage integration
-  - media links for Markdown content
-- Admin panel:
-  - user role changes
-  - block/unblock users
-  - user deletion
-  - registration approvals/rejections
-  - admin audit entries
-- Security and reliability:
-  - CSRF protection
-  - login/register rate limiting
-  - password hashing with bcrypt
-  - gzip response compression
-  - static asset versioning for cache busting
+- Базовый функционал wiki:
+  - навигация по разделам/подразделам
+  - создание/редактирование/удаление статей
+  - комментарии к статьям
+- Улучшения Markdown-редактора:
+  - toolbar редактора
+  - рендер live preview
+  - автосохранение черновиков
+- Загрузка медиа:
+  - интеграция с S3-совместимым хранилищем
+  - вставка медиа-ссылок в Markdown-контент
+- Админ-панель:
+  - смена ролей пользователей
+  - блокировка/разблокировка пользователей
+  - удаление пользователей
+  - одобрение/отклонение регистраций
+  - журнал действий администратора
+- Безопасность и надежность:
+  - CSRF-защита
+  - rate limiting для login/register
+  - хеширование паролей через bcrypt
+  - gzip-сжатие ответов
+  - версионирование статических ассетов для cache busting
 
-### Changed
+### Изменено
 
-- Interface refresh with improved layout, typography, and article workflows.
-- Header and navigation layout refined for desktop and mobile.
+- Обновлен интерфейс: улучшены layout, типографика и сценарии работы со статьями.
+- Доработана шапка и навигация для desktop и mobile.
 
-### Fixed
+### Исправлено
 
-- Corrected article creation flow fallback when section parameter is missing.
-- Fixed corrupted success text in article delete redirect.
-- Removed decorative top-header divider that caused visual noise.
-
+- Исправлен fallback при создании статьи, когда не передан параметр раздела.
+- Исправлен битый текст сообщения при редиректе после удаления статьи.
+- Удален декоративный разделитель в верхней шапке, создававший визуальный шум.
