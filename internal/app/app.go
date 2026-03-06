@@ -1,6 +1,7 @@
 package app
 
 import (
+	"compress/gzip"
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
@@ -255,7 +256,7 @@ func (a *Application) Routes() http.Handler {
 	mux.HandleFunc("/admin/registration/approve", a.withCSRF(a.handleApproveRegistration))
 	mux.HandleFunc("/admin/registration/reject", a.withCSRF(a.handleRejectRegistration))
 
-	return a.logRequests(mux)
+	return a.logRequests(a.compressResponses(mux))
 }
 
 func loadTemplates(staticVersion string) (map[string]*template.Template, error) {
@@ -566,6 +567,72 @@ func (a *Application) logRequests(next http.Handler) http.Handler {
 		started := time.Now()
 		next.ServeHTTP(w, r)
 		a.logger.Printf("%s %s %s", r.Method, r.URL.Path, time.Since(started))
+	})
+}
+
+type gzipResponseWriter struct {
+	http.ResponseWriter
+	gzipWriter *gzip.Writer
+}
+
+func (w *gzipResponseWriter) WriteHeader(statusCode int) {
+	w.Header().Del("Content-Length")
+	w.ResponseWriter.WriteHeader(statusCode)
+}
+
+func (w *gzipResponseWriter) Write(payload []byte) (int, error) {
+	return w.gzipWriter.Write(payload)
+}
+
+func (w *gzipResponseWriter) Flush() {
+	_ = w.gzipWriter.Flush()
+	if flusher, ok := w.ResponseWriter.(http.Flusher); ok {
+		flusher.Flush()
+	}
+}
+
+func acceptsGzip(r *http.Request) bool {
+	if r == nil {
+		return false
+	}
+	value := strings.ToLower(strings.TrimSpace(r.Header.Get("Accept-Encoding")))
+	if value == "" {
+		return false
+	}
+	return strings.Contains(value, "gzip")
+}
+
+func (a *Application) compressResponses(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r == nil || r.Method == http.MethodHead || !acceptsGzip(r) {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// Static assets are long-lived and usually served efficiently by the reverse proxy.
+		if strings.HasPrefix(r.URL.Path, "/static/") {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		w.Header().Add("Vary", "Accept-Encoding")
+		w.Header().Set("Content-Encoding", "gzip")
+		w.Header().Del("Content-Length")
+
+		gzWriter, err := gzip.NewWriterLevel(w, gzip.BestSpeed)
+		if err != nil {
+			next.ServeHTTP(w, r)
+			return
+		}
+		defer func() {
+			_ = gzWriter.Close()
+		}()
+
+		gzipWriter := &gzipResponseWriter{
+			ResponseWriter: w,
+			gzipWriter:     gzWriter,
+		}
+		next.ServeHTTP(gzipWriter, r)
 	})
 }
 

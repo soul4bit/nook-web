@@ -11,6 +11,7 @@ import (
 	"net/mail"
 	"net/url"
 	"strings"
+	"sync"
 	"time"
 	"unicode/utf8"
 
@@ -778,9 +779,37 @@ func (a *Application) handleDashboard(w http.ResponseWriter, r *http.Request) {
 	data.CurrentPage = "dashboard"
 	data.Success = strings.TrimSpace(r.URL.Query().Get("success"))
 
-	sectionCounts, err := a.getArticleCountsBySection()
-	if err != nil {
-		a.logger.Printf("get article counts by section: %v", err)
+	var (
+		sectionCounts  map[string]int
+		recentArticles []Article
+	)
+	var queryWG sync.WaitGroup
+	queryWG.Add(2)
+
+	go func() {
+		defer queryWG.Done()
+		counts, err := a.getArticleCountsBySection()
+		if err != nil {
+			a.logger.Printf("get article counts by section: %v", err)
+			sectionCounts = map[string]int{}
+			return
+		}
+		sectionCounts = counts
+	}()
+
+	go func() {
+		defer queryWG.Done()
+		recent, err := a.getRecentArticles(8)
+		if err != nil {
+			a.logger.Printf("get recent articles: %v", err)
+			return
+		}
+		decorateArticles(recent)
+		recentArticles = recent
+	}()
+
+	queryWG.Wait()
+	if sectionCounts == nil {
 		sectionCounts = map[string]int{}
 	}
 	if len(data.Sections) > 0 {
@@ -799,13 +828,7 @@ func (a *Application) handleDashboard(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	recent, err := a.getRecentArticles(8)
-	if err != nil {
-		a.logger.Printf("get recent articles: %v", err)
-	} else {
-		decorateArticles(recent)
-		data.RecentArticles = recent
-	}
+	data.RecentArticles = recentArticles
 
 	a.renderTemplate(w, r, "dashboard.tmpl", data)
 }
