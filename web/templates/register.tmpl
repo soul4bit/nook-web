@@ -69,6 +69,7 @@
       {{end}}
 
       <form method="post" action="/auth/register" class="auth-form" data-auth-form data-auth-mode="register">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
         <label class="field">
           <span>Ник</span>
           <input type="text" name="name" value="{{.Name}}" placeholder="@devops_nick" autocomplete="nickname" required />

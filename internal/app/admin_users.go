@@ -353,7 +353,7 @@ func (a *Application) handleAdminUsers(w http.ResponseWriter, r *http.Request) {
 		data.AdminAuditEntries = auditEntries
 	}
 
-	a.renderTemplate(w, "admin_users.tmpl", data)
+	a.renderTemplate(w, r, "admin_users.tmpl", data)
 }
 
 func (a *Application) handleAdminApproveRegistration(w http.ResponseWriter, r *http.Request) {

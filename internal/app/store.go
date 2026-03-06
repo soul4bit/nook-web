@@ -137,10 +137,6 @@ func (a *Application) getCredentialsByEmail(email string) (*userCredentials, err
 }
 
 func (a *Application) createSession(userID int64) (token string, expiresAt time.Time, err error) {
-	if err := a.cleanupExpiredSessions(); err != nil {
-		return "", time.Time{}, err
-	}
-
 	token, err = generateSessionToken()
 	if err != nil {
 		return "", time.Time{}, err

@@ -25,6 +25,7 @@
         <a class="button button-ghost" href="/app">Дашборд</a>
         <span class="atlas-user-chip">@{{.User.Name}}</span>
         <form method="post" action="/auth/logout">
+          <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
           <button class="button button-ghost" type="submit">Выйти</button>
         </form>
       </div>
@@ -85,10 +86,12 @@
                   </div>
                   <div class="atlas-admin-actions">
                     <form method="post" action="/app/admin/registrations/approve">
+                      <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}" />
                       <input type="hidden" name="request_id" value="{{.ID}}" />
                       <button class="button button-primary button-compact" type="submit">Одобрить</button>
                     </form>
                     <form method="post" action="/app/admin/registrations/reject" class="atlas-admin-reject-form">
+                      <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}" />
                       <input type="hidden" name="request_id" value="{{.ID}}" />
                       <input class="atlas-admin-inline-input" type="text" name="reason" placeholder="Причина (необязательно)" maxlength="180" />
                       <button class="button button-ghost button-compact" type="submit">Отклонить</button>
@@ -141,6 +144,7 @@
                       <td>
                         <div class="atlas-admin-user-actions">
                           <form method="post" action="/app/admin/users/role" class="atlas-admin-role-form">
+                            <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}" />
                             <input type="hidden" name="user_id" value="{{.ID}}" />
                             <select class="field-select atlas-admin-role-select" name="role">
                               {{range $.AvailableRoles}}
@@ -153,16 +157,19 @@
                             <div class="atlas-admin-user-secondary-actions">
                               {{if .Blocked}}
                                 <form method="post" action="/app/admin/users/unblock">
+                                  <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}" />
                                   <input type="hidden" name="user_id" value="{{.ID}}" />
                                   <button class="button button-ghost button-compact" type="submit">Разблокировать</button>
                                 </form>
                               {{else}}
                                 <form method="post" action="/app/admin/users/block" onsubmit="return confirm('Заблокировать пользователя {{.Email}}?');">
+                                  <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}" />
                                   <input type="hidden" name="user_id" value="{{.ID}}" />
                                   <button class="button button-ghost button-compact atlas-warning-button" type="submit">Блокировать</button>
                                 </form>
                               {{end}}
                               <form method="post" action="/app/admin/users/delete" onsubmit="return confirm('Удалить пользователя {{.Email}}?');">
+                                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}" />
                                 <input type="hidden" name="user_id" value="{{.ID}}" />
                                 <button class="button button-ghost button-compact atlas-danger-button" type="submit">Удалить</button>
                               </form>

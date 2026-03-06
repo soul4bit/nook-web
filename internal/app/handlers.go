@@ -187,7 +187,7 @@ func (a *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
 				data := a.authViewData("Вход")
 				data.Error = blockedLoginMessage()
 				data.Next = strings.TrimSpace(r.URL.Query().Get("next"))
-				a.renderTemplate(w, "login.tmpl", data)
+				a.renderTemplate(w, r, "login.tmpl", data)
 				return
 			}
 			http.Redirect(w, r, "/app", http.StatusSeeOther)
@@ -197,7 +197,7 @@ func (a *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
 		data := a.authViewData("Вход")
 		data.Success = strings.TrimSpace(r.URL.Query().Get("success"))
 		data.Next = strings.TrimSpace(r.URL.Query().Get("next"))
-		a.renderTemplate(w, "login.tmpl", data)
+		a.renderTemplate(w, r, "login.tmpl", data)
 	case http.MethodPost:
 		if err := r.ParseForm(); err != nil {
 			http.Error(w, "invalid form data", http.StatusBadRequest)
@@ -233,7 +233,7 @@ func (a *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
 		}
 		if !maxBlockUntil.IsZero() {
 			data.Error = rateLimitMessage(maxBlockUntil, now)
-			a.renderTemplate(w, "login.tmpl", data)
+			a.renderTemplate(w, r, "login.tmpl", data)
 			return
 		}
 
@@ -259,7 +259,7 @@ func (a *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
 			}
 
 			data.Error = message
-			a.renderTemplate(w, "login.tmpl", data)
+			a.renderTemplate(w, r, "login.tmpl", data)
 		}
 
 		if email == "" || password == "" {
@@ -295,7 +295,7 @@ func (a *Application) handleLogin(w http.ResponseWriter, r *http.Request) {
 		}
 		if creds.Blocked {
 			data.Error = blockedLoginMessage()
-			a.renderTemplate(w, "login.tmpl", data)
+			a.renderTemplate(w, r, "login.tmpl", data)
 			return
 		}
 
@@ -341,14 +341,14 @@ func (a *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 				a.clearSessionCookie(w)
 				data := a.authViewData("Вход")
 				data.Error = blockedLoginMessage()
-				a.renderTemplate(w, "login.tmpl", data)
+				a.renderTemplate(w, r, "login.tmpl", data)
 				return
 			}
 			http.Redirect(w, r, "/app", http.StatusSeeOther)
 			return
 		}
 
-		a.renderTemplate(w, "register.tmpl", a.authViewData("Регистрация"))
+		a.renderTemplate(w, r, "register.tmpl", a.authViewData("Регистрация"))
 	case http.MethodPost:
 		if err := r.ParseForm(); err != nil {
 			http.Error(w, "invalid form data", http.StatusBadRequest)
@@ -372,7 +372,7 @@ func (a *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 			return
 		} else if blocked {
 			data.Error = rateLimitMessage(until, now)
-			a.renderTemplate(w, "register.tmpl", data)
+			a.renderTemplate(w, r, "register.tmpl", data)
 			return
 		}
 
@@ -386,7 +386,7 @@ func (a *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 			}
 
 			data.Error = message
-			a.renderTemplate(w, "register.tmpl", data)
+			a.renderTemplate(w, r, "register.tmpl", data)
 		}
 
 		if !a.hasRegistrationIntegrations() {
@@ -511,129 +511,216 @@ func (a *Application) handleRegister(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *Application) handleApproveRegistration(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	token := strings.TrimSpace(r.URL.Query().Get("token"))
-	if token == "" {
-		a.renderModerationPage(w, http.StatusBadRequest, "Некорректная ссылка", "Пустой токен модерации.")
-		return
-	}
-
-	emailVerifyToken, err := generateSessionToken()
-	if err != nil {
-		a.logger.Printf("generate email verify token: %v", err)
-		a.renderModerationPage(w, http.StatusInternalServerError, "Ошибка сервера", "Не удалось сгенерировать токен подтверждения email.")
-		return
-	}
-
-	req, err := a.approveRegistrationRequest(token, emailVerifyToken)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			existing, lookupErr := a.getRegistrationRequestByModerationToken(token)
-			if lookupErr != nil {
-				a.renderModerationPage(w, http.StatusNotFound, "Заявка не найдена", "Заявка не найдена или ссылка устарела.")
-				return
-			}
-
-			switch existing.Status {
-			case registrationStatusApproved:
-				if existing.EmailVerifyToken.Valid && strings.TrimSpace(existing.EmailVerifyToken.String) != "" {
-					if mailErr := a.sendRegistrationApprovedEmail(existing); mailErr != nil {
-						a.logger.Printf("resend approved email: %v", mailErr)
-						a.renderModerationPage(w, http.StatusInternalServerError, "Письмо не отправлено", "Заявка уже одобрена, но письмо отправить не удалось.")
-						return
-					}
-					a.renderModerationPage(w, http.StatusOK, "Заявка уже одобрена", "Письмо отправлено повторно.")
-					return
-				}
-				a.renderModerationPage(w, http.StatusOK, "Заявка уже одобрена", "Эта заявка уже была обработана ранее.")
-			case registrationStatusRejected:
-				a.renderModerationPage(w, http.StatusConflict, "Заявка уже отклонена", "Эта заявка уже отклонена.")
-			case registrationStatusCompleted:
-				a.renderModerationPage(w, http.StatusConflict, "Пользователь уже активирован", "Email уже подтвержден, пользователь активирован.")
-			default:
-				a.renderModerationPage(w, http.StatusConflict, "Заявка уже обработана", "Эта ссылка уже использована.")
-			}
+	switch r.Method {
+	case http.MethodGet:
+		token := strings.TrimSpace(r.URL.Query().Get("token"))
+		if token == "" {
+			a.renderModerationPage(w, http.StatusBadRequest, "Некорректная ссылка", "Пустой токен модерации.")
 			return
 		}
 
-		a.logger.Printf("approve registration request: %v", err)
-		a.renderModerationPage(w, http.StatusInternalServerError, "Ошибка сервера", "Ошибка при одобрении заявки.")
-		return
-	}
+		req, err := a.getRegistrationRequestByModerationToken(token)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				a.renderModerationPage(w, http.StatusNotFound, "Заявка не найдена", "Заявка не найдена или ссылка устарела.")
+				return
+			}
+			a.logger.Printf("lookup registration request for approve page: %v", err)
+			a.renderModerationPage(w, http.StatusInternalServerError, "Ошибка сервера", "Не удалось открыть страницу модерации.")
+			return
+		}
 
-	if err := a.sendRegistrationApprovedEmail(req); err != nil {
-		a.logger.Printf("send approved email: %v", err)
-		a.renderModerationPage(w, http.StatusInternalServerError, "Письмо не отправлено", "Заявка одобрена, но письмо отправить не удалось. Нажмите эту ссылку снова для повторной отправки.")
-		return
-	}
+		switch req.Status {
+		case registrationStatusPending:
+			message := fmt.Sprintf("Заявка от %s (%s) ожидает одобрения. После подтверждения отправим письмо для верификации email.", req.Name, req.Email)
+			a.renderModerationConfirmPage(w, r, "Подтвердить одобрение", message, "/admin/registration/approve", token, "Одобрить заявку", false, "")
+		case registrationStatusApproved:
+			if req.EmailVerifyToken.Valid && strings.TrimSpace(req.EmailVerifyToken.String) != "" {
+				message := fmt.Sprintf("Заявка для %s уже одобрена. Можно отправить письмо с подтверждением повторно.", req.Email)
+				a.renderModerationConfirmPage(w, r, "Заявка уже одобрена", message, "/admin/registration/approve", token, "Отправить письмо повторно", false, "")
+				return
+			}
+			a.renderModerationPage(w, http.StatusOK, "Заявка уже одобрена", "Эта заявка уже была обработана ранее.")
+		case registrationStatusRejected:
+			a.renderModerationPage(w, http.StatusConflict, "Заявка уже отклонена", "Эта заявка уже отклонена.")
+		case registrationStatusCompleted:
+			a.renderModerationPage(w, http.StatusConflict, "Пользователь уже активирован", "Email уже подтвержден, пользователь активирован.")
+		default:
+			a.renderModerationPage(w, http.StatusConflict, "Заявка уже обработана", "Эта ссылка уже использована.")
+		}
+	case http.MethodPost:
+		if err := r.ParseForm(); err != nil {
+			a.renderModerationPage(w, http.StatusBadRequest, "Некорректный запрос", "Не удалось прочитать форму.")
+			return
+		}
 
-	a.renderModerationPage(w, http.StatusOK, "Заявка одобрена", fmt.Sprintf("На %s отправлено письмо с подтверждением.", req.Email))
+		token := strings.TrimSpace(r.FormValue("token"))
+		if token == "" {
+			a.renderModerationPage(w, http.StatusBadRequest, "Некорректная ссылка", "Пустой токен модерации.")
+			return
+		}
+
+		emailVerifyToken, err := generateSessionToken()
+		if err != nil {
+			a.logger.Printf("generate email verify token: %v", err)
+			a.renderModerationPage(w, http.StatusInternalServerError, "Ошибка сервера", "Не удалось сгенерировать токен подтверждения email.")
+			return
+		}
+
+		req, err := a.approveRegistrationRequest(token, emailVerifyToken)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				existing, lookupErr := a.getRegistrationRequestByModerationToken(token)
+				if lookupErr != nil {
+					a.renderModerationPage(w, http.StatusNotFound, "Заявка не найдена", "Заявка не найдена или ссылка устарела.")
+					return
+				}
+
+				switch existing.Status {
+				case registrationStatusApproved:
+					if existing.EmailVerifyToken.Valid && strings.TrimSpace(existing.EmailVerifyToken.String) != "" {
+						if mailErr := a.sendRegistrationApprovedEmail(existing); mailErr != nil {
+							a.logger.Printf("resend approved email: %v", mailErr)
+							a.renderModerationPage(w, http.StatusInternalServerError, "Письмо не отправлено", "Заявка уже одобрена, но письмо отправить не удалось.")
+							return
+						}
+						a.renderModerationPage(w, http.StatusOK, "Заявка уже одобрена", "Письмо отправлено повторно.")
+						return
+					}
+					a.renderModerationPage(w, http.StatusOK, "Заявка уже одобрена", "Эта заявка уже была обработана ранее.")
+				case registrationStatusRejected:
+					a.renderModerationPage(w, http.StatusConflict, "Заявка уже отклонена", "Эта заявка уже отклонена.")
+				case registrationStatusCompleted:
+					a.renderModerationPage(w, http.StatusConflict, "Пользователь уже активирован", "Email уже подтвержден, пользователь активирован.")
+				default:
+					a.renderModerationPage(w, http.StatusConflict, "Заявка уже обработана", "Эта ссылка уже использована.")
+				}
+				return
+			}
+
+			a.logger.Printf("approve registration request: %v", err)
+			a.renderModerationPage(w, http.StatusInternalServerError, "Ошибка сервера", "Ошибка при одобрении заявки.")
+			return
+		}
+
+		if err := a.sendRegistrationApprovedEmail(req); err != nil {
+			a.logger.Printf("send approved email: %v", err)
+			a.renderModerationPage(w, http.StatusInternalServerError, "Письмо не отправлено", "Заявка одобрена, но письмо отправить не удалось. Нажмите эту ссылку снова для повторной отправки.")
+			return
+		}
+
+		a.renderModerationPage(w, http.StatusOK, "Заявка одобрена", fmt.Sprintf("На %s отправлено письмо с подтверждением.", req.Email))
+	default:
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+	}
 }
 
 func (a *Application) handleRejectRegistration(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	token := strings.TrimSpace(r.URL.Query().Get("token"))
-	if token == "" {
-		a.renderModerationPage(w, http.StatusBadRequest, "Некорректная ссылка", "Пустой токен модерации.")
-		return
-	}
-
-	reason := strings.TrimSpace(r.URL.Query().Get("reason"))
-	if reason == "" {
-		reason = defaultAdminRejectReason
-	}
-
-	req, err := a.rejectRegistrationRequest(token, reason)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			existing, lookupErr := a.getRegistrationRequestByModerationToken(token)
-			if lookupErr != nil {
-				a.renderModerationPage(w, http.StatusNotFound, "Заявка не найдена", "Заявка не найдена или ссылка устарела.")
-				return
-			}
-
-			switch existing.Status {
-			case registrationStatusRejected:
-				rejectReason := defaultAdminRejectReason
-				if existing.RejectionReason.Valid && strings.TrimSpace(existing.RejectionReason.String) != "" {
-					rejectReason = existing.RejectionReason.String
-				}
-				if mailErr := a.sendRegistrationRejectedEmail(existing, rejectReason); mailErr != nil {
-					a.logger.Printf("resend rejected email: %v", mailErr)
-					a.renderModerationPage(w, http.StatusInternalServerError, "Письмо не отправлено", "Заявка уже отклонена, но письмо отправить не удалось.")
-					return
-				}
-				a.renderModerationPage(w, http.StatusOK, "Заявка уже отклонена", "Письмо отправлено повторно.")
-			case registrationStatusApproved:
-				a.renderModerationPage(w, http.StatusConflict, "Заявка уже одобрена", "Эта заявка уже одобрена.")
-			case registrationStatusCompleted:
-				a.renderModerationPage(w, http.StatusConflict, "Пользователь уже активирован", "Email уже подтвержден, пользователь активирован.")
-			default:
-				a.renderModerationPage(w, http.StatusConflict, "Заявка уже обработана", "Эта ссылка уже использована.")
-			}
+	switch r.Method {
+	case http.MethodGet:
+		token := strings.TrimSpace(r.URL.Query().Get("token"))
+		if token == "" {
+			a.renderModerationPage(w, http.StatusBadRequest, "Некорректная ссылка", "Пустой токен модерации.")
 			return
 		}
 
-		a.logger.Printf("reject registration request: %v", err)
-		a.renderModerationPage(w, http.StatusInternalServerError, "Ошибка сервера", "Ошибка при отклонении заявки.")
-		return
-	}
+		req, err := a.getRegistrationRequestByModerationToken(token)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				a.renderModerationPage(w, http.StatusNotFound, "Заявка не найдена", "Заявка не найдена или ссылка устарела.")
+				return
+			}
+			a.logger.Printf("lookup registration request for reject page: %v", err)
+			a.renderModerationPage(w, http.StatusInternalServerError, "Ошибка сервера", "Не удалось открыть страницу модерации.")
+			return
+		}
 
-	if err := a.sendRegistrationRejectedEmail(req, reason); err != nil {
-		a.logger.Printf("send rejected email: %v", err)
-		a.renderModerationPage(w, http.StatusInternalServerError, "Письмо не отправлено", "Заявка отклонена, но письмо отправить не удалось. Нажмите эту ссылку снова для повторной отправки.")
-		return
-	}
+		reason := strings.TrimSpace(r.URL.Query().Get("reason"))
+		if reason == "" {
+			reason = defaultAdminRejectReason
+		}
 
-	a.renderModerationPage(w, http.StatusOK, "Заявка отклонена", fmt.Sprintf("На %s отправлено письмо с решением.", req.Email))
+		switch req.Status {
+		case registrationStatusPending:
+			message := fmt.Sprintf("Заявка от %s (%s) ожидает решения. Укажите причину (опционально) и подтвердите отклонение.", req.Name, req.Email)
+			a.renderModerationConfirmPage(w, r, "Подтвердить отклонение", message, "/admin/registration/reject", token, "Отклонить заявку", true, reason)
+		case registrationStatusRejected:
+			rejectReason := defaultAdminRejectReason
+			if req.RejectionReason.Valid && strings.TrimSpace(req.RejectionReason.String) != "" {
+				rejectReason = strings.TrimSpace(req.RejectionReason.String)
+			}
+			message := fmt.Sprintf("Заявка для %s уже отклонена. Можно отправить письмо с текущей причиной повторно.", req.Email)
+			a.renderModerationConfirmPage(w, r, "Заявка уже отклонена", message, "/admin/registration/reject", token, "Отправить письмо повторно", true, rejectReason)
+		case registrationStatusApproved:
+			a.renderModerationPage(w, http.StatusConflict, "Заявка уже одобрена", "Эта заявка уже одобрена.")
+		case registrationStatusCompleted:
+			a.renderModerationPage(w, http.StatusConflict, "Пользователь уже активирован", "Email уже подтвержден, пользователь активирован.")
+		default:
+			a.renderModerationPage(w, http.StatusConflict, "Заявка уже обработана", "Эта ссылка уже использована.")
+		}
+	case http.MethodPost:
+		if err := r.ParseForm(); err != nil {
+			a.renderModerationPage(w, http.StatusBadRequest, "Некорректный запрос", "Не удалось прочитать форму.")
+			return
+		}
+
+		token := strings.TrimSpace(r.FormValue("token"))
+		if token == "" {
+			a.renderModerationPage(w, http.StatusBadRequest, "Некорректная ссылка", "Пустой токен модерации.")
+			return
+		}
+
+		reason := strings.TrimSpace(r.FormValue("reason"))
+		if reason == "" {
+			reason = defaultAdminRejectReason
+		}
+
+		req, err := a.rejectRegistrationRequest(token, reason)
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				existing, lookupErr := a.getRegistrationRequestByModerationToken(token)
+				if lookupErr != nil {
+					a.renderModerationPage(w, http.StatusNotFound, "Заявка не найдена", "Заявка не найдена или ссылка устарела.")
+					return
+				}
+
+				switch existing.Status {
+				case registrationStatusRejected:
+					rejectReason := defaultAdminRejectReason
+					if existing.RejectionReason.Valid && strings.TrimSpace(existing.RejectionReason.String) != "" {
+						rejectReason = existing.RejectionReason.String
+					}
+					if mailErr := a.sendRegistrationRejectedEmail(existing, rejectReason); mailErr != nil {
+						a.logger.Printf("resend rejected email: %v", mailErr)
+						a.renderModerationPage(w, http.StatusInternalServerError, "Письмо не отправлено", "Заявка уже отклонена, но письмо отправить не удалось.")
+						return
+					}
+					a.renderModerationPage(w, http.StatusOK, "Заявка уже отклонена", "Письмо отправлено повторно.")
+				case registrationStatusApproved:
+					a.renderModerationPage(w, http.StatusConflict, "Заявка уже одобрена", "Эта заявка уже одобрена.")
+				case registrationStatusCompleted:
+					a.renderModerationPage(w, http.StatusConflict, "Пользователь уже активирован", "Email уже подтвержден, пользователь активирован.")
+				default:
+					a.renderModerationPage(w, http.StatusConflict, "Заявка уже обработана", "Эта ссылка уже использована.")
+				}
+				return
+			}
+
+			a.logger.Printf("reject registration request: %v", err)
+			a.renderModerationPage(w, http.StatusInternalServerError, "Ошибка сервера", "Ошибка при отклонении заявки.")
+			return
+		}
+
+		if err := a.sendRegistrationRejectedEmail(req, reason); err != nil {
+			a.logger.Printf("send rejected email: %v", err)
+			a.renderModerationPage(w, http.StatusInternalServerError, "Письмо не отправлено", "Заявка отклонена, но письмо отправить не удалось. Нажмите эту ссылку снова для повторной отправки.")
+			return
+		}
+
+		a.renderModerationPage(w, http.StatusOK, "Заявка отклонена", fmt.Sprintf("На %s отправлено письмо с решением.", req.Email))
+	default:
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+	}
 }
 
 func (a *Application) handleVerifyEmail(w http.ResponseWriter, r *http.Request) {
@@ -719,7 +806,7 @@ func (a *Application) handleDashboard(w http.ResponseWriter, r *http.Request) {
 		data.RecentArticles = recent
 	}
 
-	a.renderTemplate(w, "dashboard.tmpl", data)
+	a.renderTemplate(w, r, "dashboard.tmpl", data)
 }
 
 func (a *Application) handleSection(w http.ResponseWriter, r *http.Request) {
@@ -758,7 +845,7 @@ func (a *Application) handleSection(w http.ResponseWriter, r *http.Request) {
 	decorateArticles(articles)
 	data.SectionArticles = articles
 
-	a.renderTemplate(w, "section.tmpl", data)
+	a.renderTemplate(w, r, "section.tmpl", data)
 }
 
 func (a *Application) handleArticleNew(w http.ResponseWriter, r *http.Request) {
@@ -797,7 +884,7 @@ func (a *Application) handleArticleNew(w http.ResponseWriter, r *http.Request) {
 				data.DraftLoaded = true
 			}
 		}
-		a.renderTemplate(w, "article_new.tmpl", data)
+		a.renderTemplate(w, r, "article_new.tmpl", data)
 	case http.MethodPost:
 		if err := r.ParseForm(); err != nil {
 			http.Error(w, "invalid form data", http.StatusBadRequest)
@@ -825,13 +912,13 @@ func (a *Application) handleArticleNew(w http.ResponseWriter, r *http.Request) {
 
 		if utf8.RuneCountInString(title) < 4 {
 			data.Error = "Заголовок должен быть минимум 4 символа."
-			a.renderTemplate(w, "article_new.tmpl", data)
+			a.renderTemplate(w, r, "article_new.tmpl", data)
 			return
 		}
 
 		if utf8.RuneCountInString(body) < 20 {
 			data.Error = "Текст статьи должен быть минимум 20 символов."
-			a.renderTemplate(w, "article_new.tmpl", data)
+			a.renderTemplate(w, r, "article_new.tmpl", data)
 			return
 		}
 
@@ -870,6 +957,108 @@ func (a *Application) handleLogout(w http.ResponseWriter, r *http.Request) {
 
 	a.clearSessionCookie(w)
 	http.Redirect(w, r, "/auth/login?success=Вы вышли из системы.", http.StatusSeeOther)
+}
+
+func (a *Application) renderModerationConfirmPage(
+	w http.ResponseWriter,
+	r *http.Request,
+	title string,
+	message string,
+	actionPath string,
+	token string,
+	submitLabel string,
+	withReason bool,
+	reason string,
+) {
+	if strings.TrimSpace(title) == "" {
+		title = "Подтверждение действия"
+	}
+	if strings.TrimSpace(message) == "" {
+		message = "Проверьте данные и подтвердите операцию."
+	}
+	if strings.TrimSpace(actionPath) == "" {
+		actionPath = "/auth/login"
+	}
+	if strings.TrimSpace(submitLabel) == "" {
+		submitLabel = "Подтвердить"
+	}
+
+	csrfToken, err := a.ensureCSRFToken(w, r)
+	if err != nil {
+		a.logger.Printf("ensure csrf token for moderation page: %v", err)
+		http.Error(w, "internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	appName := strings.TrimSpace(a.cfg.AppName)
+	if appName == "" {
+		appName = "Контур знаний"
+	}
+
+	reasonRow := ""
+	if withReason {
+		reasonRow = fmt.Sprintf(
+			`<label style="display:grid;gap:7px;margin-top:14px;">
+         <span style="font-size:13px;color:#586863;">Причина (необязательно)</span>
+         <input type="text" name="reason" value="%s" maxlength="220" placeholder="Причина отклонения" style="min-height:38px;border:1px solid #cfdad5;border-radius:10px;padding:0 11px;font:inherit;" />
+       </label>`,
+			html.EscapeString(strings.TrimSpace(reason)),
+		)
+	}
+
+	page := fmt.Sprintf(`<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>%s · %s</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+  <style>
+    body { margin:0; min-height:100vh; display:grid; place-items:center; font-family: Manrope, Arial, sans-serif; background:#eef3ef; padding:16px; }
+    .box { width:min(640px, 100%%); background:#fff; border:1px solid #d4ddd8; border-radius:18px; overflow:hidden; box-shadow:0 14px 36px rgba(28,52,46,0.14); }
+    .head { padding:18px 20px; color:#fff; background:#0d766d; }
+    .head h1 { margin:0; font-size:28px; line-height:1.16; }
+    .body { padding:18px 20px 22px; color:#2d403b; line-height:1.6; }
+    .actions { margin-top:14px; display:flex; gap:9px; flex-wrap:wrap; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; min-height:40px; padding:0 14px; border-radius:10px; border:1px solid transparent; font-weight:700; text-decoration:none; cursor:pointer; font:inherit; }
+    .btn-primary { background:#0d766d; color:#fff; }
+    .btn-ghost { background:#f5f9f7; color:#2f5049; border-color:#cedad5; }
+  </style>
+</head>
+<body>
+  <main class="box">
+    <header class="head"><h1>%s</h1></header>
+    <section class="body">
+      <p>%s</p>
+      <form method="post" action="%s">
+        <input type="hidden" name="%s" value="%s" />
+        <input type="hidden" name="%s" value="%s" />
+        %s
+        <div class="actions">
+          <button class="btn btn-primary" type="submit">%s</button>
+          <a class="btn btn-ghost" href="/auth/login">Отмена</a>
+        </div>
+      </form>
+    </section>
+  </main>
+</body>
+</html>`,
+		html.EscapeString(title),
+		html.EscapeString(appName),
+		html.EscapeString(title),
+		html.EscapeString(message),
+		html.EscapeString(actionPath),
+		html.EscapeString(csrfFormField),
+		html.EscapeString(csrfToken),
+		html.EscapeString("token"),
+		html.EscapeString(strings.TrimSpace(token)),
+		reasonRow,
+		html.EscapeString(submitLabel),
+	)
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write([]byte(page))
 }
 
 func (a *Application) renderModerationPage(w http.ResponseWriter, status int, title string, message string) {

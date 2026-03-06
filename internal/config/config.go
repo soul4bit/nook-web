@@ -12,6 +12,10 @@ type Config struct {
 	Port                string
 	AppBaseURL          string
 	DatabaseURL         string
+	DBMaxOpenConns      int
+	DBMaxIdleConns      int
+	DBConnMaxLifetime   time.Duration
+	DBConnMaxIdleTime   time.Duration
 	SessionCookieName   string
 	SessionTTL          time.Duration
 	SecureCookies       bool
@@ -46,6 +50,10 @@ func Load() Config {
 		Port:                getEnv("APP_PORT", "8080"),
 		AppBaseURL:          strings.TrimRight(getEnv("APP_BASE_URL", "http://localhost:8080"), "/"),
 		DatabaseURL:         databaseURL,
+		DBMaxOpenConns:      getEnvInt("DB_MAX_OPEN_CONNS", 20),
+		DBMaxIdleConns:      getEnvInt("DB_MAX_IDLE_CONNS", 10),
+		DBConnMaxLifetime:   time.Duration(getEnvInt("DB_CONN_MAX_LIFETIME_MINUTES", 30)) * time.Minute,
+		DBConnMaxIdleTime:   time.Duration(getEnvInt("DB_CONN_MAX_IDLE_TIME_MINUTES", 10)) * time.Minute,
 		SessionCookieName:   getEnv("SESSION_COOKIE_NAME", "kontur_session"),
 		SessionTTL:          time.Duration(ttlHours) * time.Hour,
 		SecureCookies:       getEnvBool("SECURE_COOKIES", secureByDefault),

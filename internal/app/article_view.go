@@ -71,7 +71,7 @@ func (a *Application) handleArticleView(w http.ResponseWriter, r *http.Request) 
 		data.CurrentSubsection = normalizeSubsection(section, article.Subsection)
 	}
 
-	a.renderTemplate(w, "article_view.tmpl", data)
+	a.renderTemplate(w, r, "article_view.tmpl", data)
 }
 
 func (a *Application) handleArticleRestore(w http.ResponseWriter, r *http.Request) {

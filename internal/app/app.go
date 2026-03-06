@@ -26,6 +26,8 @@ type Application struct {
 	db            *sql.DB
 	templates     map[string]*template.Template
 	staticVersion string
+	stopCh        chan struct{}
+	doneCh        chan struct{}
 }
 
 type User struct {
@@ -126,6 +128,7 @@ type userCredentials struct {
 type viewData struct {
 	AppName            string
 	Title              string
+	CSRFToken          string
 	Error              string
 	Success            string
 	User               *User
@@ -166,6 +169,8 @@ func New(cfg config.Config, logger *log.Logger) (*Application, error) {
 		return nil, err
 	}
 
+	applyDBPoolConfig(db, cfg)
+
 	if err := db.Ping(); err != nil {
 		_ = db.Close()
 		return nil, err
@@ -184,16 +189,31 @@ func New(cfg config.Config, logger *log.Logger) (*Application, error) {
 		return nil, err
 	}
 
-	return &Application{
+	application := &Application{
 		cfg:           cfg,
 		logger:        logger,
 		db:            db,
 		templates:     templates,
 		staticVersion: staticVersion,
-	}, nil
+		stopCh:        make(chan struct{}),
+		doneCh:        make(chan struct{}),
+	}
+
+	application.startBackgroundJobs()
+	return application, nil
 }
 
 func (a *Application) Close() error {
+	if a.stopCh != nil {
+		select {
+		case <-a.stopCh:
+		default:
+			close(a.stopCh)
+		}
+	}
+	if a.doneCh != nil {
+		<-a.doneCh
+	}
 	if a.db == nil {
 		return nil
 	}
@@ -213,30 +233,30 @@ func (a *Application) Routes() http.Handler {
 		http.Redirect(w, r, "/static/favicon.svg", http.StatusMovedPermanently)
 	})
 
-	mux.HandleFunc("/", a.handleRoot)
-	mux.HandleFunc("/auth/login", a.handleLogin)
-	mux.HandleFunc("/auth/register", a.handleRegister)
+	mux.HandleFunc("/", a.withCSRF(a.handleRoot))
+	mux.HandleFunc("/auth/login", a.withCSRF(a.handleLogin))
+	mux.HandleFunc("/auth/register", a.withCSRF(a.handleRegister))
 	mux.HandleFunc("/auth/verify-email", a.handleVerifyEmail)
-	mux.HandleFunc("/auth/logout", a.requireAuth(a.handleLogout))
-	mux.HandleFunc("/app", a.requireAuth(a.handleDashboard))
-	mux.HandleFunc("/app/section", a.requireAuth(a.handleSection))
-	mux.HandleFunc("/app/article", a.requireAuth(a.handleArticleView))
-	mux.HandleFunc("/app/article/new", a.requireAuth(a.handleArticleNew))
-	mux.HandleFunc("/app/article/edit", a.requireAuth(a.handleArticleEdit))
-	mux.HandleFunc("/app/article/draft/save", a.requireAuth(a.handleArticleDraftSave))
-	mux.HandleFunc("/app/article/restore", a.requireAuth(a.handleArticleRestore))
-	mux.HandleFunc("/app/article/delete", a.requireAuth(a.handleArticleDelete))
-	mux.HandleFunc("/app/article/comment/add", a.requireAuth(a.handleArticleCommentAdd))
-	mux.HandleFunc("/app/article/comment/delete", a.requireAuth(a.handleArticleCommentDelete))
-	mux.HandleFunc("/app/admin/users", a.requireAuth(a.handleAdminUsers))
-	mux.HandleFunc("/app/admin/registrations/approve", a.requireAuth(a.handleAdminApproveRegistration))
-	mux.HandleFunc("/app/admin/registrations/reject", a.requireAuth(a.handleAdminRejectRegistration))
-	mux.HandleFunc("/app/admin/users/role", a.requireAuth(a.handleAdminChangeUserRole))
-	mux.HandleFunc("/app/admin/users/block", a.requireAuth(a.handleAdminBlockUser))
-	mux.HandleFunc("/app/admin/users/unblock", a.requireAuth(a.handleAdminUnblockUser))
-	mux.HandleFunc("/app/admin/users/delete", a.requireAuth(a.handleAdminDeleteUser))
-	mux.HandleFunc("/admin/registration/approve", a.handleApproveRegistration)
-	mux.HandleFunc("/admin/registration/reject", a.handleRejectRegistration)
+	mux.HandleFunc("/auth/logout", a.requireAuth(a.withCSRF(a.handleLogout)))
+	mux.HandleFunc("/app", a.requireAuth(a.withCSRF(a.handleDashboard)))
+	mux.HandleFunc("/app/section", a.requireAuth(a.withCSRF(a.handleSection)))
+	mux.HandleFunc("/app/article", a.requireAuth(a.withCSRF(a.handleArticleView)))
+	mux.HandleFunc("/app/article/new", a.requireAuth(a.withCSRF(a.handleArticleNew)))
+	mux.HandleFunc("/app/article/edit", a.requireAuth(a.withCSRF(a.handleArticleEdit)))
+	mux.HandleFunc("/app/article/draft/save", a.requireAuth(a.withCSRF(a.handleArticleDraftSave)))
+	mux.HandleFunc("/app/article/restore", a.requireAuth(a.withCSRF(a.handleArticleRestore)))
+	mux.HandleFunc("/app/article/delete", a.requireAuth(a.withCSRF(a.handleArticleDelete)))
+	mux.HandleFunc("/app/article/comment/add", a.requireAuth(a.withCSRF(a.handleArticleCommentAdd)))
+	mux.HandleFunc("/app/article/comment/delete", a.requireAuth(a.withCSRF(a.handleArticleCommentDelete)))
+	mux.HandleFunc("/app/admin/users", a.requireAuth(a.withCSRF(a.handleAdminUsers)))
+	mux.HandleFunc("/app/admin/registrations/approve", a.requireAuth(a.withCSRF(a.handleAdminApproveRegistration)))
+	mux.HandleFunc("/app/admin/registrations/reject", a.requireAuth(a.withCSRF(a.handleAdminRejectRegistration)))
+	mux.HandleFunc("/app/admin/users/role", a.requireAuth(a.withCSRF(a.handleAdminChangeUserRole)))
+	mux.HandleFunc("/app/admin/users/block", a.requireAuth(a.withCSRF(a.handleAdminBlockUser)))
+	mux.HandleFunc("/app/admin/users/unblock", a.requireAuth(a.withCSRF(a.handleAdminUnblockUser)))
+	mux.HandleFunc("/app/admin/users/delete", a.requireAuth(a.withCSRF(a.handleAdminDeleteUser)))
+	mux.HandleFunc("/admin/registration/approve", a.withCSRF(a.handleApproveRegistration))
+	mux.HandleFunc("/admin/registration/reject", a.withCSRF(a.handleRejectRegistration))
 
 	return a.logRequests(mux)
 }
@@ -278,6 +298,70 @@ func loadTemplates(staticVersion string) (map[string]*template.Template, error) 
 	}
 
 	return result, nil
+}
+
+func applyDBPoolConfig(db *sql.DB, cfg config.Config) {
+	if db == nil {
+		return
+	}
+
+	maxOpen := cfg.DBMaxOpenConns
+	if maxOpen < 1 {
+		maxOpen = 20
+	}
+
+	maxIdle := cfg.DBMaxIdleConns
+	if maxIdle < 0 {
+		maxIdle = 10
+	}
+	if maxIdle > maxOpen {
+		maxIdle = maxOpen
+	}
+
+	connMaxLifetime := cfg.DBConnMaxLifetime
+	if connMaxLifetime < 0 {
+		connMaxLifetime = 0
+	}
+
+	connMaxIdleTime := cfg.DBConnMaxIdleTime
+	if connMaxIdleTime < 0 {
+		connMaxIdleTime = 0
+	}
+
+	db.SetMaxOpenConns(maxOpen)
+	db.SetMaxIdleConns(maxIdle)
+	db.SetConnMaxLifetime(connMaxLifetime)
+	db.SetConnMaxIdleTime(connMaxIdleTime)
+}
+
+func (a *Application) startBackgroundJobs() {
+	if a == nil || a.db == nil || a.doneCh == nil {
+		return
+	}
+
+	go func() {
+		defer close(a.doneCh)
+
+		cleanup := func() {
+			if err := a.cleanupExpiredSessions(); err != nil {
+				a.logger.Printf("background cleanup expired sessions: %v", err)
+			}
+		}
+
+		cleanup()
+
+		ticker := time.NewTicker(15 * time.Minute)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-ticker.C:
+				cleanup()
+			case <-a.stopCh:
+				return
+			}
+		}
+	}()
 }
 
 func runMigrations(db *sql.DB) error {
@@ -483,11 +567,21 @@ func runMigrations(db *sql.DB) error {
 	return nil
 }
 
-func (a *Application) renderTemplate(w http.ResponseWriter, templateName string, data viewData) {
+func (a *Application) renderTemplate(w http.ResponseWriter, r *http.Request, templateName string, data viewData) {
 	tmpl, ok := a.templates[templateName]
 	if !ok {
 		http.Error(w, "template not found", http.StatusInternalServerError)
 		return
+	}
+
+	if r != nil && strings.TrimSpace(data.CSRFToken) == "" {
+		csrfToken, err := a.ensureCSRFToken(w, r)
+		if err != nil {
+			a.logger.Printf("ensure csrf token for %s: %v", templateName, err)
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			return
+		}
+		data.CSRFToken = csrfToken
 	}
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")

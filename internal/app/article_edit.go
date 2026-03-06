@@ -91,7 +91,7 @@ func (a *Application) handleArticleEdit(w http.ResponseWriter, r *http.Request) 
 				data.DraftLoaded = true
 			}
 		}
-		a.renderTemplate(w, "article_edit.tmpl", data)
+		a.renderTemplate(w, r, "article_edit.tmpl", data)
 	case http.MethodPost:
 		if err := r.ParseForm(); err != nil {
 			http.Error(w, "invalid form data", http.StatusBadRequest)
@@ -134,13 +134,13 @@ func (a *Application) handleArticleEdit(w http.ResponseWriter, r *http.Request) 
 
 		if utf8.RuneCountInString(title) < 4 {
 			data.Error = "Заголовок должен быть минимум 4 символа."
-			a.renderTemplate(w, "article_edit.tmpl", data)
+			a.renderTemplate(w, r, "article_edit.tmpl", data)
 			return
 		}
 
 		if utf8.RuneCountInString(body) < 20 {
 			data.Error = "Текст статьи должен быть минимум 20 символов."
-			a.renderTemplate(w, "article_edit.tmpl", data)
+			a.renderTemplate(w, r, "article_edit.tmpl", data)
 			return
 		}
 

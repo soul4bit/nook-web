@@ -43,6 +43,8 @@
     const articleID = (form.dataset.autosaveArticleId || "").trim();
     const section = (form.dataset.autosaveSection || "").trim();
     const subsection = (form.dataset.autosaveSubsection || "").trim();
+    const csrfInput = form.querySelector("input[name='csrf_token']");
+    const csrfToken = csrfInput instanceof HTMLInputElement ? csrfInput.value.trim() : "";
 
     if (articleID === "" && section === "") {
       return;
@@ -64,6 +66,9 @@
       } else {
         params.set("section", section);
         params.set("subsection", subsection);
+      }
+      if (csrfToken !== "") {
+        params.set("csrf_token", csrfToken);
       }
 
       return params.toString();
@@ -94,6 +99,7 @@
           headers: {
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
             "X-Requested-With": "fetch",
+            ...(csrfToken ? { "X-CSRF-Token": csrfToken } : {}),
           },
           body: payload,
         });
@@ -156,4 +162,3 @@
     }
   });
 })();
-

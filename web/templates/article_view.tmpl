@@ -27,6 +27,7 @@
         {{end}}
         <span class="atlas-user-chip">@{{.User.Name}}</span>
         <form method="post" action="/auth/logout">
+          <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
           <button class="button button-ghost" type="submit">Выйти</button>
         </form>
       </div>
@@ -79,6 +80,7 @@
             {{end}}
             {{if .User.CanEdit}}
               <form method="post" action="/app/article/delete" onsubmit="return confirm('Удалить статью? Это действие необратимо.');">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
                 <input type="hidden" name="article_id" value="{{.CurrentArticle.ID}}" />
                 <button class="button button-ghost button-compact atlas-danger-button" type="submit">Удалить</button>
               </form>
@@ -106,6 +108,7 @@
           </div>
 
           <form class="atlas-comment-form" method="post" action="/app/article/comment/add">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
             <input type="hidden" name="article_id" value="{{.CurrentArticle.ID}}" />
             <label class="field">
               <span>Добавить комментарий</span>
@@ -127,6 +130,7 @@
                   <div class="atlas-comment-body">{{markdown .Body}}</div>
                   {{if .CanDelete}}
                     <form method="post" action="/app/article/comment/delete" onsubmit="return confirm('Удалить комментарий?');">
+                      <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}" />
                       <input type="hidden" name="article_id" value="{{$.CurrentArticle.ID}}" />
                       <input type="hidden" name="comment_id" value="{{.ID}}" />
                       <button class="button button-ghost button-compact atlas-danger-button" type="submit">Удалить</button>
@@ -162,6 +166,7 @@
                   <p class="atlas-version-title-preview">{{.Title}}</p>
                   {{if $.User.IsAdmin}}
                     <form method="post" action="/app/article/restore" onsubmit="return confirm('Восстановить версию #{{.VersionNo}}?');">
+                      <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}" />
                       <input type="hidden" name="article_id" value="{{$.CurrentArticle.ID}}" />
                       <input type="hidden" name="version_id" value="{{.ID}}" />
                       <button class="button button-ghost button-compact" type="submit">Восстановить</button>

@@ -70,6 +70,7 @@
       {{end}}
 
       <form method="post" action="/auth/login" class="auth-form" data-auth-form data-auth-mode="login">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
         <input type="hidden" name="next" value="{{.Next}}" />
 
         <label class="field">
