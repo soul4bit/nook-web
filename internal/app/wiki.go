@@ -1,6 +1,9 @@
 package app
 
-import "strings"
+import (
+	"strings"
+	"sync"
+)
 
 type wikiSection struct {
 	Slug        string
@@ -8,7 +11,7 @@ type wikiSection struct {
 	Subsections []string
 }
 
-var wikiSectionCatalog = []wikiSection{
+var defaultWikiSectionCatalog = []wikiSection{
 	{
 		Slug: "linux",
 		Name: "Linux",
@@ -71,9 +74,14 @@ var wikiSectionCatalog = []wikiSection{
 	},
 }
 
-func wikiSections() []wikiSection {
-	result := make([]wikiSection, 0, len(wikiSectionCatalog))
-	for _, section := range wikiSectionCatalog {
+var (
+	wikiCatalogMu      sync.RWMutex
+	wikiSectionCatalog = cloneWikiSections(defaultWikiSectionCatalog)
+)
+
+func cloneWikiSections(source []wikiSection) []wikiSection {
+	result := make([]wikiSection, 0, len(source))
+	for _, section := range source {
 		copySection := wikiSection{
 			Slug:        section.Slug,
 			Name:        section.Name,
@@ -84,7 +92,60 @@ func wikiSections() []wikiSection {
 	return result
 }
 
+func defaultWikiSections() []wikiSection {
+	return cloneWikiSections(defaultWikiSectionCatalog)
+}
+
+func setWikiSectionCatalog(sections []wikiSection) {
+	normalized := cloneWikiSections(sections)
+	if len(normalized) == 0 {
+		normalized = defaultWikiSections()
+	}
+
+	wikiCatalogMu.Lock()
+	wikiSectionCatalog = normalized
+	wikiCatalogMu.Unlock()
+}
+
+func normalizeWikiSectionSlug(raw string) string {
+	return strings.ToLower(strings.TrimSpace(raw))
+}
+
+func isValidWikiSectionSlug(slug string) bool {
+	value := normalizeWikiSectionSlug(slug)
+	if value == "" || len(value) > 64 {
+		return false
+	}
+
+	previousWasDash := true
+	for _, r := range value {
+		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') {
+			previousWasDash = false
+			continue
+		}
+		if r == '-' {
+			if previousWasDash {
+				return false
+			}
+			previousWasDash = true
+			continue
+		}
+		return false
+	}
+
+	return !previousWasDash
+}
+
+func wikiSections() []wikiSection {
+	wikiCatalogMu.RLock()
+	defer wikiCatalogMu.RUnlock()
+	return cloneWikiSections(wikiSectionCatalog)
+}
+
 func findWikiSection(slug string) (wikiSection, bool) {
+	wikiCatalogMu.RLock()
+	defer wikiCatalogMu.RUnlock()
+
 	for _, section := range wikiSectionCatalog {
 		if section.Slug != slug {
 			continue
@@ -100,6 +161,9 @@ func findWikiSection(slug string) (wikiSection, bool) {
 }
 
 func wikiSectionName(slug string) string {
+	wikiCatalogMu.RLock()
+	defer wikiCatalogMu.RUnlock()
+
 	for _, section := range wikiSectionCatalog {
 		if section.Slug == slug {
 			return section.Name

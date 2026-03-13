@@ -75,6 +75,66 @@
         {{end}}
 
         <article class="atlas-card atlas-admin-card">
+          <p class="panel-label">Разделы и подразделы</p>
+          <div class="atlas-admin-wiki-grid">
+            <form method="post" action="/app/admin/wiki/sections/add" class="atlas-admin-wiki-form">
+              <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
+              <label class="field">
+                <span>Новый раздел: название</span>
+                <input type="text" name="name" placeholder="Например: Observability" maxlength="80" required />
+              </label>
+              <label class="field">
+                <span>Новый раздел: slug</span>
+                <input type="text" name="slug" placeholder="observability" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" maxlength="64" required />
+                <small class="field-hint">Только латиница, цифры и дефисы.</small>
+              </label>
+              <button class="button button-primary button-compact" type="submit">Добавить раздел</button>
+            </form>
+
+            <form method="post" action="/app/admin/wiki/subsections/add" class="atlas-admin-wiki-form">
+              <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
+              <label class="field">
+                <span>Раздел</span>
+                <select class="field-select" name="section_slug" required>
+                  {{range .Sections}}
+                    <option value="{{.Slug}}">{{.Name}} ({{.Slug}})</option>
+                  {{end}}
+                </select>
+              </label>
+              <label class="field">
+                <span>Новый подраздел</span>
+                <input type="text" name="title" placeholder="Например: Метрики и алерты" maxlength="120" required />
+              </label>
+              <button class="button button-primary button-compact" type="submit">Добавить подраздел</button>
+            </form>
+          </div>
+
+          {{if .Sections}}
+            <div class="atlas-admin-wiki-list">
+              {{range .Sections}}
+                <article class="atlas-admin-wiki-item">
+                  <div class="atlas-admin-wiki-head">
+                    <h3 class="atlas-admin-title">{{.Name}}</h3>
+                    <p class="atlas-admin-meta">slug: {{.Slug}}</p>
+                  </div>
+                  {{if .Subsections}}
+                    <ul class="atlas-admin-wiki-sub-list">
+                      {{range .Subsections}}
+                        <li class="atlas-admin-wiki-sub-item">{{.}}</li>
+                      {{end}}
+                    </ul>
+                  {{else}}
+                    <p class="atlas-admin-meta">Подразделов пока нет.</p>
+                  {{end}}
+                </article>
+              {{end}}
+            </div>
+          {{else}}
+            <p class="atlas-empty">Разделы пока не добавлены.</p>
+          {{end}}
+        </article>
+
+        <article class="atlas-card atlas-admin-card">
           <p class="panel-label">Заявки на регистрацию</p>
           {{if .PendingRequests}}
             <div class="atlas-admin-list">

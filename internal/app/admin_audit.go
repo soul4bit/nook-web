@@ -6,12 +6,14 @@ import (
 )
 
 const (
-	adminAuditActionApproveRegistration = "registration_approve"
-	adminAuditActionRejectRegistration  = "registration_reject"
-	adminAuditActionChangeUserRole      = "user_role_change"
-	adminAuditActionDeleteUser          = "user_delete"
-	adminAuditActionBlockUser           = "user_block"
-	adminAuditActionUnblockUser         = "user_unblock"
+	adminAuditActionApproveRegistration  = "registration_approve"
+	adminAuditActionRejectRegistration   = "registration_reject"
+	adminAuditActionChangeUserRole       = "user_role_change"
+	adminAuditActionDeleteUser           = "user_delete"
+	adminAuditActionBlockUser            = "user_block"
+	adminAuditActionUnblockUser          = "user_unblock"
+	adminAuditActionCreateWikiSection    = "wiki_section_create"
+	adminAuditActionCreateWikiSubsection = "wiki_subsection_create"
 )
 
 func adminAuditActionLabel(action string) string {
@@ -28,6 +30,10 @@ func adminAuditActionLabel(action string) string {
 		return "Блокировка пользователя"
 	case adminAuditActionUnblockUser:
 		return "Разблокировка пользователя"
+	case adminAuditActionCreateWikiSection:
+		return "Создание раздела wiki"
+	case adminAuditActionCreateWikiSubsection:
+		return "Создание подраздела wiki"
 	default:
 		return "Действие администратора"
 	}

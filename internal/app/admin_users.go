@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 type adminUserListItem struct {
@@ -510,6 +511,106 @@ func (a *Application) handleAdminRejectRegistration(w http.ResponseWriter, r *ht
 
 	success := fmt.Sprintf("Заявка для %s отклонена.", req.Email)
 	http.Redirect(w, r, adminUsersRedirectURL(success, ""), http.StatusSeeOther)
+}
+
+func (a *Application) handleAdminAddWikiSection(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	currentUser := a.requireAdmin(w, r)
+	if currentUser == nil {
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	name := strings.TrimSpace(r.FormValue("name"))
+	slug := normalizeWikiSectionSlug(r.FormValue("slug"))
+	if utf8.RuneCountInString(name) < 2 || utf8.RuneCountInString(name) > 80 {
+		http.Redirect(w, r, adminUsersRedirectURL("", "Название раздела: от 2 до 80 символов."), http.StatusSeeOther)
+		return
+	}
+	if !isValidWikiSectionSlug(slug) {
+		http.Redirect(w, r, adminUsersRedirectURL("", "Slug должен быть в формате `devops-runbooks` (латиница, цифры, дефисы)."), http.StatusSeeOther)
+		return
+	}
+
+	if err := a.createWikiSection(slug, name); err != nil {
+		if isWikiSectionDuplicateError(err) {
+			http.Redirect(w, r, adminUsersRedirectURL("", "Раздел с таким slug или названием уже существует."), http.StatusSeeOther)
+			return
+		}
+		a.logger.Printf("admin create wiki section: %v", err)
+		http.Redirect(w, r, adminUsersRedirectURL("", "Не удалось добавить раздел."), http.StatusSeeOther)
+		return
+	}
+
+	a.addAdminAuditEntry(
+		currentUser.ID,
+		adminAuditActionCreateWikiSection,
+		nil,
+		"",
+		wikiSectionAdminDetails(slug, name),
+	)
+
+	http.Redirect(w, r, adminUsersRedirectURL("Раздел добавлен.", ""), http.StatusSeeOther)
+}
+
+func (a *Application) handleAdminAddWikiSubsection(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	currentUser := a.requireAdmin(w, r)
+	if currentUser == nil {
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	sectionSlug := normalizeWikiSectionSlug(r.FormValue("section_slug"))
+	title := strings.TrimSpace(r.FormValue("title"))
+	if !isValidWikiSectionSlug(sectionSlug) {
+		http.Redirect(w, r, adminUsersRedirectURL("", "Выберите корректный раздел."), http.StatusSeeOther)
+		return
+	}
+	if utf8.RuneCountInString(title) < 2 || utf8.RuneCountInString(title) > 120 {
+		http.Redirect(w, r, adminUsersRedirectURL("", "Название подраздела: от 2 до 120 символов."), http.StatusSeeOther)
+		return
+	}
+
+	if err := a.createWikiSubsection(sectionSlug, title); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			http.Redirect(w, r, adminUsersRedirectURL("", "Раздел не найден."), http.StatusSeeOther)
+			return
+		}
+		if isWikiSubsectionDuplicateError(err) {
+			http.Redirect(w, r, adminUsersRedirectURL("", "Такой подраздел уже есть в выбранном разделе."), http.StatusSeeOther)
+			return
+		}
+		a.logger.Printf("admin create wiki subsection: %v", err)
+		http.Redirect(w, r, adminUsersRedirectURL("", "Не удалось добавить подраздел."), http.StatusSeeOther)
+		return
+	}
+
+	a.addAdminAuditEntry(
+		currentUser.ID,
+		adminAuditActionCreateWikiSubsection,
+		nil,
+		"",
+		wikiSubsectionAdminDetails(sectionSlug, title),
+	)
+
+	http.Redirect(w, r, adminUsersRedirectURL("Подраздел добавлен.", ""), http.StatusSeeOther)
 }
 
 func (a *Application) handleAdminChangeUserRole(w http.ResponseWriter, r *http.Request) {

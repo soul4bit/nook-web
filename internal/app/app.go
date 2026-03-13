@@ -179,6 +179,10 @@ func New(cfg config.Config, logger *log.Logger) (*Application, error) {
 		_ = db.Close()
 		return nil, err
 	}
+	if err := initializeWikiCatalog(db); err != nil {
+		_ = db.Close()
+		return nil, err
+	}
 
 	staticVersion := time.Now().UTC().Format("20060102150405")
 
@@ -265,6 +269,8 @@ func (a *Application) Routes() http.Handler {
 	mux.HandleFunc("/app/admin/users", a.requireAuth(a.withCSRF(a.handleAdminUsers)))
 	mux.HandleFunc("/app/admin/registrations/approve", a.requireAuth(a.withCSRF(a.handleAdminApproveRegistration)))
 	mux.HandleFunc("/app/admin/registrations/reject", a.requireAuth(a.withCSRF(a.handleAdminRejectRegistration)))
+	mux.HandleFunc("/app/admin/wiki/sections/add", a.requireAuth(a.withCSRF(a.handleAdminAddWikiSection)))
+	mux.HandleFunc("/app/admin/wiki/subsections/add", a.requireAuth(a.withCSRF(a.handleAdminAddWikiSubsection)))
 	mux.HandleFunc("/app/admin/users/role", a.requireAuth(a.withCSRF(a.handleAdminChangeUserRole)))
 	mux.HandleFunc("/app/admin/users/block", a.requireAuth(a.withCSRF(a.handleAdminBlockUser)))
 	mux.HandleFunc("/app/admin/users/unblock", a.requireAuth(a.withCSRF(a.handleAdminUnblockUser)))
@@ -534,6 +540,25 @@ func runMigrations(db *sql.DB) error {
 			updated_at timestamptz not null default now(),
 			primary key (action, identifier)
 		);`,
+		`create table if not exists wiki_sections (
+			id bigserial primary key,
+			slug text not null unique,
+			name text not null,
+			position integer not null default 0,
+			created_at timestamptz not null default now()
+		);`,
+		`create unique index if not exists idx_wiki_sections_name_ci_unique on wiki_sections ((lower(name)));`,
+		`create index if not exists idx_wiki_sections_position on wiki_sections(position asc, id asc);`,
+		`create table if not exists wiki_subsections (
+			id bigserial primary key,
+			section_id bigint not null,
+			title text not null,
+			position integer not null default 0,
+			created_at timestamptz not null default now(),
+			foreign key(section_id) references wiki_sections(id) on delete cascade
+		);`,
+		`create unique index if not exists idx_wiki_subsections_section_title_ci_unique on wiki_subsections(section_id, lower(title));`,
+		`create index if not exists idx_wiki_subsections_section_position on wiki_subsections(section_id, position asc, id asc);`,
 		`create index if not exists idx_auth_rate_limits_blocked_until on auth_rate_limits(blocked_until);`,
 		`create index if not exists idx_sessions_user_id on sessions(user_id);`,
 		`create index if not exists idx_sessions_expires_at on sessions(expires_at);`,
