@@ -652,6 +652,157 @@ func (a *Application) handleAdminDeleteWikiSection(w http.ResponseWriter, r *htt
 	http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "Раздел удален.", ""), http.StatusSeeOther)
 }
 
+func (a *Application) handleAdminRenameWikiSubsection(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	if a.requireAdmin(w, r) == nil {
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	sectionSlug := normalizeWikiSectionSlug(r.FormValue("section_slug"))
+	currentTitle := normalizeWikiSubsectionTitle(r.FormValue("subsection_title"))
+	newTitle := normalizeWikiSubsectionTitle(r.FormValue("new_title"))
+	if !isValidWikiSectionSlug(sectionSlug) {
+		http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Некорректный slug раздела."), http.StatusSeeOther)
+		return
+	}
+	if utf8.RuneCountInString(currentTitle) < 2 || utf8.RuneCountInString(currentTitle) > 120 {
+		http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Некорректное текущее название подраздела."), http.StatusSeeOther)
+		return
+	}
+	if utf8.RuneCountInString(newTitle) < 2 || utf8.RuneCountInString(newTitle) > 120 {
+		http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Новое название подраздела: от 2 до 120 символов."), http.StatusSeeOther)
+		return
+	}
+
+	if err := a.renameWikiSubsection(sectionSlug, currentTitle, newTitle); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Раздел или подраздел не найден."), http.StatusSeeOther)
+			return
+		}
+		if isWikiSubsectionDuplicateError(err) {
+			http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "В этом разделе уже есть подраздел с таким названием."), http.StatusSeeOther)
+			return
+		}
+
+		a.logger.Printf("admin rename wiki subsection: %v", err)
+		http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Не удалось переименовать подраздел."), http.StatusSeeOther)
+		return
+	}
+
+	http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "Подраздел переименован.", ""), http.StatusSeeOther)
+}
+
+func (a *Application) handleAdminMoveWikiSubsection(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	if a.requireAdmin(w, r) == nil {
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	sectionSlug := normalizeWikiSectionSlug(r.FormValue("section_slug"))
+	subsectionTitle := normalizeWikiSubsectionTitle(r.FormValue("subsection_title"))
+	direction := normalizeMoveDirection(r.FormValue("direction"))
+	if !isValidWikiSectionSlug(sectionSlug) {
+		http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Некорректный slug раздела."), http.StatusSeeOther)
+		return
+	}
+	if utf8.RuneCountInString(subsectionTitle) < 2 || utf8.RuneCountInString(subsectionTitle) > 120 {
+		http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Некорректное название подраздела."), http.StatusSeeOther)
+		return
+	}
+	if direction == "" {
+		http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Некорректное направление перемещения."), http.StatusSeeOther)
+		return
+	}
+
+	if err := a.moveWikiSubsection(sectionSlug, subsectionTitle, direction); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Раздел или подраздел не найден."), http.StatusSeeOther)
+			return
+		}
+		if isWikiSubsectionMoveEdgeError(err, "up") {
+			http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Подраздел уже на первом месте."), http.StatusSeeOther)
+			return
+		}
+		if isWikiSubsectionMoveEdgeError(err, "down") {
+			http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Подраздел уже внизу списка."), http.StatusSeeOther)
+			return
+		}
+
+		a.logger.Printf("admin move wiki subsection: %v", err)
+		http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Не удалось изменить порядок подраздела."), http.StatusSeeOther)
+		return
+	}
+
+	http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "Порядок подраздела обновлен.", ""), http.StatusSeeOther)
+}
+
+func (a *Application) handleAdminDeleteWikiSubsection(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	if a.requireAdmin(w, r) == nil {
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	sectionSlug := normalizeWikiSectionSlug(r.FormValue("section_slug"))
+	subsectionTitle := normalizeWikiSubsectionTitle(r.FormValue("subsection_title"))
+	if !isValidWikiSectionSlug(sectionSlug) {
+		http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Некорректный slug раздела."), http.StatusSeeOther)
+		return
+	}
+	if utf8.RuneCountInString(subsectionTitle) < 2 || utf8.RuneCountInString(subsectionTitle) > 120 {
+		http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Некорректное название подраздела."), http.StatusSeeOther)
+		return
+	}
+
+	if err := a.deleteWikiSubsection(sectionSlug, subsectionTitle); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Раздел или подраздел не найден."), http.StatusSeeOther)
+			return
+		}
+		if count, hasArticles := isWikiSubsectionHasArticlesError(err); hasArticles {
+			http.Redirect(
+				w,
+				r,
+				adminUsersRedirectURLForTab(adminTabCatalog, "", fmt.Sprintf("Нельзя удалить подраздел: в нем %d статей.", count)),
+				http.StatusSeeOther,
+			)
+			return
+		}
+
+		a.logger.Printf("admin delete wiki subsection: %v", err)
+		http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Не удалось удалить подраздел."), http.StatusSeeOther)
+		return
+	}
+
+	http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "Подраздел удален.", ""), http.StatusSeeOther)
+}
+
 func (a *Application) handleAdminChangeUserRole(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)

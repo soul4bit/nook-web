@@ -15,6 +15,9 @@ const (
 	adminAuditActionCreateWikiSection    = "wiki_section_create"
 	adminAuditActionCreateWikiSubsection = "wiki_subsection_create"
 	adminAuditActionDeleteWikiSection    = "wiki_section_delete"
+	adminAuditActionRenameWikiSubsection = "wiki_subsection_rename"
+	adminAuditActionMoveWikiSubsection   = "wiki_subsection_move"
+	adminAuditActionDeleteWikiSubsection = "wiki_subsection_delete"
 )
 
 func adminAuditActionLabel(action string) string {
@@ -37,6 +40,12 @@ func adminAuditActionLabel(action string) string {
 		return "Создание подраздела wiki"
 	case adminAuditActionDeleteWikiSection:
 		return "Удаление раздела wiki"
+	case adminAuditActionRenameWikiSubsection:
+		return "Переименование подраздела wiki"
+	case adminAuditActionMoveWikiSubsection:
+		return "Изменение порядка подраздела wiki"
+	case adminAuditActionDeleteWikiSubsection:
+		return "Удаление подраздела wiki"
 	default:
 		return "Действие администратора"
 	}

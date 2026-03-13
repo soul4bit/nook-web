@@ -119,6 +119,7 @@
           {{if .Sections}}
             <div class="atlas-admin-wiki-list">
               {{range .Sections}}
+                {{$section := .}}
                 <article class="atlas-admin-wiki-item">
                   <div class="atlas-admin-wiki-head">
                     <div>
@@ -134,7 +135,41 @@
                   {{if .Subsections}}
                     <ul class="atlas-admin-wiki-sub-list">
                       {{range .Subsections}}
-                        <li class="atlas-admin-wiki-sub-item">{{.}}</li>
+                        {{$subsection := .}}
+                        <li class="atlas-admin-wiki-sub-item">
+                          <div class="atlas-admin-wiki-sub-row">
+                            <span class="atlas-admin-wiki-sub-title">{{$subsection}}</span>
+                            <div class="atlas-admin-wiki-sub-actions">
+                              <form method="post" action="/app/admin/wiki/subsections/move">
+                                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}" />
+                                <input type="hidden" name="section_slug" value="{{$section.Slug}}" />
+                                <input type="hidden" name="subsection_title" value="{{$subsection}}" />
+                                <input type="hidden" name="direction" value="up" />
+                                <button class="button button-ghost button-compact" type="submit">Вверх</button>
+                              </form>
+                              <form method="post" action="/app/admin/wiki/subsections/move">
+                                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}" />
+                                <input type="hidden" name="section_slug" value="{{$section.Slug}}" />
+                                <input type="hidden" name="subsection_title" value="{{$subsection}}" />
+                                <input type="hidden" name="direction" value="down" />
+                                <button class="button button-ghost button-compact" type="submit">Вниз</button>
+                              </form>
+                              <form method="post" action="/app/admin/wiki/subsections/delete" onsubmit="return confirm('Удалить подраздел {{$subsection}} из раздела {{$section.Name}}?');">
+                                <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}" />
+                                <input type="hidden" name="section_slug" value="{{$section.Slug}}" />
+                                <input type="hidden" name="subsection_title" value="{{$subsection}}" />
+                                <button class="button button-ghost button-compact atlas-danger-button" type="submit">Удалить</button>
+                              </form>
+                            </div>
+                          </div>
+                          <form method="post" action="/app/admin/wiki/subsections/rename" class="atlas-admin-wiki-sub-rename">
+                            <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}" />
+                            <input type="hidden" name="section_slug" value="{{$section.Slug}}" />
+                            <input type="hidden" name="subsection_title" value="{{$subsection}}" />
+                            <input class="atlas-admin-inline-input" type="text" name="new_title" value="{{$subsection}}" maxlength="120" required />
+                            <button class="button button-ghost button-compact" type="submit">Переименовать</button>
+                          </form>
+                        </li>
                       {{end}}
                     </ul>
                   {{else}}

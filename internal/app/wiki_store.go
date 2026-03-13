@@ -26,6 +26,28 @@ func (e *wikiLastSectionDeleteError) Error() string {
 	return "cannot delete last wiki section"
 }
 
+type wikiSubsectionHasArticlesError struct {
+	Count int
+}
+
+func (e *wikiSubsectionHasArticlesError) Error() string {
+	if e == nil {
+		return "wiki subsection has articles"
+	}
+	return "wiki subsection has articles"
+}
+
+type wikiSubsectionMoveEdgeError struct {
+	Direction string
+}
+
+func (e *wikiSubsectionMoveEdgeError) Error() string {
+	if e == nil {
+		return "wiki subsection cannot be moved"
+	}
+	return "wiki subsection cannot be moved: " + strings.TrimSpace(e.Direction)
+}
+
 func isWikiSectionHasArticlesError(err error) (int, bool) {
 	var sectionErr *wikiSectionHasArticlesError
 	if !errors.As(err, &sectionErr) {
@@ -40,6 +62,25 @@ func isWikiSectionHasArticlesError(err error) (int, bool) {
 func isWikiLastSectionDeleteError(err error) bool {
 	var sectionErr *wikiLastSectionDeleteError
 	return errors.As(err, &sectionErr)
+}
+
+func isWikiSubsectionHasArticlesError(err error) (int, bool) {
+	var subsectionErr *wikiSubsectionHasArticlesError
+	if !errors.As(err, &subsectionErr) {
+		return 0, false
+	}
+	if subsectionErr == nil {
+		return 0, true
+	}
+	return subsectionErr.Count, true
+}
+
+func isWikiSubsectionMoveEdgeError(err error, direction string) bool {
+	var subsectionErr *wikiSubsectionMoveEdgeError
+	if !errors.As(err, &subsectionErr) {
+		return false
+	}
+	return strings.EqualFold(strings.TrimSpace(subsectionErr.Direction), strings.TrimSpace(direction))
 }
 
 func initializeWikiCatalog(db *sql.DB) error {
@@ -285,6 +326,309 @@ func (a *Application) createWikiSubsection(sectionSlug string, title string) err
 		sectionID,
 		cleanTitle,
 		nextPosition,
+	); err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return a.reloadWikiCatalog()
+}
+
+type wikiSubsectionRecord struct {
+	ID        int64
+	SectionID int64
+	Title     string
+	Position  int
+}
+
+func normalizeWikiSubsectionTitle(raw string) string {
+	return strings.TrimSpace(raw)
+}
+
+func normalizeMoveDirection(raw string) string {
+	switch strings.ToLower(strings.TrimSpace(raw)) {
+	case "up":
+		return "up"
+	case "down":
+		return "down"
+	default:
+		return ""
+	}
+}
+
+func selectWikiSubsectionByTitleTx(tx *sql.Tx, sectionID int64, title string, forUpdate bool) (*wikiSubsectionRecord, error) {
+	query := `select id, section_id, title, position
+		from wiki_subsections
+		where section_id = $1 and lower(title) = lower($2)
+		limit 1`
+	if forUpdate {
+		query += " for update"
+	}
+
+	row := tx.QueryRow(query, sectionID, title)
+	var subsection wikiSubsectionRecord
+	if err := row.Scan(&subsection.ID, &subsection.SectionID, &subsection.Title, &subsection.Position); err != nil {
+		return nil, err
+	}
+	return &subsection, nil
+}
+
+func selectNeighborSubsectionTx(tx *sql.Tx, sectionID int64, current wikiSubsectionRecord, direction string) (*wikiSubsectionRecord, error) {
+	moveDirection := normalizeMoveDirection(direction)
+	if moveDirection == "" {
+		return nil, errors.New("invalid move direction")
+	}
+
+	var row *sql.Row
+	if moveDirection == "up" {
+		row = tx.QueryRow(
+			`select id, section_id, title, position
+			from wiki_subsections
+			where section_id = $1 and (position < $2 or (position = $2 and id < $3))
+			order by position desc, id desc
+			limit 1
+			for update`,
+			sectionID,
+			current.Position,
+			current.ID,
+		)
+	} else {
+		row = tx.QueryRow(
+			`select id, section_id, title, position
+			from wiki_subsections
+			where section_id = $1 and (position > $2 or (position = $2 and id > $3))
+			order by position asc, id asc
+			limit 1
+			for update`,
+			sectionID,
+			current.Position,
+			current.ID,
+		)
+	}
+
+	var neighbor wikiSubsectionRecord
+	if err := row.Scan(&neighbor.ID, &neighbor.SectionID, &neighbor.Title, &neighbor.Position); err != nil {
+		return nil, err
+	}
+	return &neighbor, nil
+}
+
+func resolveWikiSectionBySlugTx(tx *sql.Tx, slug string, forUpdate bool) (int64, error) {
+	query := `select id from wiki_sections where slug = $1 limit 1`
+	if forUpdate {
+		query += " for update"
+	}
+	var sectionID int64
+	if err := tx.QueryRow(query, slug).Scan(&sectionID); err != nil {
+		return 0, err
+	}
+	return sectionID, nil
+}
+
+func (a *Application) deleteWikiSubsection(sectionSlug string, subsectionTitle string) error {
+	if a == nil || a.db == nil {
+		return errors.New("application database is not initialized")
+	}
+
+	cleanSectionSlug := normalizeWikiSectionSlug(sectionSlug)
+	cleanSubsectionTitle := normalizeWikiSubsectionTitle(subsectionTitle)
+	if !isValidWikiSectionSlug(cleanSectionSlug) {
+		return errors.New("invalid section slug")
+	}
+	if utf8.RuneCountInString(cleanSubsectionTitle) < 2 || utf8.RuneCountInString(cleanSubsectionTitle) > 120 {
+		return errors.New("invalid subsection title")
+	}
+
+	tx, err := a.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	sectionID, err := resolveWikiSectionBySlugTx(tx, cleanSectionSlug, true)
+	if err != nil {
+		return err
+	}
+
+	subsection, err := selectWikiSubsectionByTitleTx(tx, sectionID, cleanSubsectionTitle, true)
+	if err != nil {
+		return err
+	}
+
+	var articleCount int
+	if err := tx.QueryRow(
+		`select count(*) from articles where section_slug = $1 and lower(subsection) = lower($2)`,
+		cleanSectionSlug,
+		cleanSubsectionTitle,
+	).Scan(&articleCount); err != nil {
+		return err
+	}
+	if articleCount > 0 {
+		return &wikiSubsectionHasArticlesError{Count: articleCount}
+	}
+
+	if _, err := tx.Exec(`delete from wiki_subsections where id = $1`, subsection.ID); err != nil {
+		return err
+	}
+
+	if _, err := tx.Exec(
+		`update article_drafts
+		set subsection = ''
+		where section_slug = $1 and lower(subsection) = lower($2)`,
+		cleanSectionSlug,
+		cleanSubsectionTitle,
+	); err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return a.reloadWikiCatalog()
+}
+
+func (a *Application) renameWikiSubsection(sectionSlug string, currentTitle string, newTitle string) error {
+	if a == nil || a.db == nil {
+		return errors.New("application database is not initialized")
+	}
+
+	cleanSectionSlug := normalizeWikiSectionSlug(sectionSlug)
+	cleanCurrentTitle := normalizeWikiSubsectionTitle(currentTitle)
+	cleanNewTitle := normalizeWikiSubsectionTitle(newTitle)
+	if !isValidWikiSectionSlug(cleanSectionSlug) {
+		return errors.New("invalid section slug")
+	}
+	if utf8.RuneCountInString(cleanCurrentTitle) < 2 || utf8.RuneCountInString(cleanCurrentTitle) > 120 {
+		return errors.New("invalid current subsection title")
+	}
+	if utf8.RuneCountInString(cleanNewTitle) < 2 || utf8.RuneCountInString(cleanNewTitle) > 120 {
+		return errors.New("invalid new subsection title")
+	}
+
+	tx, err := a.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	sectionID, err := resolveWikiSectionBySlugTx(tx, cleanSectionSlug, true)
+	if err != nil {
+		return err
+	}
+
+	subsection, err := selectWikiSubsectionByTitleTx(tx, sectionID, cleanCurrentTitle, true)
+	if err != nil {
+		return err
+	}
+
+	if strings.EqualFold(cleanCurrentTitle, cleanNewTitle) {
+		if err := tx.Commit(); err != nil {
+			return err
+		}
+		return nil
+	}
+
+	if _, err := tx.Exec(
+		`update wiki_subsections set title = $2 where id = $1`,
+		subsection.ID,
+		cleanNewTitle,
+	); err != nil {
+		return err
+	}
+
+	if _, err := tx.Exec(
+		`update articles
+		set subsection = $3
+		where section_slug = $1 and lower(subsection) = lower($2)`,
+		cleanSectionSlug,
+		cleanCurrentTitle,
+		cleanNewTitle,
+	); err != nil {
+		return err
+	}
+
+	if _, err := tx.Exec(
+		`update article_drafts
+		set subsection = $3
+		where section_slug = $1 and lower(subsection) = lower($2)`,
+		cleanSectionSlug,
+		cleanCurrentTitle,
+		cleanNewTitle,
+	); err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return a.reloadWikiCatalog()
+}
+
+func (a *Application) moveWikiSubsection(sectionSlug string, subsectionTitle string, direction string) error {
+	if a == nil || a.db == nil {
+		return errors.New("application database is not initialized")
+	}
+
+	cleanSectionSlug := normalizeWikiSectionSlug(sectionSlug)
+	cleanSubsectionTitle := normalizeWikiSubsectionTitle(subsectionTitle)
+	cleanDirection := normalizeMoveDirection(direction)
+	if !isValidWikiSectionSlug(cleanSectionSlug) {
+		return errors.New("invalid section slug")
+	}
+	if utf8.RuneCountInString(cleanSubsectionTitle) < 2 || utf8.RuneCountInString(cleanSubsectionTitle) > 120 {
+		return errors.New("invalid subsection title")
+	}
+	if cleanDirection == "" {
+		return errors.New("invalid move direction")
+	}
+
+	tx, err := a.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	sectionID, err := resolveWikiSectionBySlugTx(tx, cleanSectionSlug, true)
+	if err != nil {
+		return err
+	}
+
+	currentSubsection, err := selectWikiSubsectionByTitleTx(tx, sectionID, cleanSubsectionTitle, true)
+	if err != nil {
+		return err
+	}
+
+	neighborSubsection, err := selectNeighborSubsectionTx(tx, sectionID, *currentSubsection, cleanDirection)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return &wikiSubsectionMoveEdgeError{Direction: cleanDirection}
+		}
+		return err
+	}
+
+	if _, err := tx.Exec(
+		`update wiki_subsections
+		set position = case
+			when id = $1 then $4
+			when id = $2 then $3
+			else position
+		end
+		where id in ($1, $2)`,
+		currentSubsection.ID,
+		neighborSubsection.ID,
+		currentSubsection.Position,
+		neighborSubsection.Position,
 	); err != nil {
 		return err
 	}

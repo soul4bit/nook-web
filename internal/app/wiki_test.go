@@ -38,3 +38,24 @@ func TestSetWikiSectionCatalogFallbackToDefault(t *testing.T) {
 		t.Fatal("wikiSections() returned empty catalog after fallback")
 	}
 }
+
+func TestNormalizeMoveDirection(t *testing.T) {
+	tests := []struct {
+		raw      string
+		expected string
+	}{
+		{raw: "up", expected: "up"},
+		{raw: " UP ", expected: "up"},
+		{raw: "down", expected: "down"},
+		{raw: "Down", expected: "down"},
+		{raw: "left", expected: ""},
+		{raw: "", expected: ""},
+	}
+
+	for _, tt := range tests {
+		got := normalizeMoveDirection(tt.raw)
+		if got != tt.expected {
+			t.Fatalf("normalizeMoveDirection(%q) = %q, want %q", tt.raw, got, tt.expected)
+		}
+	}
+}

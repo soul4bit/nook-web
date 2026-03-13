@@ -2046,12 +2046,48 @@ body {
   margin: 0;
   padding-left: 18px;
   display: grid;
-  gap: 4px;
+  gap: 8px;
 }
 
 .atlas-admin-wiki-sub-item {
+  border: 1px solid #d4e2dd;
+  border-radius: 10px;
+  padding: 8px;
+  background: rgba(248, 252, 250, 0.88);
+  display: grid;
+  gap: 7px;
+}
+
+.atlas-admin-wiki-sub-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.atlas-admin-wiki-sub-title {
   color: #35564f;
   line-height: 1.45;
+  font-weight: 700;
+}
+
+.atlas-admin-wiki-sub-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.atlas-admin-wiki-sub-actions form {
+  margin: 0;
+}
+
+.atlas-admin-wiki-sub-rename {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
 }
 
 .atlas-admin-item {
@@ -3365,6 +3401,14 @@ body {
 
   .atlas-admin-wiki-grid {
     grid-template-columns: 1fr;
+  }
+
+  .atlas-admin-wiki-sub-rename {
+    grid-template-columns: 1fr;
+  }
+
+  .atlas-admin-wiki-sub-rename .button {
+    width: 100%;
   }
 
   .atlas-admin-user-actions {
