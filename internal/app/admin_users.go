@@ -419,8 +419,7 @@ func (a *Application) handleAdminApproveRegistration(w http.ResponseWriter, r *h
 		return
 	}
 
-	currentUser := a.requireAdmin(w, r)
-	if currentUser == nil {
+	if a.requireAdmin(w, r) == nil {
 		return
 	}
 
@@ -472,14 +471,6 @@ func (a *Application) handleAdminApproveRegistration(w http.ResponseWriter, r *h
 		return
 	}
 
-	a.addAdminAuditEntry(
-		currentUser.ID,
-		adminAuditActionApproveRegistration,
-		nil,
-		req.Email,
-		fmt.Sprintf("request_id=%d", requestID),
-	)
-
 	success := fmt.Sprintf("Заявка для %s одобрена.", req.Email)
 	http.Redirect(w, r, adminUsersRedirectURL(success, ""), http.StatusSeeOther)
 }
@@ -490,8 +481,7 @@ func (a *Application) handleAdminRejectRegistration(w http.ResponseWriter, r *ht
 		return
 	}
 
-	currentUser := a.requireAdmin(w, r)
-	if currentUser == nil {
+	if a.requireAdmin(w, r) == nil {
 		return
 	}
 
@@ -528,14 +518,6 @@ func (a *Application) handleAdminRejectRegistration(w http.ResponseWriter, r *ht
 		return
 	}
 
-	a.addAdminAuditEntry(
-		currentUser.ID,
-		adminAuditActionRejectRegistration,
-		nil,
-		req.Email,
-		fmt.Sprintf("request_id=%d reason=%s", requestID, reason),
-	)
-
 	success := fmt.Sprintf("Заявка для %s отклонена.", req.Email)
 	http.Redirect(w, r, adminUsersRedirectURL(success, ""), http.StatusSeeOther)
 }
@@ -546,8 +528,7 @@ func (a *Application) handleAdminAddWikiSection(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	currentUser := a.requireAdmin(w, r)
-	if currentUser == nil {
+	if a.requireAdmin(w, r) == nil {
 		return
 	}
 
@@ -577,14 +558,6 @@ func (a *Application) handleAdminAddWikiSection(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	a.addAdminAuditEntry(
-		currentUser.ID,
-		adminAuditActionCreateWikiSection,
-		nil,
-		"",
-		wikiSectionAdminDetails(slug, name),
-	)
-
 	http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "Раздел добавлен.", ""), http.StatusSeeOther)
 }
 
@@ -594,8 +567,7 @@ func (a *Application) handleAdminAddWikiSubsection(w http.ResponseWriter, r *htt
 		return
 	}
 
-	currentUser := a.requireAdmin(w, r)
-	if currentUser == nil {
+	if a.requireAdmin(w, r) == nil {
 		return
 	}
 
@@ -629,15 +601,55 @@ func (a *Application) handleAdminAddWikiSubsection(w http.ResponseWriter, r *htt
 		return
 	}
 
-	a.addAdminAuditEntry(
-		currentUser.ID,
-		adminAuditActionCreateWikiSubsection,
-		nil,
-		"",
-		wikiSubsectionAdminDetails(sectionSlug, title),
-	)
-
 	http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "Подраздел добавлен.", ""), http.StatusSeeOther)
+}
+
+func (a *Application) handleAdminDeleteWikiSection(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	if a.requireAdmin(w, r) == nil {
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	sectionSlug := normalizeWikiSectionSlug(r.FormValue("section_slug"))
+	if !isValidWikiSectionSlug(sectionSlug) {
+		http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Некорректный slug раздела."), http.StatusSeeOther)
+		return
+	}
+
+	if err := a.deleteWikiSection(sectionSlug); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Раздел не найден."), http.StatusSeeOther)
+			return
+		}
+		if count, hasArticles := isWikiSectionHasArticlesError(err); hasArticles {
+			http.Redirect(
+				w,
+				r,
+				adminUsersRedirectURLForTab(adminTabCatalog, "", fmt.Sprintf("Нельзя удалить раздел: в нем %d статей.", count)),
+				http.StatusSeeOther,
+			)
+			return
+		}
+		if isWikiLastSectionDeleteError(err) {
+			http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Нельзя удалить последний раздел."), http.StatusSeeOther)
+			return
+		}
+
+		a.logger.Printf("admin delete wiki section: %v", err)
+		http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Не удалось удалить раздел."), http.StatusSeeOther)
+		return
+	}
+
+	http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "Раздел удален.", ""), http.StatusSeeOther)
 }
 
 func (a *Application) handleAdminChangeUserRole(w http.ResponseWriter, r *http.Request) {
@@ -708,15 +720,6 @@ func (a *Application) handleAdminChangeUserRole(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	targetUserID := updated.ID
-	a.addAdminAuditEntry(
-		currentUser.ID,
-		adminAuditActionChangeUserRole,
-		&targetUserID,
-		updated.Email,
-		fmt.Sprintf("old_role=%s new_role=%s", roleLabel(target.Role), roleLabel(updated.Role)),
-	)
-
 	success := fmt.Sprintf("Роль пользователя %s обновлена: %s.", updated.Email, roleLabel(updated.Role))
 	http.Redirect(w, r, adminUsersRedirectURL(success, ""), http.StatusSeeOther)
 }
@@ -781,14 +784,6 @@ func (a *Application) handleAdminDeleteUser(w http.ResponseWriter, r *http.Reque
 		http.Redirect(w, r, adminUsersRedirectURL("", "Не удалось удалить пользователя."), http.StatusSeeOther)
 		return
 	}
-
-	a.addAdminAuditEntry(
-		currentUser.ID,
-		adminAuditActionDeleteUser,
-		nil,
-		target.Email,
-		fmt.Sprintf("user_id=%d", userID),
-	)
 
 	success := fmt.Sprintf("Пользователь %s удален.", target.Email)
 	http.Redirect(w, r, adminUsersRedirectURL(success, ""), http.StatusSeeOther)
@@ -865,15 +860,6 @@ func (a *Application) handleAdminBlockUser(w http.ResponseWriter, r *http.Reques
 		a.logger.Printf("admin delete sessions for blocked user: %v", err)
 	}
 
-	targetUserID := updated.ID
-	a.addAdminAuditEntry(
-		currentUser.ID,
-		adminAuditActionBlockUser,
-		&targetUserID,
-		updated.Email,
-		"",
-	)
-
 	success := fmt.Sprintf("Пользователь %s заблокирован.", updated.Email)
 	http.Redirect(w, r, adminUsersRedirectURL(success, ""), http.StatusSeeOther)
 }
@@ -926,15 +912,6 @@ func (a *Application) handleAdminUnblockUser(w http.ResponseWriter, r *http.Requ
 		http.Redirect(w, r, adminUsersRedirectURL("", "Не удалось разблокировать пользователя."), http.StatusSeeOther)
 		return
 	}
-
-	targetUserID := updated.ID
-	a.addAdminAuditEntry(
-		currentUser.ID,
-		adminAuditActionUnblockUser,
-		&targetUserID,
-		updated.Email,
-		"",
-	)
 
 	success := fmt.Sprintf("Пользователь %s разблокирован.", updated.Email)
 	http.Redirect(w, r, adminUsersRedirectURL(success, ""), http.StatusSeeOther)

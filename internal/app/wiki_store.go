@@ -3,12 +3,44 @@ package app
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"strings"
 	"unicode/utf8"
 
 	"github.com/jackc/pgx/v5/pgconn"
 )
+
+type wikiSectionHasArticlesError struct {
+	Count int
+}
+
+func (e *wikiSectionHasArticlesError) Error() string {
+	if e == nil {
+		return "wiki section has articles"
+	}
+	return "wiki section has articles"
+}
+
+type wikiLastSectionDeleteError struct{}
+
+func (e *wikiLastSectionDeleteError) Error() string {
+	return "cannot delete last wiki section"
+}
+
+func isWikiSectionHasArticlesError(err error) (int, bool) {
+	var sectionErr *wikiSectionHasArticlesError
+	if !errors.As(err, &sectionErr) {
+		return 0, false
+	}
+	if sectionErr == nil {
+		return 0, true
+	}
+	return sectionErr.Count, true
+}
+
+func isWikiLastSectionDeleteError(err error) bool {
+	var sectionErr *wikiLastSectionDeleteError
+	return errors.As(err, &sectionErr)
+}
 
 func initializeWikiCatalog(db *sql.DB) error {
 	if db == nil {
@@ -264,6 +296,65 @@ func (a *Application) createWikiSubsection(sectionSlug string, title string) err
 	return a.reloadWikiCatalog()
 }
 
+func (a *Application) deleteWikiSection(sectionSlug string) error {
+	if a == nil || a.db == nil {
+		return errors.New("application database is not initialized")
+	}
+
+	cleanSlug := normalizeWikiSectionSlug(sectionSlug)
+	if !isValidWikiSectionSlug(cleanSlug) {
+		return errors.New("invalid section slug")
+	}
+
+	tx, err := a.db.Begin()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	var (
+		sectionID    int64
+		totalSection int
+	)
+
+	if err := tx.QueryRow(`select count(*) from wiki_sections`).Scan(&totalSection); err != nil {
+		return err
+	}
+	if totalSection <= 1 {
+		return &wikiLastSectionDeleteError{}
+	}
+
+	if err := tx.QueryRow(
+		`select id from wiki_sections where slug = $1 limit 1`,
+		cleanSlug,
+	).Scan(&sectionID); err != nil {
+		return err
+	}
+
+	var articleCount int
+	if err := tx.QueryRow(
+		`select count(*) from articles where section_slug = $1`,
+		cleanSlug,
+	).Scan(&articleCount); err != nil {
+		return err
+	}
+	if articleCount > 0 {
+		return &wikiSectionHasArticlesError{Count: articleCount}
+	}
+
+	if _, err := tx.Exec(`delete from wiki_sections where id = $1`, sectionID); err != nil {
+		return err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+
+	return a.reloadWikiCatalog()
+}
+
 func isWikiUniqueViolation(err error, constraints ...string) bool {
 	if err == nil {
 		return false
@@ -311,12 +402,4 @@ func isWikiSubsectionDuplicateError(err error) bool {
 		err,
 		"idx_wiki_subsections_section_title_ci_unique",
 	)
-}
-
-func wikiSectionAdminDetails(slug string, name string) string {
-	return fmt.Sprintf("section_slug=%s section_name=%s", strings.TrimSpace(slug), strings.TrimSpace(name))
-}
-
-func wikiSubsectionAdminDetails(sectionSlug string, title string) string {
-	return fmt.Sprintf("section_slug=%s subsection=%s", strings.TrimSpace(sectionSlug), strings.TrimSpace(title))
 }

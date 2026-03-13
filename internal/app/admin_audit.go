@@ -14,6 +14,7 @@ const (
 	adminAuditActionUnblockUser          = "user_unblock"
 	adminAuditActionCreateWikiSection    = "wiki_section_create"
 	adminAuditActionCreateWikiSubsection = "wiki_subsection_create"
+	adminAuditActionDeleteWikiSection    = "wiki_section_delete"
 )
 
 func adminAuditActionLabel(action string) string {
@@ -34,6 +35,8 @@ func adminAuditActionLabel(action string) string {
 		return "Создание раздела wiki"
 	case adminAuditActionCreateWikiSubsection:
 		return "Создание подраздела wiki"
+	case adminAuditActionDeleteWikiSection:
+		return "Удаление раздела wiki"
 	default:
 		return "Действие администратора"
 	}
