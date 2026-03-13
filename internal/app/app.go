@@ -152,6 +152,7 @@ type viewData struct {
 	ArticleBodyHTML     template.HTML
 	ArticleComments     []ArticleComment
 	DraftLoaded         bool
+	AdminTab            string
 	AdminUsers          []adminUserListItem
 	PendingRequests     []registrationRequestListItem
 	AdminAuditEntries   []adminAuditEntry

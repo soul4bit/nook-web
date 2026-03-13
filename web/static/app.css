@@ -1967,6 +1967,38 @@ body {
     linear-gradient(145deg, rgba(238, 248, 244, 0.95), rgba(250, 252, 251, 0.95));
 }
 
+.atlas-admin-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.atlas-admin-tab {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 13px;
+  border-radius: 10px;
+  border: 1px solid #c1d7cf;
+  background: rgba(250, 253, 251, 0.92);
+  color: #3a5a53;
+  font-size: 13px;
+  font-weight: 700;
+  transition: transform 0.16s ease, border-color 0.16s ease, background-color 0.16s ease, color 0.16s ease;
+}
+
+.atlas-admin-tab:hover {
+  transform: translateY(-1px);
+  border-color: #9fc3b7;
+  background: rgba(241, 249, 246, 0.96);
+}
+
+.atlas-admin-tab-active {
+  border-color: #7cad9f;
+  background: rgba(217, 237, 229, 0.94);
+  color: #194b41;
+}
+
 .atlas-admin-list {
   display: grid;
   gap: 12px;

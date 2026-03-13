@@ -30,6 +30,23 @@ type registrationRequestListItem struct {
 	CreatedAt time.Time
 }
 
+const (
+	adminTabCatalog = "catalog"
+	adminTabUsers   = "users"
+	adminTabAudit   = "audit"
+)
+
+func normalizeAdminTab(raw string) string {
+	switch strings.ToLower(strings.TrimSpace(raw)) {
+	case adminTabCatalog:
+		return adminTabCatalog
+	case adminTabAudit:
+		return adminTabAudit
+	default:
+		return adminTabUsers
+	}
+}
+
 func parsePositiveID(raw string) (int64, error) {
 	value, err := strconv.ParseInt(strings.TrimSpace(raw), 10, 64)
 	if err != nil || value < 1 {
@@ -51,8 +68,10 @@ func selectedRole(raw string) (string, error) {
 	}
 }
 
-func adminUsersRedirectURL(success string, failure string) string {
+func adminUsersRedirectURLForTab(tab string, success string, failure string) string {
+	resolvedTab := normalizeAdminTab(tab)
 	query := url.Values{}
+	query.Set("tab", resolvedTab)
 	if strings.TrimSpace(success) != "" {
 		query.Set("success", strings.TrimSpace(success))
 	}
@@ -65,6 +84,10 @@ func adminUsersRedirectURL(success string, failure string) string {
 		target += "?" + encoded
 	}
 	return target
+}
+
+func adminUsersRedirectURL(success string, failure string) string {
+	return adminUsersRedirectURLForTab(adminTabUsers, success, failure)
 }
 
 func (a *Application) requireAdmin(w http.ResponseWriter, r *http.Request) *User {
@@ -356,31 +379,35 @@ func (a *Application) handleAdminUsers(w http.ResponseWriter, r *http.Request) {
 
 	data := a.appViewData(user, "Админка")
 	data.CurrentPage = "admin-users"
+	data.AdminTab = normalizeAdminTab(r.URL.Query().Get("tab"))
 	data.Success = strings.TrimSpace(r.URL.Query().Get("success"))
 	data.Error = strings.TrimSpace(r.URL.Query().Get("error"))
 	data.AvailableRoles = allRoleOptions()
 
-	users, err := a.listUsersForAdmin()
-	if err != nil {
-		a.logger.Printf("admin list users: %v", err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
-	}
-	data.AdminUsers = users
+	switch data.AdminTab {
+	case adminTabUsers:
+		users, err := a.listUsersForAdmin()
+		if err != nil {
+			a.logger.Printf("admin list users: %v", err)
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			return
+		}
+		data.AdminUsers = users
 
-	requests, err := a.listPendingRegistrationRequests()
-	if err != nil {
-		a.logger.Printf("admin list pending requests: %v", err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
-		return
-	}
-	data.PendingRequests = requests
-
-	auditEntries, err := a.listAdminAuditEntries(20)
-	if err != nil {
-		a.logger.Printf("admin list audit entries: %v", err)
-	} else {
-		data.AdminAuditEntries = auditEntries
+		requests, err := a.listPendingRegistrationRequests()
+		if err != nil {
+			a.logger.Printf("admin list pending requests: %v", err)
+			http.Error(w, "internal server error", http.StatusInternalServerError)
+			return
+		}
+		data.PendingRequests = requests
+	case adminTabAudit:
+		auditEntries, err := a.listAdminAuditEntries(40)
+		if err != nil {
+			a.logger.Printf("admin list audit entries: %v", err)
+		} else {
+			data.AdminAuditEntries = auditEntries
+		}
 	}
 
 	a.renderTemplate(w, r, "admin_users.tmpl", data)
@@ -532,21 +559,21 @@ func (a *Application) handleAdminAddWikiSection(w http.ResponseWriter, r *http.R
 	name := strings.TrimSpace(r.FormValue("name"))
 	slug := normalizeWikiSectionSlug(r.FormValue("slug"))
 	if utf8.RuneCountInString(name) < 2 || utf8.RuneCountInString(name) > 80 {
-		http.Redirect(w, r, adminUsersRedirectURL("", "Название раздела: от 2 до 80 символов."), http.StatusSeeOther)
+		http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Название раздела: от 2 до 80 символов."), http.StatusSeeOther)
 		return
 	}
 	if !isValidWikiSectionSlug(slug) {
-		http.Redirect(w, r, adminUsersRedirectURL("", "Slug должен быть в формате `devops-runbooks` (латиница, цифры, дефисы)."), http.StatusSeeOther)
+		http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Slug должен быть в формате `devops-runbooks` (латиница, цифры, дефисы)."), http.StatusSeeOther)
 		return
 	}
 
 	if err := a.createWikiSection(slug, name); err != nil {
 		if isWikiSectionDuplicateError(err) {
-			http.Redirect(w, r, adminUsersRedirectURL("", "Раздел с таким slug или названием уже существует."), http.StatusSeeOther)
+			http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Раздел с таким slug или названием уже существует."), http.StatusSeeOther)
 			return
 		}
 		a.logger.Printf("admin create wiki section: %v", err)
-		http.Redirect(w, r, adminUsersRedirectURL("", "Не удалось добавить раздел."), http.StatusSeeOther)
+		http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Не удалось добавить раздел."), http.StatusSeeOther)
 		return
 	}
 
@@ -558,7 +585,7 @@ func (a *Application) handleAdminAddWikiSection(w http.ResponseWriter, r *http.R
 		wikiSectionAdminDetails(slug, name),
 	)
 
-	http.Redirect(w, r, adminUsersRedirectURL("Раздел добавлен.", ""), http.StatusSeeOther)
+	http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "Раздел добавлен.", ""), http.StatusSeeOther)
 }
 
 func (a *Application) handleAdminAddWikiSubsection(w http.ResponseWriter, r *http.Request) {
@@ -580,25 +607,25 @@ func (a *Application) handleAdminAddWikiSubsection(w http.ResponseWriter, r *htt
 	sectionSlug := normalizeWikiSectionSlug(r.FormValue("section_slug"))
 	title := strings.TrimSpace(r.FormValue("title"))
 	if !isValidWikiSectionSlug(sectionSlug) {
-		http.Redirect(w, r, adminUsersRedirectURL("", "Выберите корректный раздел."), http.StatusSeeOther)
+		http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Выберите корректный раздел."), http.StatusSeeOther)
 		return
 	}
 	if utf8.RuneCountInString(title) < 2 || utf8.RuneCountInString(title) > 120 {
-		http.Redirect(w, r, adminUsersRedirectURL("", "Название подраздела: от 2 до 120 символов."), http.StatusSeeOther)
+		http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Название подраздела: от 2 до 120 символов."), http.StatusSeeOther)
 		return
 	}
 
 	if err := a.createWikiSubsection(sectionSlug, title); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			http.Redirect(w, r, adminUsersRedirectURL("", "Раздел не найден."), http.StatusSeeOther)
+			http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Раздел не найден."), http.StatusSeeOther)
 			return
 		}
 		if isWikiSubsectionDuplicateError(err) {
-			http.Redirect(w, r, adminUsersRedirectURL("", "Такой подраздел уже есть в выбранном разделе."), http.StatusSeeOther)
+			http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Такой подраздел уже есть в выбранном разделе."), http.StatusSeeOther)
 			return
 		}
 		a.logger.Printf("admin create wiki subsection: %v", err)
-		http.Redirect(w, r, adminUsersRedirectURL("", "Не удалось добавить подраздел."), http.StatusSeeOther)
+		http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "", "Не удалось добавить подраздел."), http.StatusSeeOther)
 		return
 	}
 
@@ -610,7 +637,7 @@ func (a *Application) handleAdminAddWikiSubsection(w http.ResponseWriter, r *htt
 		wikiSubsectionAdminDetails(sectionSlug, title),
 	)
 
-	http.Redirect(w, r, adminUsersRedirectURL("Подраздел добавлен.", ""), http.StatusSeeOther)
+	http.Redirect(w, r, adminUsersRedirectURLForTab(adminTabCatalog, "Подраздел добавлен.", ""), http.StatusSeeOther)
 }
 
 func (a *Application) handleAdminChangeUserRole(w http.ResponseWriter, r *http.Request) {

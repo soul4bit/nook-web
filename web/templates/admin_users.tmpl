@@ -63,8 +63,8 @@
       <section class="atlas-main">
         <article class="atlas-card atlas-main-head">
           <p class="panel-label">Админка</p>
-          <h2 class="atlas-section-title">Пользователи и заявки</h2>
-          <p class="atlas-hero-text">Здесь можно одобрять регистрацию, менять роли и удалять пользователей.</p>
+          <h2 class="atlas-section-title">Управление платформой</h2>
+          <p class="atlas-hero-text">Переключайтесь между вкладками: структура wiki, пользователи и журнал действий.</p>
         </article>
 
         {{if .Error}}
@@ -74,6 +74,13 @@
           <p class="alert alert-success">{{.Success}}</p>
         {{end}}
 
+        <nav class="atlas-admin-tabs" aria-label="Разделы админки">
+          <a class="atlas-admin-tab {{if eq .AdminTab "catalog"}}atlas-admin-tab-active{{end}}" href="/app/admin/users?tab=catalog">Разделы</a>
+          <a class="atlas-admin-tab {{if eq .AdminTab "users"}}atlas-admin-tab-active{{end}}" href="/app/admin/users?tab=users">Заявки и пользователи</a>
+          <a class="atlas-admin-tab {{if eq .AdminTab "audit"}}atlas-admin-tab-active{{end}}" href="/app/admin/users?tab=audit">Лог действий</a>
+        </nav>
+
+        {{if eq .AdminTab "catalog"}}
         <article class="atlas-card atlas-admin-card">
           <p class="panel-label">Разделы и подразделы</p>
           <div class="atlas-admin-wiki-grid">
@@ -133,7 +140,9 @@
             <p class="atlas-empty">Разделы пока не добавлены.</p>
           {{end}}
         </article>
+        {{end}}
 
+        {{if eq .AdminTab "users"}}
         <article class="atlas-card atlas-admin-card">
           <p class="panel-label">Заявки на регистрацию</p>
           {{if .PendingRequests}}
@@ -247,7 +256,9 @@
             <p class="atlas-empty">Пользователи пока отсутствуют.</p>
           {{end}}
         </article>
+        {{end}}
 
+        {{if eq .AdminTab "audit"}}
         <article class="atlas-card atlas-admin-card">
           <p class="panel-label">Журнал действий админа</p>
           {{if .AdminAuditEntries}}
@@ -272,6 +283,7 @@
             <p class="atlas-empty">Журнал пока пуст.</p>
           {{end}}
         </article>
+        {{end}}
       </section>
     </section>
   </main>
