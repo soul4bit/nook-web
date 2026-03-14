@@ -1243,64 +1243,182 @@ body {
 }
 
 .atlas-sidebar-profile {
+  --atlas-profile-accent: #158376;
+  --atlas-profile-accent-2: #24a18f;
+  --atlas-profile-accent-soft: rgba(21, 131, 118, 0.2);
+  --atlas-profile-glow: rgba(15, 120, 107, 0.24);
   position: relative;
   z-index: 1;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 14px;
-  padding: 10px;
-  border: 1px solid #bfd6ce;
-  border-radius: 14px;
-  background: linear-gradient(160deg, rgba(252, 255, 254, 0.96), rgba(238, 247, 243, 0.94));
+  padding: 12px;
+  border: 1px solid #b8d5cb;
+  border-radius: 16px;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 100% -8%, rgba(243, 198, 134, 0.24), transparent 42%),
+    linear-gradient(160deg, rgba(252, 255, 254, 0.97), rgba(238, 247, 243, 0.95));
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.76),
-    0 8px 18px rgba(18, 66, 57, 0.08);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.78),
+    0 10px 20px rgba(18, 66, 57, 0.1);
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.22s ease,
+    background-color 0.2s ease;
+}
+
+.atlas-sidebar-profile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0) 24%, rgba(255, 255, 255, 0.66) 50%, rgba(255, 255, 255, 0) 76%);
+  opacity: 0;
+  transform: translateX(-65%);
+  transition: opacity 0.24s ease, transform 0.3s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.atlas-sidebar-profile::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 9px;
+  bottom: 9px;
+  width: 3px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, transparent, var(--atlas-profile-accent), transparent);
+  opacity: 0.82;
+  pointer-events: none;
+}
+
+.atlas-sidebar-profile:hover {
+  transform: translateY(-2px);
+  border-color: rgba(117, 175, 160, 0.66);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.84),
+    0 14px 28px rgba(17, 67, 58, 0.14);
+}
+
+.atlas-sidebar-profile:hover::before {
+  opacity: 1;
+  transform: translateX(42%);
+}
+
+.atlas-sidebar-profile.atlas-user-chip-rank-novice {
+  --atlas-profile-accent: #158376;
+  --atlas-profile-accent-2: #24a18f;
+  --atlas-profile-accent-soft: rgba(21, 131, 118, 0.2);
+  --atlas-profile-glow: rgba(15, 120, 107, 0.24);
+  border-color: #b2d2c8;
+  color: #204e46;
+  background:
+    radial-gradient(circle at 100% -8%, rgba(243, 198, 134, 0.22), transparent 42%),
+    linear-gradient(160deg, rgba(252, 255, 254, 0.97), rgba(238, 247, 243, 0.95));
+}
+
+.atlas-sidebar-profile.atlas-user-chip-rank-apprentice {
+  --atlas-profile-accent: #0c8d7d;
+  --atlas-profile-accent-2: #2ab79f;
+  --atlas-profile-accent-soft: rgba(42, 183, 159, 0.2);
+  --atlas-profile-glow: rgba(33, 152, 131, 0.24);
+  border-color: #a5d1c2;
+  color: #1a4f46;
+  background:
+    radial-gradient(circle at 11% 12%, rgba(171, 233, 218, 0.34), transparent 38%),
+    radial-gradient(circle at 100% -8%, rgba(243, 198, 134, 0.22), transparent 42%),
+    linear-gradient(160deg, rgba(248, 255, 252, 0.97), rgba(231, 245, 239, 0.95));
+}
+
+.atlas-sidebar-profile.atlas-user-chip-rank-expert {
+  --atlas-profile-accent: #2a71a2;
+  --atlas-profile-accent-2: #4897cf;
+  --atlas-profile-accent-soft: rgba(72, 151, 207, 0.22);
+  --atlas-profile-glow: rgba(50, 120, 176, 0.24);
+  border-color: #a7c5d8;
+  color: #1f4f6d;
+  background:
+    radial-gradient(circle at 9% 14%, rgba(191, 229, 255, 0.36), transparent 42%),
+    radial-gradient(circle at 100% -8%, rgba(180, 220, 244, 0.24), transparent 44%),
+    linear-gradient(160deg, rgba(247, 253, 255, 0.97), rgba(234, 244, 250, 0.95));
+}
+
+.atlas-sidebar-profile.atlas-user-chip-rank-master {
+  --atlas-profile-accent: #b6842f;
+  --atlas-profile-accent-2: #d7a44a;
+  --atlas-profile-accent-soft: rgba(215, 164, 74, 0.22);
+  --atlas-profile-glow: rgba(183, 137, 58, 0.26);
+  border-color: #d6ba84;
+  color: #6a4a16;
+  background:
+    radial-gradient(circle at 10% 14%, rgba(255, 236, 186, 0.42), transparent 42%),
+    radial-gradient(circle at 100% -8%, rgba(238, 189, 111, 0.28), transparent 44%),
+    linear-gradient(160deg, rgba(255, 253, 246, 0.98), rgba(248, 239, 219, 0.95));
 }
 
 .atlas-sidebar-profile-main {
   min-width: 0;
   flex: 1 1 auto;
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: flex-start;
+  gap: 11px;
   text-decoration: none;
+  position: relative;
+  z-index: 1;
 }
 
 .atlas-sidebar-profile-avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  border: 1px solid #abc7be;
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  border: 1px solid rgba(131, 181, 168, 0.62);
   background: #eaf3ef;
   object-fit: cover;
   flex-shrink: 0;
+  box-shadow:
+    0 8px 16px rgba(18, 77, 67, 0.16),
+    0 0 0 2px rgba(255, 255, 255, 0.74);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.atlas-sidebar-profile:hover .atlas-sidebar-profile-avatar {
+  transform: translateY(-1px);
+  box-shadow:
+    0 10px 20px rgba(18, 77, 67, 0.2),
+    0 0 0 2px rgba(255, 255, 255, 0.86);
 }
 
 .atlas-sidebar-profile-initial {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #1f4d44;
+  color: #1a4f46;
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 900;
   text-transform: uppercase;
-  background: linear-gradient(145deg, #f8fffc, #dfeee8);
+  background:
+    radial-gradient(circle at 25% 20%, rgba(255, 255, 255, 0.76), transparent 40%),
+    linear-gradient(145deg, #f8fffc, #dfeee8);
 }
 
 .atlas-sidebar-profile-copy {
   min-width: 0;
   display: grid;
-  gap: 3px;
+  gap: 4px;
 }
 
 .atlas-sidebar-profile-name {
   display: block;
   min-width: 0;
-  color: inherit;
+  color: #1c4f46;
   font-size: 14px;
   font-family: "IBM Plex Mono", "Consolas", monospace;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.01em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1309,10 +1427,13 @@ body {
 .atlas-sidebar-profile-rank {
   display: block;
   min-width: 0;
-  color: inherit;
-  opacity: 0.78;
-  font-size: 12px;
+  color: #2f6057;
+  opacity: 0.95;
+  font-size: 11px;
   line-height: 1.3;
+  text-transform: uppercase;
+  letter-spacing: 0.055em;
+  font-family: "IBM Plex Mono", "Consolas", monospace;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1320,20 +1441,23 @@ body {
 
 .atlas-sidebar-profile-progress-label {
   display: block;
-  color: inherit;
-  opacity: 0.72;
+  color: #355f57;
+  opacity: 0.9;
   font-size: 11px;
-  line-height: 1.25;
+  line-height: 1.3;
+  text-wrap: pretty;
 }
 
 .atlas-sidebar-profile-progress {
   position: relative;
   width: 100%;
-  height: 6px;
-  margin-top: 2px;
+  height: 7px;
+  margin-top: 3px;
   border-radius: 999px;
-  border: 1px solid rgba(127, 165, 153, 0.34);
-  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(127, 165, 153, 0.28);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(238, 246, 242, 0.92));
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.58);
   overflow: hidden;
 }
 
@@ -1341,40 +1465,47 @@ body {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, rgba(18, 128, 114, 0.92), rgba(33, 159, 142, 0.9));
-  box-shadow: 0 0 10px rgba(15, 120, 107, 0.24);
+  background: linear-gradient(90deg, var(--atlas-profile-accent), var(--atlas-profile-accent-2));
+  box-shadow: 0 0 12px var(--atlas-profile-glow);
   transition: width 0.35s ease;
 }
 
 .atlas-sidebar-profile-progress-max .atlas-sidebar-profile-progress-fill {
-  background: linear-gradient(90deg, rgba(198, 149, 69, 0.92), rgba(221, 170, 83, 0.9));
-  box-shadow: 0 0 12px rgba(188, 139, 58, 0.28);
+  background: linear-gradient(90deg, #c69545, #ddb35e);
+  box-shadow: 0 0 12px rgba(188, 139, 58, 0.3);
 }
 
 .atlas-sidebar-profile-settings {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #b8d0c7;
-  border-radius: 10px;
-  background: linear-gradient(160deg, rgba(249, 253, 251, 0.96), rgba(233, 244, 239, 0.96));
-  color: #1d4f47;
+  border: 1px solid rgba(137, 184, 171, 0.72);
+  border-radius: 11px;
+  background:
+    linear-gradient(160deg, rgba(251, 255, 253, 0.97), rgba(236, 246, 241, 0.96));
+  color: var(--atlas-profile-accent);
   font-size: 18px;
   line-height: 1;
   text-decoration: none;
-  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.74);
+  position: relative;
+  z-index: 1;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, color 0.18s ease;
 }
 
 .atlas-sidebar-profile-settings:hover {
-  transform: translateY(-1px) rotate(12deg);
-  border-color: #95bbaf;
-  box-shadow: 0 8px 16px rgba(19, 67, 58, 0.12);
+  transform: translateY(-1px) rotate(14deg);
+  border-color: var(--atlas-profile-accent);
+  color: #12483f;
+  box-shadow:
+    0 9px 16px rgba(19, 67, 58, 0.16),
+    0 0 0 3px var(--atlas-profile-accent-soft);
 }
 
 .atlas-sidebar-profile-settings:focus-visible {
-  outline: 2px solid rgba(13, 118, 109, 0.46);
+  outline: 2px solid var(--atlas-profile-accent);
   outline-offset: 2px;
 }
 
@@ -3279,49 +3410,160 @@ body {
 }
 
 .atlas-profile-head {
+  position: relative;
   overflow: hidden;
+  isolation: isolate;
+  border-color: #8fbfb2;
+  background:
+    radial-gradient(circle at 92% -12%, rgba(230, 165, 89, 0.28), transparent 38%),
+    radial-gradient(circle at 10% -8%, rgba(17, 136, 120, 0.2), transparent 40%),
+    linear-gradient(146deg, rgba(233, 247, 241, 0.97), rgba(249, 253, 251, 0.96));
+  box-shadow:
+    inset 0 0 0 1px rgba(229, 245, 239, 0.74),
+    0 16px 34px rgba(14, 60, 50, 0.12);
+}
+
+.atlas-profile-head::before,
+.atlas-profile-head::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.atlas-profile-head::before {
+  width: 280px;
+  height: 280px;
+  right: -140px;
+  top: -170px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 221, 175, 0.36), rgba(255, 221, 175, 0));
+}
+
+.atlas-profile-head::after {
+  width: 230px;
+  height: 230px;
+  left: -120px;
+  bottom: -150px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(18, 132, 118, 0.2), rgba(18, 132, 118, 0));
 }
 
 .atlas-profile-head-grid {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
-  gap: 16px;
+  align-items: start;
+  gap: 20px;
+  position: relative;
+  z-index: 1;
 }
 
 .atlas-profile-avatar-shell {
-  width: 96px;
-  height: 96px;
-  border-radius: 22px;
-  border: 1px solid #a7c8bc;
+  width: 112px;
+  height: 112px;
+  border-radius: 26px;
+  border: 1px solid #96c3b5;
   background:
-    radial-gradient(circle at 25% 20%, rgba(255, 255, 255, 0.78), transparent 44%),
-    linear-gradient(145deg, rgba(233, 246, 241, 0.94), rgba(215, 236, 228, 0.94));
-  box-shadow: 0 14px 30px rgba(11, 83, 71, 0.16);
+    radial-gradient(circle at 22% 18%, rgba(255, 255, 255, 0.84), transparent 42%),
+    linear-gradient(145deg, rgba(236, 248, 243, 0.96), rgba(213, 235, 227, 0.95));
+  box-shadow:
+    0 18px 32px rgba(11, 83, 71, 0.2),
+    0 0 0 4px rgba(255, 255, 255, 0.68);
   display: grid;
   place-items: center;
   overflow: hidden;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.22s ease;
+}
+
+.atlas-profile-avatar-shell::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.56);
+  pointer-events: none;
+}
+
+.atlas-profile-head:hover .atlas-profile-avatar-shell {
+  transform: translateY(-2px);
+  box-shadow:
+    0 22px 36px rgba(11, 83, 71, 0.24),
+    0 0 0 4px rgba(255, 255, 255, 0.76);
 }
 
 .atlas-profile-avatar {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.24s ease;
+}
+
+.atlas-profile-head:hover .atlas-profile-avatar {
+  transform: scale(1.03);
 }
 
 .atlas-profile-avatar-fallback {
-  font-size: 36px;
-  font-weight: 800;
-  color: #1f5249;
+  font-size: 42px;
+  font-weight: 900;
+  color: #1c564d;
   text-transform: uppercase;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .atlas-profile-head-copy {
   min-width: 0;
+  display: grid;
+  gap: 9px;
+}
+
+.atlas-profile-head .atlas-section-title {
+  margin-top: 0;
+  margin-bottom: 0;
+  text-wrap: balance;
+}
+
+.atlas-profile-email {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  padding: 4px 10px;
+  border: 1px solid rgba(162, 201, 189, 0.74);
+  border-radius: 999px;
+  color: #245a51;
+  background: rgba(245, 252, 249, 0.84);
+  font-size: 13px;
+  font-family: "IBM Plex Mono", "Consolas", monospace;
+  letter-spacing: 0.01em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .atlas-profile-pills {
   margin-top: 12px;
+}
+
+.atlas-profile-head .atlas-pill {
+  border: 1px solid rgba(169, 204, 194, 0.86);
+  background:
+    radial-gradient(circle at 15% 18%, rgba(255, 255, 255, 0.62), transparent 42%),
+    linear-gradient(160deg, rgba(251, 255, 253, 0.95), rgba(236, 246, 241, 0.9));
+  color: #234f48;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.62);
+}
+
+.atlas-profile-head .atlas-profile-meta {
+  margin-top: 2px;
+  max-width: 72ch;
+  color: #325850;
+  background: rgba(255, 255, 255, 0.44);
+  border: 1px dashed rgba(146, 188, 176, 0.56);
+  border-radius: 12px;
+  padding: 8px 10px;
+  line-height: 1.55;
 }
 
 .atlas-profile-form-grid {
@@ -3794,13 +4036,14 @@ body {
 
   .atlas-sidebar-profile {
     margin-bottom: 12px;
-    padding: 9px;
-    gap: 9px;
+    padding: 10px;
+    gap: 10px;
+    border-radius: 14px;
   }
 
   .atlas-sidebar-profile-avatar {
-    width: 38px;
-    height: 38px;
+    width: 40px;
+    height: 40px;
     border-radius: 10px;
   }
 
@@ -3817,7 +4060,7 @@ body {
   }
 
   .atlas-sidebar-profile-progress {
-    height: 5px;
+    height: 6px;
   }
 
   .atlas-sidebar-profile-settings {
@@ -3915,11 +4158,21 @@ body {
   .atlas-profile-head-grid {
     grid-template-columns: 1fr;
     justify-items: start;
+    gap: 14px;
   }
 
   .atlas-profile-avatar-shell {
-    width: 84px;
-    height: 84px;
-    border-radius: 18px;
+    width: 92px;
+    height: 92px;
+    border-radius: 20px;
+  }
+
+  .atlas-profile-email {
+    width: 100%;
+  }
+
+  .atlas-profile-head .atlas-profile-meta {
+    padding: 7px 9px;
+    font-size: 13px;
   }
 }
