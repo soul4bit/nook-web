@@ -44,6 +44,17 @@
               <span class="atlas-sidebar-profile-copy">
                 <span class="atlas-sidebar-profile-name">@{{.User.Name}}</span>
                 <span class="atlas-sidebar-profile-rank">{{.User.RankLabel}} &middot; {{.User.EffectiveRating}}</span>
+                {{if .User.HasNextRank}}
+                  <span class="atlas-sidebar-profile-progress-label">До {{.User.NextRankLabel}}: осталось {{.User.RatingToNextRank}}</span>
+                  <span class="atlas-sidebar-profile-progress" role="presentation" aria-hidden="true">
+                    <span class="atlas-sidebar-profile-progress-fill" style="width: {{.User.RankProgressPercent}}%;"></span>
+                  </span>
+                {{else}}
+                  <span class="atlas-sidebar-profile-progress-label">Максимальное звание достигнуто</span>
+                  <span class="atlas-sidebar-profile-progress atlas-sidebar-profile-progress-max" role="presentation" aria-hidden="true">
+                    <span class="atlas-sidebar-profile-progress-fill" style="width: 100%;"></span>
+                  </span>
+                {{end}}
               </span>
             </a>
             <a class="atlas-sidebar-profile-settings" href="/app/profile" aria-label="РќР°СЃС‚СЂРѕР№РєРё РїСЂРѕС„РёР»СЏ" title="РќР°СЃС‚СЂРѕР№РєРё РїСЂРѕС„РёР»СЏ">&#9881;</a>
@@ -361,3 +372,4 @@
   <script src="{{asset "admin-wiki-sort.js"}}"></script>
 </body>
 </html>
+
