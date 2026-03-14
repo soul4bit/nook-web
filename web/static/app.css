@@ -1242,6 +1242,109 @@ body {
   pointer-events: none;
 }
 
+.atlas-sidebar-profile {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 10px;
+  border: 1px solid #bfd6ce;
+  border-radius: 14px;
+  background: linear-gradient(160deg, rgba(252, 255, 254, 0.96), rgba(238, 247, 243, 0.94));
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.76),
+    0 8px 18px rgba(18, 66, 57, 0.08);
+}
+
+.atlas-sidebar-profile-main {
+  min-width: 0;
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.atlas-sidebar-profile-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid #abc7be;
+  background: #eaf3ef;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.atlas-sidebar-profile-initial {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #1f4d44;
+  font-size: 16px;
+  font-weight: 800;
+  text-transform: uppercase;
+  background: linear-gradient(145deg, #f8fffc, #dfeee8);
+}
+
+.atlas-sidebar-profile-copy {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.atlas-sidebar-profile-name {
+  display: block;
+  min-width: 0;
+  color: inherit;
+  font-size: 14px;
+  font-family: "IBM Plex Mono", "Consolas", monospace;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.atlas-sidebar-profile-rank {
+  display: block;
+  min-width: 0;
+  color: inherit;
+  opacity: 0.78;
+  font-size: 12px;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.atlas-sidebar-profile-settings {
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #b8d0c7;
+  border-radius: 10px;
+  background: linear-gradient(160deg, rgba(249, 253, 251, 0.96), rgba(233, 244, 239, 0.96));
+  color: #1d4f47;
+  font-size: 18px;
+  line-height: 1;
+  text-decoration: none;
+  transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.atlas-sidebar-profile-settings:hover {
+  transform: translateY(-1px) rotate(12deg);
+  border-color: #95bbaf;
+  box-shadow: 0 8px 16px rgba(19, 67, 58, 0.12);
+}
+
+.atlas-sidebar-profile-settings:focus-visible {
+  outline: 2px solid rgba(13, 118, 109, 0.46);
+  outline-offset: 2px;
+}
+
 .atlas-nav-search-wrap {
   display: block;
   margin-bottom: 11px;
@@ -3608,6 +3711,33 @@ body {
   .atlas-user-chip-name {
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .atlas-sidebar-profile {
+    margin-bottom: 12px;
+    padding: 9px;
+    gap: 9px;
+  }
+
+  .atlas-sidebar-profile-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+  }
+
+  .atlas-sidebar-profile-name {
+    font-size: 13px;
+  }
+
+  .atlas-sidebar-profile-rank {
+    font-size: 11px;
+  }
+
+  .atlas-sidebar-profile-settings {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    font-size: 16px;
   }
 
   .atlas-mark {

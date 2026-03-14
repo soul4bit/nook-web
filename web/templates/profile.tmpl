@@ -27,14 +27,6 @@
         {{if .User.IsAdmin}}
           <a class="button button-ghost" href="/app/admin/users">Админка</a>
         {{end}}
-        <a class="atlas-user-chip atlas-user-chip-link atlas-user-chip-rank-{{.User.RankClass}}" href="/app/profile" aria-label="Открыть профиль @{{.User.Name}}" title="Рейтинг: {{.User.EffectiveRating}}, звание: {{.User.RankLabel}}">
-          {{if .User.AvatarURL}}
-            <img class="atlas-user-chip-avatar" src="{{.User.AvatarURL}}" alt="Аватар @{{.User.Name}}" loading="lazy" />
-          {{else}}
-            <span class="atlas-user-chip-initial">{{if .User.Name}}{{printf "%.1s" .User.Name}}{{else}}?{{end}}</span>
-          {{end}}
-          <span class="atlas-user-chip-name">@{{.User.Name}}</span>
-        </a>
         <form method="post" action="/auth/logout">
           <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
           <button class="button button-ghost" type="submit">Выйти</button>
@@ -45,6 +37,20 @@
     <section class="atlas-layout atlas-layout-two">
       <aside class="atlas-rail">
         <article class="atlas-card atlas-sections-sidebar">
+          <div class="atlas-sidebar-profile atlas-user-chip-rank-{{.User.RankClass}}">
+            <a class="atlas-sidebar-profile-main" href="/app/profile" aria-label="Открыть профиль @{{.User.Name}}" title="Рейтинг: {{.User.EffectiveRating}}, звание: {{.User.RankLabel}}">
+              {{if .User.AvatarURL}}
+                <img class="atlas-sidebar-profile-avatar" src="{{.User.AvatarURL}}" alt="Аватар @{{.User.Name}}" loading="lazy" />
+              {{else}}
+                <span class="atlas-sidebar-profile-avatar atlas-sidebar-profile-initial">{{if .User.Name}}{{printf "%.1s" .User.Name}}{{else}}?{{end}}</span>
+              {{end}}
+              <span class="atlas-sidebar-profile-copy">
+                <span class="atlas-sidebar-profile-name">@{{.User.Name}}</span>
+                <span class="atlas-sidebar-profile-rank">{{.User.RankLabel}} &middot; {{.User.EffectiveRating}}</span>
+              </span>
+            </a>
+            <a class="atlas-sidebar-profile-settings" href="/app/profile" aria-label="Настройки профиля" title="Настройки профиля">&#9881;</a>
+          </div>
           <p class="panel-label">Разделы</p>
           <label class="atlas-nav-search-wrap">
             <input class="atlas-nav-search" type="search" placeholder="Найти раздел или тему..." />
