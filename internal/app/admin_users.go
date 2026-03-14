@@ -332,13 +332,13 @@ func (a *Application) updateUserRoleByID(userID int64, role string) (*User, erro
 		`update users
 		set role = $2
 		where id = $1
-		returning id, email, name, role, is_blocked, created_at`,
+		returning id, email, name, role, rating, is_blocked, avatar_url, created_at, password_changed_at`,
 		userID,
 		role,
 	)
 
 	var user User
-	if err := row.Scan(&user.ID, &user.Email, &user.Name, &user.Role, &user.Blocked, &user.CreatedAt); err != nil {
+	if err := row.Scan(&user.ID, &user.Email, &user.Name, &user.Role, &user.Rating, &user.Blocked, &user.AvatarURL, &user.CreatedAt, &user.PasswordChangedAt); err != nil {
 		return nil, err
 	}
 	user.Role = normalizeUserRole(user.Role)
@@ -350,13 +350,13 @@ func (a *Application) updateUserBlockedStateByID(userID int64, blocked bool) (*U
 		`update users
 		set is_blocked = $2
 		where id = $1
-		returning id, email, name, role, is_blocked, created_at`,
+		returning id, email, name, role, rating, is_blocked, avatar_url, created_at, password_changed_at`,
 		userID,
 		blocked,
 	)
 
 	var user User
-	if err := row.Scan(&user.ID, &user.Email, &user.Name, &user.Role, &user.Blocked, &user.CreatedAt); err != nil {
+	if err := row.Scan(&user.ID, &user.Email, &user.Name, &user.Role, &user.Rating, &user.Blocked, &user.AvatarURL, &user.CreatedAt, &user.PasswordChangedAt); err != nil {
 		return nil, err
 	}
 	user.Role = normalizeUserRole(user.Role)

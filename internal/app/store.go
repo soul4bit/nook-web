@@ -40,6 +40,7 @@ type registrationRequest struct {
 }
 
 var errRegistrationNameTaken = errors.New("registration nickname already taken")
+var errArticleSelfLike = errors.New("cannot like own article")
 
 const registrationNameTakenReason = "Ник уже занят другим пользователем. Отправьте новую заявку с другим ником."
 
@@ -48,7 +49,7 @@ func (a *Application) createUser(name string, email string, passwordHash string)
 	row := a.db.QueryRow(
 		`insert into users (email, name, password_hash, role, created_at)
 		 values ($1, $2, $3, $4, $5)
-		 returning id, email, name, role, is_blocked, avatar_url, created_at, password_changed_at`,
+		 returning id, email, name, role, rating, is_blocked, avatar_url, created_at, password_changed_at`,
 		email,
 		name,
 		passwordHash,
@@ -62,6 +63,7 @@ func (a *Application) createUser(name string, email string, passwordHash string)
 		&user.Email,
 		&user.Name,
 		&user.Role,
+		&user.Rating,
 		&user.Blocked,
 		&user.AvatarURL,
 		&user.CreatedAt,
@@ -76,7 +78,7 @@ func (a *Application) createUser(name string, email string, passwordHash string)
 
 func (a *Application) getUserByID(userID int64) (*User, error) {
 	row := a.db.QueryRow(
-		`select id, email, name, role, is_blocked, avatar_url, created_at, password_changed_at from users where id = $1 limit 1`,
+		`select id, email, name, role, rating, is_blocked, avatar_url, created_at, password_changed_at from users where id = $1 limit 1`,
 		userID,
 	)
 
@@ -86,6 +88,7 @@ func (a *Application) getUserByID(userID int64) (*User, error) {
 		&user.Email,
 		&user.Name,
 		&user.Role,
+		&user.Rating,
 		&user.Blocked,
 		&user.AvatarURL,
 		&user.CreatedAt,
@@ -100,7 +103,7 @@ func (a *Application) getUserByID(userID int64) (*User, error) {
 
 func (a *Application) getUserByEmail(email string) (*User, error) {
 	row := a.db.QueryRow(
-		`select id, email, name, role, is_blocked, avatar_url, created_at, password_changed_at from users where email = $1 limit 1`,
+		`select id, email, name, role, rating, is_blocked, avatar_url, created_at, password_changed_at from users where email = $1 limit 1`,
 		email,
 	)
 
@@ -110,6 +113,7 @@ func (a *Application) getUserByEmail(email string) (*User, error) {
 		&user.Email,
 		&user.Name,
 		&user.Role,
+		&user.Rating,
 		&user.Blocked,
 		&user.AvatarURL,
 		&user.CreatedAt,
@@ -124,7 +128,7 @@ func (a *Application) getUserByEmail(email string) (*User, error) {
 
 func (a *Application) getUserByName(name string) (*User, error) {
 	row := a.db.QueryRow(
-		`select id, email, name, role, is_blocked, avatar_url, created_at, password_changed_at
+		`select id, email, name, role, rating, is_blocked, avatar_url, created_at, password_changed_at
 		from users
 		where lower(name) = lower($1)
 		limit 1`,
@@ -137,6 +141,7 @@ func (a *Application) getUserByName(name string) (*User, error) {
 		&user.Email,
 		&user.Name,
 		&user.Role,
+		&user.Rating,
 		&user.Blocked,
 		&user.AvatarURL,
 		&user.CreatedAt,
@@ -151,7 +156,7 @@ func (a *Application) getUserByName(name string) (*User, error) {
 
 func (a *Application) getCredentialsByEmail(email string) (*userCredentials, error) {
 	row := a.db.QueryRow(
-		`select id, email, name, role, is_blocked, avatar_url, password_hash, created_at, password_changed_at from users where email = $1 limit 1`,
+		`select id, email, name, role, rating, is_blocked, avatar_url, password_hash, created_at, password_changed_at from users where email = $1 limit 1`,
 		email,
 	)
 
@@ -161,6 +166,7 @@ func (a *Application) getCredentialsByEmail(email string) (*userCredentials, err
 		&creds.Email,
 		&creds.Name,
 		&creds.Role,
+		&creds.Rating,
 		&creds.Blocked,
 		&creds.AvatarURL,
 		&creds.PasswordHash,
@@ -176,7 +182,7 @@ func (a *Application) getCredentialsByEmail(email string) (*userCredentials, err
 
 func (a *Application) getCredentialsByUserID(userID int64) (*userCredentials, error) {
 	row := a.db.QueryRow(
-		`select id, email, name, role, is_blocked, avatar_url, password_hash, created_at, password_changed_at
+		`select id, email, name, role, rating, is_blocked, avatar_url, password_hash, created_at, password_changed_at
 		from users
 		where id = $1
 		limit 1`,
@@ -189,6 +195,7 @@ func (a *Application) getCredentialsByUserID(userID int64) (*userCredentials, er
 		&creds.Email,
 		&creds.Name,
 		&creds.Role,
+		&creds.Rating,
 		&creds.Blocked,
 		&creds.AvatarURL,
 		&creds.PasswordHash,
@@ -277,6 +284,7 @@ func (a *Application) getUserBySessionToken(token string) (*User, error) {
 			u.email,
 			u.name,
 			u.role,
+			u.rating,
 			u.is_blocked,
 			u.avatar_url,
 			u.created_at,
@@ -296,6 +304,7 @@ func (a *Application) getUserBySessionToken(token string) (*User, error) {
 		&user.Email,
 		&user.Name,
 		&user.Role,
+		&user.Rating,
 		&user.Blocked,
 		&user.AvatarURL,
 		&user.CreatedAt,
@@ -373,7 +382,13 @@ func scanArticle(scanner interface {
 
 func (a *Application) createArticle(authorID int64, sectionSlug string, subsection string, title string, body string) (*Article, error) {
 	now := time.Now().UTC()
-	row := a.db.QueryRow(
+	tx, err := a.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback()
+
+	row := tx.QueryRow(
 		`insert into articles (author_id, section_slug, subsection, title, body, created_at, updated_at)
 		 values ($1, $2, $3, $4, $5, $6, $6)
 		 returning
@@ -395,6 +410,20 @@ func (a *Application) createArticle(authorID int64, sectionSlug string, subsecti
 	)
 	article, err := scanArticle(row)
 	if err != nil {
+		return nil, err
+	}
+
+	if _, err := tx.Exec(
+		`update users
+		set rating = rating + $2
+		where id = $1`,
+		authorID,
+		articleCreateRatingXP,
+	); err != nil {
+		return nil, err
+	}
+
+	if err := tx.Commit(); err != nil {
 		return nil, err
 	}
 
@@ -420,6 +449,111 @@ func (a *Application) getArticleByID(articleID int64) (*Article, error) {
 		articleID,
 	)
 	return scanArticle(row)
+}
+
+func (a *Application) getArticleLikeState(articleID int64, userID int64) (count int, liked bool, err error) {
+	row := a.db.QueryRow(
+		`select
+			(select count(*) from article_likes where article_id = $1),
+			exists(
+				select 1
+				from article_likes
+				where article_id = $1 and user_id = $2
+			)`,
+		articleID,
+		userID,
+	)
+	if err := row.Scan(&count, &liked); err != nil {
+		return 0, false, err
+	}
+	return count, liked, nil
+}
+
+func (a *Application) setArticleLike(articleID int64, userID int64, shouldLike bool) (count int, liked bool, err error) {
+	tx, err := a.db.Begin()
+	if err != nil {
+		return 0, false, err
+	}
+	defer tx.Rollback()
+
+	var authorID int64
+	if err := tx.QueryRow(
+		`select author_id
+		from articles
+		where id = $1
+		limit 1`,
+		articleID,
+	).Scan(&authorID); err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return 0, false, sql.ErrNoRows
+		}
+		return 0, false, err
+	}
+
+	if authorID == userID {
+		return 0, false, errArticleSelfLike
+	}
+
+	if shouldLike {
+		result, err := tx.Exec(
+			`insert into article_likes (article_id, user_id, created_at)
+			values ($1, $2, $3)
+			on conflict (article_id, user_id) do nothing`,
+			articleID,
+			userID,
+			time.Now().UTC(),
+		)
+		if err != nil {
+			return 0, false, err
+		}
+		if affected, affErr := result.RowsAffected(); affErr == nil && affected > 0 {
+			if _, err := tx.Exec(
+				`update users
+				set rating = rating + $2
+				where id = $1`,
+				authorID,
+				articleLikeRatingXP,
+			); err != nil {
+				return 0, false, err
+			}
+		}
+		liked = true
+	} else {
+		result, err := tx.Exec(
+			`delete from article_likes
+			where article_id = $1 and user_id = $2`,
+			articleID,
+			userID,
+		)
+		if err != nil {
+			return 0, false, err
+		}
+		if affected, affErr := result.RowsAffected(); affErr == nil && affected > 0 {
+			if _, err := tx.Exec(
+				`update users
+				set rating = greatest(0, rating - $2)
+				where id = $1`,
+				authorID,
+				articleLikeRatingXP,
+			); err != nil {
+				return 0, false, err
+			}
+		}
+		liked = false
+	}
+
+	if err := tx.QueryRow(
+		`select count(*) from article_likes where article_id = $1`,
+		articleID,
+	).Scan(&count); err != nil {
+		return 0, false, err
+	}
+
+	if err := tx.Commit(); err != nil {
+		return 0, false, err
+	}
+
+	return count, liked, nil
 }
 
 func (a *Application) deleteArticleByID(articleID int64) error {
@@ -998,7 +1132,7 @@ func (a *Application) completeRegistrationByVerifyToken(verifyToken string) (*Us
 
 	var user User
 	err = tx.QueryRow(
-		`select id, email, name, role, is_blocked, avatar_url, created_at, password_changed_at
+		`select id, email, name, role, rating, is_blocked, avatar_url, created_at, password_changed_at
 		from users
 		where email = $1
 		limit 1`,
@@ -1008,6 +1142,7 @@ func (a *Application) completeRegistrationByVerifyToken(verifyToken string) (*Us
 		&user.Email,
 		&user.Name,
 		&user.Role,
+		&user.Rating,
 		&user.Blocked,
 		&user.AvatarURL,
 		&user.CreatedAt,
@@ -1039,7 +1174,7 @@ func (a *Application) completeRegistrationByVerifyToken(verifyToken string) (*Us
 		err = tx.QueryRow(
 			`insert into users (email, name, password_hash, role, created_at)
 			 values ($1, $2, $3, $4, $5)
-			 returning id, email, name, role, is_blocked, avatar_url, created_at, password_changed_at`,
+			 returning id, email, name, role, rating, is_blocked, avatar_url, created_at, password_changed_at`,
 			req.Email,
 			req.Name,
 			req.PasswordHash,
@@ -1050,6 +1185,7 @@ func (a *Application) completeRegistrationByVerifyToken(verifyToken string) (*Us
 			&user.Email,
 			&user.Name,
 			&user.Role,
+			&user.Rating,
 			&user.Blocked,
 			&user.AvatarURL,
 			&user.CreatedAt,

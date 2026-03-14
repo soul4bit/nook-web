@@ -26,7 +26,7 @@
           <a class="button button-ghost" href="/app/admin/users">Админка</a>
         {{end}}
         <a class="button button-ghost" href="/app/search?section={{.CurrentArticle.SectionSlug}}{{if .CurrentArticle.Subsection}}&sub={{urlquery .CurrentArticle.Subsection}}{{end}}">Поиск</a>
-        <a class="atlas-user-chip atlas-user-chip-link" href="/app/profile" aria-label="Открыть профиль @{{.User.Name}}">
+        <a class="atlas-user-chip atlas-user-chip-link atlas-user-chip-rank-{{.User.RankClass}}" href="/app/profile" aria-label="Открыть профиль @{{.User.Name}}" title="Рейтинг: {{.User.EffectiveRating}}, звание: {{.User.RankLabel}}">
           {{if .User.AvatarURL}}
             <img class="atlas-user-chip-avatar" src="{{.User.AvatarURL}}" alt="Аватар @{{.User.Name}}" loading="lazy" />
           {{else}}
@@ -79,10 +79,23 @@
               <span class="atlas-meta-chip">Подраздел: {{.CurrentArticle.Subsection}}</span>
             {{end}}
             <span class="atlas-meta-chip">Автор: {{.CurrentArticle.AuthorName}}</span>
+            <span class="atlas-meta-chip">Лайки: {{.ArticleLikeCount}}</span>
             <span class="atlas-meta-chip">Обновлено: {{.CurrentArticle.UpdatedAt.Format "02.01.2006 15:04"}}</span>
           </div>
           <div class="atlas-actions">
             <a class="button button-ghost button-compact" href="/app/section?slug={{.CurrentArticle.SectionSlug}}{{if .CurrentArticle.Subsection}}&sub={{urlquery .CurrentArticle.Subsection}}{{end}}">Назад в раздел</a>
+            {{if ne .User.ID .CurrentArticle.AuthorID}}
+              <form method="post" action="/app/article/like" class="atlas-like-form">
+                <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
+                <input type="hidden" name="article_id" value="{{.CurrentArticle.ID}}" />
+                <input type="hidden" name="action" value="{{if .ArticleLikedByUser}}unlike{{else}}like{{end}}" />
+                <button class="button button-ghost button-compact {{if .ArticleLikedByUser}}atlas-like-button-active{{end}}" type="submit">
+                  {{if .ArticleLikedByUser}}Убрать лайк{{else}}Лайк +10 автору{{end}}
+                </button>
+              </form>
+            {{else}}
+              <span class="atlas-meta-chip">Свою статью лайкнуть нельзя</span>
+            {{end}}
             {{if and .User.CanEdit (or (eq .User.ID .CurrentArticle.AuthorID) .User.IsAdmin)}}
               <a class="button button-ghost button-compact" href="/app/article/edit?id={{.CurrentArticle.ID}}">Редактировать</a>
             {{end}}

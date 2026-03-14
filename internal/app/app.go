@@ -39,6 +39,7 @@ type User struct {
 	Email             string
 	Name              string
 	Role              string
+	Rating            int
 	Blocked           bool
 	AvatarURL         string
 	CreatedAt         time.Time
@@ -69,6 +70,8 @@ type Article struct {
 	SectionName string
 	Title       string
 	Body        string
+	LikeCount   int
+	LikedByUser bool
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
@@ -163,7 +166,10 @@ type viewData struct {
 	ProfileAvatarURL            string
 	ProfilePasswordChangedAt    string
 	ProfilePasswordNextChangeAt string
+	ProfilePasswordWait         string
 	ProfilePasswordCanChange    bool
+	ArticleLikeCount            int
+	ArticleLikedByUser          bool
 }
 
 type contextKey string
@@ -278,6 +284,7 @@ func (a *Application) Routes() http.Handler {
 	mux.HandleFunc("/app/article/delete", a.requireAuth(a.withCSRF(a.handleArticleDelete)))
 	mux.HandleFunc("/app/article/comment/add", a.requireAuth(a.withCSRF(a.handleArticleCommentAdd)))
 	mux.HandleFunc("/app/article/comment/delete", a.requireAuth(a.withCSRF(a.handleArticleCommentDelete)))
+	mux.HandleFunc("/app/article/like", a.requireAuth(a.withCSRF(a.handleArticleLikeToggle)))
 	mux.HandleFunc("/app/admin/users", a.requireAuth(a.withCSRF(a.handleAdminUsers)))
 	mux.HandleFunc("/app/admin/registrations/approve", a.requireAuth(a.withAdminActionAudit(adminAuditActionApproveRegistration, a.withCSRF(a.handleAdminApproveRegistration))))
 	mux.HandleFunc("/app/admin/registrations/reject", a.requireAuth(a.withAdminActionAudit(adminAuditActionRejectRegistration, a.withCSRF(a.handleAdminRejectRegistration))))
@@ -446,6 +453,8 @@ func runMigrations(db *sql.DB) error {
 		`alter table if exists users add column if not exists avatar_url text not null default '';`,
 		`update users set avatar_url = '' where avatar_url is null;`,
 		`alter table if exists users add column if not exists password_changed_at timestamptz;`,
+		`alter table if exists users add column if not exists rating integer not null default 1000;`,
+		`update users set rating = 1000 where rating is null or rating < 1;`,
 		`with ranked as (
 			select
 				id,
@@ -540,6 +549,17 @@ func runMigrations(db *sql.DB) error {
 		);`,
 		`create index if not exists idx_article_comments_article_created_at on article_comments(article_id, created_at asc);`,
 		`create index if not exists idx_article_comments_user_id on article_comments(user_id);`,
+		`create table if not exists article_likes (
+			id bigserial primary key,
+			article_id bigint not null,
+			user_id bigint not null,
+			created_at timestamptz not null default now(),
+			foreign key(article_id) references articles(id) on delete cascade,
+			foreign key(user_id) references users(id) on delete cascade,
+			unique(article_id, user_id)
+		);`,
+		`create index if not exists idx_article_likes_article_id on article_likes(article_id);`,
+		`create index if not exists idx_article_likes_user_id on article_likes(user_id);`,
 		`create table if not exists admin_audit_log (
 			id bigserial primary key,
 			admin_user_id bigint,

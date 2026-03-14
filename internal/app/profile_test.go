@@ -52,3 +52,25 @@ func TestPasswordChangeBlockedUntil(t *testing.T) {
 		})
 	}
 }
+
+func TestFormatProfileWaitDuration(t *testing.T) {
+	tests := []struct {
+		name     string
+		duration time.Duration
+		want     string
+	}{
+		{name: "less than minute", duration: 30 * time.Second, want: "меньше минуты"},
+		{name: "minutes", duration: 11 * time.Minute, want: "11 мин"},
+		{name: "hours and minutes", duration: 3*time.Hour + 5*time.Minute, want: "3 ч 5 мин"},
+		{name: "days hours minutes", duration: 49*time.Hour + 2*time.Minute, want: "2 дн 1 ч 2 мин"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := formatProfileWaitDuration(tt.duration)
+			if got != tt.want {
+				t.Fatalf("formatProfileWaitDuration() = %q, want %q", got, tt.want)
+			}
+		})
+	}
+}

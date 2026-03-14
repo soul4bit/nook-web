@@ -49,6 +49,14 @@ func (a *Application) handleArticleView(w http.ResponseWriter, r *http.Request) 
 	data.ArticleBody = article.Body
 	data.ArticleBodyHTML = renderMarkdownHTML(article.Body)
 
+	likeCount, likedByUser, likeErr := a.getArticleLikeState(article.ID, user.ID)
+	if likeErr != nil {
+		a.logger.Printf("get article like state: %v", likeErr)
+	} else {
+		data.ArticleLikeCount = likeCount
+		data.ArticleLikedByUser = likedByUser
+	}
+
 	comments, commentErr := a.listArticleComments(article.ID, 200)
 	if commentErr != nil {
 		a.logger.Printf("list article comments: %v", commentErr)
@@ -63,6 +71,54 @@ func (a *Application) handleArticleView(w http.ResponseWriter, r *http.Request) 
 	}
 
 	a.renderTemplate(w, r, "article_view.tmpl", data)
+}
+
+func (a *Application) handleArticleLikeToggle(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	user := userFromContext(r.Context())
+	if user == nil {
+		http.Redirect(w, r, "/auth/login", http.StatusSeeOther)
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	articleID, err := parseArticleID(r.FormValue("article_id"))
+	if err != nil {
+		http.Error(w, "invalid article id", http.StatusBadRequest)
+		return
+	}
+
+	action := strings.ToLower(strings.TrimSpace(r.FormValue("action")))
+	shouldLike := action != "unlike"
+
+	_, _, setErr := a.setArticleLike(articleID, user.ID, shouldLike)
+	if setErr != nil {
+		if errors.Is(setErr, sql.ErrNoRows) {
+			http.NotFound(w, r)
+			return
+		}
+		if errors.Is(setErr, errArticleSelfLike) {
+			http.Redirect(w, r, articleViewRedirectURL(articleID, "", "Нельзя лайкать свою статью."), http.StatusSeeOther)
+			return
+		}
+		a.logger.Printf("set article like: %v", setErr)
+		http.Redirect(w, r, articleViewRedirectURL(articleID, "", "Не удалось обновить лайк."), http.StatusSeeOther)
+		return
+	}
+
+	success := "Лайк добавлен. Автор получил +10 рейтинга."
+	if !shouldLike {
+		success = "Лайк снят."
+	}
+	http.Redirect(w, r, articleViewRedirectURL(articleID, success, ""), http.StatusSeeOther)
 }
 
 func (a *Application) handleArticleDelete(w http.ResponseWriter, r *http.Request) {

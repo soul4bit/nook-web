@@ -39,6 +39,44 @@ func formatProfileDateTime(value time.Time) string {
 	return value.Local().Format("02.01.2006 15:04")
 }
 
+func formatProfileWaitDuration(duration time.Duration) string {
+	if duration <= 0 {
+		return "меньше минуты"
+	}
+	if duration < time.Minute {
+		return "меньше минуты"
+	}
+
+	totalMinutes := int(duration.Minutes())
+	if duration%time.Minute != 0 {
+		totalMinutes++
+	}
+	if totalMinutes < 1 {
+		totalMinutes = 1
+	}
+
+	days := totalMinutes / (24 * 60)
+	totalMinutes -= days * 24 * 60
+	hours := totalMinutes / 60
+	minutes := totalMinutes % 60
+
+	parts := make([]string, 0, 3)
+	if days > 0 {
+		parts = append(parts, fmt.Sprintf("%d дн", days))
+	}
+	if hours > 0 {
+		parts = append(parts, fmt.Sprintf("%d ч", hours))
+	}
+	if minutes > 0 {
+		parts = append(parts, fmt.Sprintf("%d мин", minutes))
+	}
+	if len(parts) == 0 {
+		return "меньше минуты"
+	}
+
+	return strings.Join(parts, " ")
+}
+
 func normalizeAvatarURL(raw string) (string, error) {
 	value := strings.TrimSpace(raw)
 	if value == "" {
@@ -82,14 +120,16 @@ func (a *Application) profileViewData(user *User, title string) viewData {
 	data.ProfileAvatarURL = strings.TrimSpace(user.AvatarURL)
 	data.ProfileRoleLabel = roleLabel(user.Role)
 	data.ProfilePasswordCanChange = true
+	now := time.Now().UTC()
 
 	if user.PasswordChangedAt.Valid {
 		data.ProfilePasswordChangedAt = formatProfileDateTime(user.PasswordChangedAt.Time)
 
-		nextAllowedAt, blocked := passwordChangeBlockedUntil(user.PasswordChangedAt, time.Now().UTC())
+		nextAllowedAt, blocked := passwordChangeBlockedUntil(user.PasswordChangedAt, now)
 		if blocked {
 			data.ProfilePasswordCanChange = false
 			data.ProfilePasswordNextChangeAt = formatProfileDateTime(nextAllowedAt)
+			data.ProfilePasswordWait = formatProfileWaitDuration(nextAllowedAt.Sub(now))
 		}
 	}
 
@@ -323,11 +363,12 @@ func (a *Application) handleProfilePasswordUpdate(w http.ResponseWriter, r *http
 
 	nextAllowedAt, blocked := passwordChangeBlockedUntil(creds.PasswordChangedAt, time.Now().UTC())
 	if blocked {
+		waitFor := formatProfileWaitDuration(nextAllowedAt.Sub(time.Now().UTC()))
 		a.renderProfileWithError(
 			w,
 			r,
 			user,
-			fmt.Sprintf("Пароль можно менять не чаще 1 раза в 7 дней. Следующая смена доступна после %s.", formatProfileDateTime(nextAllowedAt)),
+			fmt.Sprintf("Пароль можно менять не чаще 1 раза в 7 дней. Следующая смена доступна после %s (осталось: %s).", formatProfileDateTime(nextAllowedAt), waitFor),
 			strings.TrimSpace(user.AvatarURL),
 		)
 		return

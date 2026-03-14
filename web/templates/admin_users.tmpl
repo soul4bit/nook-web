@@ -24,7 +24,7 @@
       <div class="atlas-topbar-meta">
         <a class="button button-ghost" href="/app">Дашборд</a>
         <a class="button button-ghost" href="/app/search">Поиск</a>
-        <a class="atlas-user-chip atlas-user-chip-link" href="/app/profile" aria-label="Открыть профиль @{{.User.Name}}">
+        <a class="atlas-user-chip atlas-user-chip-link atlas-user-chip-rank-{{.User.RankClass}}" href="/app/profile" aria-label="Открыть профиль @{{.User.Name}}" title="Рейтинг: {{.User.EffectiveRating}}, звание: {{.User.RankLabel}}">
           {{if .User.AvatarURL}}
             <img class="atlas-user-chip-avatar" src="{{.User.AvatarURL}}" alt="Аватар @{{.User.Name}}" loading="lazy" />
           {{else}}

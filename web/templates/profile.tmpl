@@ -27,7 +27,7 @@
         {{if .User.IsAdmin}}
           <a class="button button-ghost" href="/app/admin/users">Админка</a>
         {{end}}
-        <a class="atlas-user-chip atlas-user-chip-link" href="/app/profile" aria-label="Открыть профиль @{{.User.Name}}">
+        <a class="atlas-user-chip atlas-user-chip-link atlas-user-chip-rank-{{.User.RankClass}}" href="/app/profile" aria-label="Открыть профиль @{{.User.Name}}" title="Рейтинг: {{.User.EffectiveRating}}, звание: {{.User.RankLabel}}">
           {{if .User.AvatarURL}}
             <img class="atlas-user-chip-avatar" src="{{.User.AvatarURL}}" alt="Аватар @{{.User.Name}}" loading="lazy" />
           {{else}}
@@ -85,6 +85,8 @@
               <h2 class="atlas-section-title">{{.User.Name}}</h2>
               <p class="atlas-profile-email">{{.User.Email}}</p>
               <div class="atlas-pill-row atlas-profile-pills">
+                <span class="atlas-pill">Рейтинг: {{.User.EffectiveRating}}</span>
+                <span class="atlas-pill">Звание: {{.User.RankLabel}}</span>
                 <span class="atlas-pill">Роль: {{.ProfileRoleLabel}}</span>
                 {{if .ProfilePasswordChangedAt}}
                   <span class="atlas-pill">Пароль обновлён: {{.ProfilePasswordChangedAt}}</span>
@@ -93,7 +95,7 @@
                 {{end}}
               </div>
               {{if .ProfilePasswordNextChangeAt}}
-                <p class="atlas-profile-meta">Следующая смена пароля доступна после: {{.ProfilePasswordNextChangeAt}}</p>
+                <p class="atlas-profile-meta">Следующая смена пароля доступна после: {{.ProfilePasswordNextChangeAt}} (осталось: {{.ProfilePasswordWait}})</p>
               {{else}}
                 <p class="atlas-profile-meta">Здесь можно обновить аватар и сменить пароль.</p>
               {{end}}
@@ -158,7 +160,7 @@
                 <button class="button button-primary" type="submit">Сменить пароль</button>
               </div>
             {{else}}
-              <p class="atlas-profile-lock-note">Смена пароля сейчас недоступна. Интервал между сменами: 7 дней.</p>
+              <p class="atlas-profile-lock-note">Смена пароля сейчас недоступна. Интервал между сменами: 7 дней. Осталось: {{.ProfilePasswordWait}}</p>
               <div class="atlas-actions">
                 <button class="button button-primary" type="submit" disabled>Смена временно недоступна</button>
               </div>
