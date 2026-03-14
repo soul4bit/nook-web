@@ -35,12 +35,14 @@ type Application struct {
 }
 
 type User struct {
-	ID        int64
-	Email     string
-	Name      string
-	Role      string
-	Blocked   bool
-	CreatedAt time.Time
+	ID                int64
+	Email             string
+	Name              string
+	Role              string
+	Blocked           bool
+	AvatarURL         string
+	CreatedAt         time.Time
+	PasswordChangedAt sql.NullTime
 }
 
 func (u *User) IsAdmin() bool {
@@ -119,44 +121,49 @@ type userCredentials struct {
 }
 
 type viewData struct {
-	AppName             string
-	Title               string
-	CSRFToken           string
-	MediaUploadEndpoint string
-	Error               string
-	Success             string
-	User                *User
-	Name                string
-	Email               string
-	Next                string
-	UsersTotal          int
-	ActiveSessions      int
-	Sections            []wikiSection
-	CurrentSection      *wikiSection
-	CurrentSectionSlug  string
-	CurrentSubsection   string
-	SearchQuery         string
-	SearchSectionSlug   string
-	SearchSubsection    string
-	SearchPerformed     bool
-	SearchResults       []Article
-	SearchResultsCount  int
-	CurrentPage         string
-	SectionOverviews    []sectionOverview
-	RecentArticles      []Article
-	SectionArticles     []Article
-	CurrentArticle      *Article
-	ArticleID           int64
-	ArticleTitle        string
-	ArticleBody         string
-	ArticleBodyHTML     template.HTML
-	ArticleComments     []ArticleComment
-	DraftLoaded         bool
-	AdminTab            string
-	AdminUsers          []adminUserListItem
-	PendingRequests     []registrationRequestListItem
-	AdminAuditEntries   []adminAuditEntry
-	AvailableRoles      []roleOption
+	AppName                     string
+	Title                       string
+	CSRFToken                   string
+	MediaUploadEndpoint         string
+	Error                       string
+	Success                     string
+	User                        *User
+	Name                        string
+	Email                       string
+	Next                        string
+	UsersTotal                  int
+	ActiveSessions              int
+	Sections                    []wikiSection
+	CurrentSection              *wikiSection
+	CurrentSectionSlug          string
+	CurrentSubsection           string
+	SearchQuery                 string
+	SearchSectionSlug           string
+	SearchSubsection            string
+	SearchPerformed             bool
+	SearchResults               []Article
+	SearchResultsCount          int
+	CurrentPage                 string
+	SectionOverviews            []sectionOverview
+	RecentArticles              []Article
+	SectionArticles             []Article
+	CurrentArticle              *Article
+	ArticleID                   int64
+	ArticleTitle                string
+	ArticleBody                 string
+	ArticleBodyHTML             template.HTML
+	ArticleComments             []ArticleComment
+	DraftLoaded                 bool
+	AdminTab                    string
+	AdminUsers                  []adminUserListItem
+	PendingRequests             []registrationRequestListItem
+	AdminAuditEntries           []adminAuditEntry
+	AvailableRoles              []roleOption
+	ProfileRoleLabel            string
+	ProfileAvatarURL            string
+	ProfilePasswordChangedAt    string
+	ProfilePasswordNextChangeAt string
+	ProfilePasswordCanChange    bool
 }
 
 type contextKey string
@@ -259,6 +266,10 @@ func (a *Application) Routes() http.Handler {
 	mux.HandleFunc("/app", a.requireAuth(a.withCSRF(a.handleDashboard)))
 	mux.HandleFunc("/app/section", a.requireAuth(a.withCSRF(a.handleSection)))
 	mux.HandleFunc("/app/search", a.requireAuth(a.withCSRF(a.handleSearch)))
+	mux.HandleFunc("/app/profile", a.requireAuth(a.withCSRF(a.handleProfile)))
+	mux.HandleFunc("/app/profile/avatar", a.requireAuth(a.withCSRF(a.handleProfileAvatarUpdate)))
+	mux.HandleFunc("/app/profile/avatar/upload", a.requireAuth(a.withCSRF(a.handleProfileAvatarUpload)))
+	mux.HandleFunc("/app/profile/password", a.requireAuth(a.withCSRF(a.handleProfilePasswordUpdate)))
 	mux.HandleFunc("/app/article", a.requireAuth(a.withCSRF(a.handleArticleView)))
 	mux.HandleFunc("/app/article/new", a.requireAuth(a.withCSRF(a.handleArticleNew)))
 	mux.HandleFunc("/app/article/edit", a.requireAuth(a.withCSRF(a.handleArticleEdit)))
@@ -296,6 +307,7 @@ func loadTemplates(staticVersion string) (map[string]*template.Template, error) 
 		"dashboard.tmpl",
 		"section.tmpl",
 		"search.tmpl",
+		"profile.tmpl",
 		"article_view.tmpl",
 		"article_new.tmpl",
 		"article_edit.tmpl",
@@ -431,6 +443,9 @@ func runMigrations(db *sql.DB) error {
 		where role is null or role not in ('viewer', 'editor', 'admin');`,
 		`alter table if exists users add column if not exists is_blocked boolean not null default false;`,
 		`update users set is_blocked = false where is_blocked is null;`,
+		`alter table if exists users add column if not exists avatar_url text not null default '';`,
+		`update users set avatar_url = '' where avatar_url is null;`,
+		`alter table if exists users add column if not exists password_changed_at timestamptz;`,
 		`with ranked as (
 			select
 				id,

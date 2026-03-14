@@ -26,7 +26,15 @@
           <a class="button button-ghost" href="/app/admin/users">Админка</a>
         {{end}}
         <a class="button button-ghost" href="/app/search?section={{.CurrentSection.Slug}}{{if .CurrentSubsection}}&sub={{urlquery .CurrentSubsection}}{{end}}">Поиск</a>
-        <span class="atlas-user-chip">@{{.User.Name}}</span>
+        <a class="button button-ghost" href="/app/profile">Профиль</a>
+        <a class="atlas-user-chip atlas-user-chip-link" href="/app/profile" aria-label="Открыть профиль @{{.User.Name}}">
+          {{if .User.AvatarURL}}
+            <img class="atlas-user-chip-avatar" src="{{.User.AvatarURL}}" alt="Аватар @{{.User.Name}}" loading="lazy" />
+          {{else}}
+            <span class="atlas-user-chip-initial">{{if .User.Name}}{{printf "%.1s" .User.Name}}{{else}}?{{end}}</span>
+          {{end}}
+          <span class="atlas-user-chip-name">@{{.User.Name}}</span>
+        </a>
         <form method="post" action="/auth/logout">
           <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
           <button class="button button-ghost" type="submit">Выйти</button>

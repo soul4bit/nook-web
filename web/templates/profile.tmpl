@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{.Title}} - {{.AppName}}</title>
+  <link rel="icon" href="{{asset "favicon.svg"}}" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{asset "app.css"}}" />
+</head>
+<body class="app-page">
+  <main class="atlas-shell">
+    <header class="atlas-topbar">
+      <a class="atlas-brand atlas-brand-link" href="/app">
+        <div class="atlas-mark atlas-mark-image" aria-hidden="true"><img class="atlas-mark-img" src="{{asset "logo-mark.svg"}}" alt="" /></div>
+        <div>
+          <p class="eyebrow">{{.AppName}}</p>
+          <h1 class="atlas-heading">Контур знаний</h1>
+        </div>
+      </a>
+
+      <div class="atlas-topbar-meta">
+        <a class="button button-ghost" href="/app">Дашборд</a>
+        <a class="button button-ghost" href="/app/search">Поиск</a>
+        {{if .User.IsAdmin}}
+          <a class="button button-ghost" href="/app/admin/users">Админка</a>
+        {{end}}
+        <a class="button button-ghost" href="/app/profile">Профиль</a>
+        <a class="atlas-user-chip atlas-user-chip-link" href="/app/profile" aria-label="Открыть профиль @{{.User.Name}}">
+          {{if .User.AvatarURL}}
+            <img class="atlas-user-chip-avatar" src="{{.User.AvatarURL}}" alt="Аватар @{{.User.Name}}" loading="lazy" />
+          {{else}}
+            <span class="atlas-user-chip-initial">{{if .User.Name}}{{printf "%.1s" .User.Name}}{{else}}?{{end}}</span>
+          {{end}}
+          <span class="atlas-user-chip-name">@{{.User.Name}}</span>
+        </a>
+        <form method="post" action="/auth/logout">
+          <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
+          <button class="button button-ghost" type="submit">Выйти</button>
+        </form>
+      </div>
+    </header>
+
+    <section class="atlas-layout atlas-layout-two">
+      <aside class="atlas-rail">
+        <article class="atlas-card atlas-sections-sidebar">
+          <p class="panel-label">Разделы</p>
+          <label class="atlas-nav-search-wrap">
+            <input class="atlas-nav-search" type="search" placeholder="Найти раздел или тему..." />
+          </label>
+          <ul class="atlas-nav">
+            {{range .Sections}}
+              {{$section := .}}
+              <li class="atlas-nav-item {{if eq $.CurrentSectionSlug $section.Slug}}atlas-nav-item-active{{end}}">
+                <a class="atlas-nav-link {{if eq $.CurrentSectionSlug $section.Slug}}atlas-nav-link-active{{end}}" href="/app/section?slug={{$section.Slug}}">
+                  <span class="atlas-nav-title">{{$section.Name}}</span>
+                </a>
+                <ul class="atlas-nav-sub">
+                  {{range $section.Subsections}}
+                    <li>
+                      <a class="atlas-sub-link {{if and (eq $.CurrentSectionSlug $section.Slug) (eq $.CurrentSubsection .)}}atlas-sub-link-active{{end}}" href="/app/section?slug={{$section.Slug}}&sub={{urlquery .}}">{{.}}</a>
+                    </li>
+                  {{end}}
+                </ul>
+              </li>
+            {{end}}
+          </ul>
+          <p class="atlas-nav-empty" data-nav-empty hidden>Ничего не нашлось. Попробуйте другое слово.</p>
+        </article>
+      </aside>
+
+      <section class="atlas-main">
+        <article class="atlas-card atlas-main-head atlas-profile-head">
+          <p class="panel-label">Профиль</p>
+          <div class="atlas-profile-head-grid">
+            <div class="atlas-profile-avatar-shell" aria-hidden="true">
+              {{if .User.AvatarURL}}
+                <img class="atlas-profile-avatar" src="{{.User.AvatarURL}}" alt="" loading="lazy" />
+              {{else}}
+                <span class="atlas-profile-avatar-fallback">{{if .User.Name}}{{printf "%.1s" .User.Name}}{{else}}?{{end}}</span>
+              {{end}}
+            </div>
+            <div class="atlas-profile-head-copy">
+              <h2 class="atlas-section-title">{{.User.Name}}</h2>
+              <p class="atlas-profile-email">{{.User.Email}}</p>
+              <div class="atlas-pill-row atlas-profile-pills">
+                <span class="atlas-pill">Роль: {{.ProfileRoleLabel}}</span>
+                {{if .ProfilePasswordChangedAt}}
+                  <span class="atlas-pill">Пароль обновлён: {{.ProfilePasswordChangedAt}}</span>
+                {{else}}
+                  <span class="atlas-pill">Пароль ещё не меняли</span>
+                {{end}}
+              </div>
+              {{if .ProfilePasswordNextChangeAt}}
+                <p class="atlas-profile-meta">Следующая смена пароля доступна после: {{.ProfilePasswordNextChangeAt}}</p>
+              {{else}}
+                <p class="atlas-profile-meta">Здесь можно обновить аватар и сменить пароль.</p>
+              {{end}}
+            </div>
+          </div>
+        </article>
+
+        {{if .Error}}
+          <p class="alert alert-error">{{.Error}}</p>
+        {{end}}
+        {{if .Success}}
+          <p class="alert alert-success">{{.Success}}</p>
+        {{end}}
+
+        <article class="atlas-card">
+          <p class="panel-label">Аватар</p>
+          <div class="atlas-profile-form-grid">
+            <form class="article-form atlas-profile-form" method="post" action="/app/profile/avatar">
+              <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
+              <label class="field">
+                <span>URL изображения</span>
+                <input name="avatar_url" type="url" maxlength="900" value="{{.ProfileAvatarURL}}" placeholder="https://example.com/avatar.png" />
+                <small class="field-hint">Допустимы только абсолютные ссылки http/https. Оставьте пустым, чтобы удалить аватар.</small>
+              </label>
+              <div class="atlas-actions">
+                <button class="button button-primary" type="submit">Сохранить аватар</button>
+              </div>
+            </form>
+
+            <form class="article-form atlas-profile-form" method="post" action="/app/profile/avatar/upload" enctype="multipart/form-data">
+              <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
+              <label class="field">
+                <span>Загрузить файл</span>
+                <input class="atlas-file-input" name="avatar_file" type="file" accept="image/png,image/jpeg,image/gif,image/webp" required />
+                <small class="field-hint">Поддерживаются JPG/PNG/GIF/WEBP, максимум 5 МБ.</small>
+              </label>
+              <div class="atlas-actions">
+                <button class="button button-ghost" type="submit">Загрузить и применить</button>
+              </div>
+            </form>
+          </div>
+        </article>
+
+        <article class="atlas-card">
+          <p class="panel-label">Смена пароля</p>
+          <form class="article-form atlas-profile-form" method="post" action="/app/profile/password">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}" />
+            <label class="field">
+              <span>Текущий пароль</span>
+              <input name="current_password" type="password" autocomplete="current-password" required />
+            </label>
+            <label class="field">
+              <span>Новый пароль</span>
+              <input name="new_password" type="password" minlength="10" autocomplete="new-password" required />
+            </label>
+            <label class="field">
+              <span>Подтверждение нового пароля</span>
+              <input name="confirm_password" type="password" minlength="10" autocomplete="new-password" required />
+            </label>
+            {{if .ProfilePasswordCanChange}}
+              <div class="atlas-actions">
+                <button class="button button-primary" type="submit">Сменить пароль</button>
+              </div>
+            {{else}}
+              <p class="atlas-profile-lock-note">Смена пароля сейчас недоступна. Интервал между сменами: 7 дней.</p>
+              <div class="atlas-actions">
+                <button class="button button-primary" type="submit" disabled>Смена временно недоступна</button>
+              </div>
+            {{end}}
+          </form>
+        </article>
+      </section>
+    </section>
+  </main>
+  <footer class="atlas-site-footer">
+    <span>© Контур знаний, все права защищены.</span>
+    <a class="atlas-site-footer-link" href="https://github.com/soul4bit/kontur-znaniy" target="_blank" rel="noopener noreferrer">GitHub: soul4bit/kontur-znaniy</a>
+  </footer>
+  <script src="{{asset "wiki-ui.js"}}"></script>
+</body>
+</html>

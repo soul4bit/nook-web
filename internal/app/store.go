@@ -48,7 +48,7 @@ func (a *Application) createUser(name string, email string, passwordHash string)
 	row := a.db.QueryRow(
 		`insert into users (email, name, password_hash, role, created_at)
 		 values ($1, $2, $3, $4, $5)
-		 returning id, email, name, role, is_blocked, created_at`,
+		 returning id, email, name, role, is_blocked, avatar_url, created_at, password_changed_at`,
 		email,
 		name,
 		passwordHash,
@@ -57,7 +57,16 @@ func (a *Application) createUser(name string, email string, passwordHash string)
 	)
 
 	var user User
-	if err := row.Scan(&user.ID, &user.Email, &user.Name, &user.Role, &user.Blocked, &user.CreatedAt); err != nil {
+	if err := row.Scan(
+		&user.ID,
+		&user.Email,
+		&user.Name,
+		&user.Role,
+		&user.Blocked,
+		&user.AvatarURL,
+		&user.CreatedAt,
+		&user.PasswordChangedAt,
+	); err != nil {
 		return nil, err
 	}
 	user.Role = normalizeUserRole(user.Role)
@@ -67,12 +76,21 @@ func (a *Application) createUser(name string, email string, passwordHash string)
 
 func (a *Application) getUserByID(userID int64) (*User, error) {
 	row := a.db.QueryRow(
-		`select id, email, name, role, is_blocked, created_at from users where id = $1 limit 1`,
+		`select id, email, name, role, is_blocked, avatar_url, created_at, password_changed_at from users where id = $1 limit 1`,
 		userID,
 	)
 
 	var user User
-	if err := row.Scan(&user.ID, &user.Email, &user.Name, &user.Role, &user.Blocked, &user.CreatedAt); err != nil {
+	if err := row.Scan(
+		&user.ID,
+		&user.Email,
+		&user.Name,
+		&user.Role,
+		&user.Blocked,
+		&user.AvatarURL,
+		&user.CreatedAt,
+		&user.PasswordChangedAt,
+	); err != nil {
 		return nil, err
 	}
 	user.Role = normalizeUserRole(user.Role)
@@ -82,12 +100,21 @@ func (a *Application) getUserByID(userID int64) (*User, error) {
 
 func (a *Application) getUserByEmail(email string) (*User, error) {
 	row := a.db.QueryRow(
-		`select id, email, name, role, is_blocked, created_at from users where email = $1 limit 1`,
+		`select id, email, name, role, is_blocked, avatar_url, created_at, password_changed_at from users where email = $1 limit 1`,
 		email,
 	)
 
 	var user User
-	if err := row.Scan(&user.ID, &user.Email, &user.Name, &user.Role, &user.Blocked, &user.CreatedAt); err != nil {
+	if err := row.Scan(
+		&user.ID,
+		&user.Email,
+		&user.Name,
+		&user.Role,
+		&user.Blocked,
+		&user.AvatarURL,
+		&user.CreatedAt,
+		&user.PasswordChangedAt,
+	); err != nil {
 		return nil, err
 	}
 	user.Role = normalizeUserRole(user.Role)
@@ -97,7 +124,7 @@ func (a *Application) getUserByEmail(email string) (*User, error) {
 
 func (a *Application) getUserByName(name string) (*User, error) {
 	row := a.db.QueryRow(
-		`select id, email, name, role, is_blocked, created_at
+		`select id, email, name, role, is_blocked, avatar_url, created_at, password_changed_at
 		from users
 		where lower(name) = lower($1)
 		limit 1`,
@@ -105,7 +132,16 @@ func (a *Application) getUserByName(name string) (*User, error) {
 	)
 
 	var user User
-	if err := row.Scan(&user.ID, &user.Email, &user.Name, &user.Role, &user.Blocked, &user.CreatedAt); err != nil {
+	if err := row.Scan(
+		&user.ID,
+		&user.Email,
+		&user.Name,
+		&user.Role,
+		&user.Blocked,
+		&user.AvatarURL,
+		&user.CreatedAt,
+		&user.PasswordChangedAt,
+	); err != nil {
 		return nil, err
 	}
 	user.Role = normalizeUserRole(user.Role)
@@ -115,7 +151,7 @@ func (a *Application) getUserByName(name string) (*User, error) {
 
 func (a *Application) getCredentialsByEmail(email string) (*userCredentials, error) {
 	row := a.db.QueryRow(
-		`select id, email, name, role, is_blocked, password_hash, created_at from users where email = $1 limit 1`,
+		`select id, email, name, role, is_blocked, avatar_url, password_hash, created_at, password_changed_at from users where email = $1 limit 1`,
 		email,
 	)
 
@@ -126,14 +162,87 @@ func (a *Application) getCredentialsByEmail(email string) (*userCredentials, err
 		&creds.Name,
 		&creds.Role,
 		&creds.Blocked,
+		&creds.AvatarURL,
 		&creds.PasswordHash,
 		&creds.CreatedAt,
+		&creds.PasswordChangedAt,
 	); err != nil {
 		return nil, err
 	}
 	creds.Role = normalizeUserRole(creds.Role)
 
 	return &creds, nil
+}
+
+func (a *Application) getCredentialsByUserID(userID int64) (*userCredentials, error) {
+	row := a.db.QueryRow(
+		`select id, email, name, role, is_blocked, avatar_url, password_hash, created_at, password_changed_at
+		from users
+		where id = $1
+		limit 1`,
+		userID,
+	)
+
+	var creds userCredentials
+	if err := row.Scan(
+		&creds.ID,
+		&creds.Email,
+		&creds.Name,
+		&creds.Role,
+		&creds.Blocked,
+		&creds.AvatarURL,
+		&creds.PasswordHash,
+		&creds.CreatedAt,
+		&creds.PasswordChangedAt,
+	); err != nil {
+		return nil, err
+	}
+	creds.Role = normalizeUserRole(creds.Role)
+
+	return &creds, nil
+}
+
+func (a *Application) updateUserAvatarByID(userID int64, avatarURL string) error {
+	result, err := a.db.Exec(
+		`update users
+		set avatar_url = $2
+		where id = $1`,
+		userID,
+		avatarURL,
+	)
+	if err != nil {
+		return err
+	}
+
+	affected, err := result.RowsAffected()
+	if err == nil && affected == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
+}
+
+func (a *Application) updateUserPasswordByID(userID int64, passwordHash string, changedAt time.Time) error {
+	result, err := a.db.Exec(
+		`update users
+		set
+			password_hash = $2,
+			password_changed_at = $3
+		where id = $1`,
+		userID,
+		passwordHash,
+		changedAt,
+	)
+	if err != nil {
+		return err
+	}
+
+	affected, err := result.RowsAffected()
+	if err == nil && affected == 0 {
+		return sql.ErrNoRows
+	}
+
+	return nil
 }
 
 func (a *Application) createSession(userID int64) (token string, expiresAt time.Time, err error) {
@@ -169,7 +278,9 @@ func (a *Application) getUserBySessionToken(token string) (*User, error) {
 			u.name,
 			u.role,
 			u.is_blocked,
+			u.avatar_url,
 			u.created_at,
+			u.password_changed_at,
 			s.expires_at
 		from sessions s
 		join users u on u.id = s.user_id
@@ -186,7 +297,9 @@ func (a *Application) getUserBySessionToken(token string) (*User, error) {
 		&user.Name,
 		&user.Role,
 		&user.Blocked,
+		&user.AvatarURL,
 		&user.CreatedAt,
+		&user.PasswordChangedAt,
 		&expiresAt,
 	)
 	if err != nil {
@@ -885,9 +998,21 @@ func (a *Application) completeRegistrationByVerifyToken(verifyToken string) (*Us
 
 	var user User
 	err = tx.QueryRow(
-		`select id, email, name, role, is_blocked, created_at from users where email = $1 limit 1`,
+		`select id, email, name, role, is_blocked, avatar_url, created_at, password_changed_at
+		from users
+		where email = $1
+		limit 1`,
 		req.Email,
-	).Scan(&user.ID, &user.Email, &user.Name, &user.Role, &user.Blocked, &user.CreatedAt)
+	).Scan(
+		&user.ID,
+		&user.Email,
+		&user.Name,
+		&user.Role,
+		&user.Blocked,
+		&user.AvatarURL,
+		&user.CreatedAt,
+		&user.PasswordChangedAt,
+	)
 	if err != nil {
 		if !errors.Is(err, sql.ErrNoRows) {
 			return nil, err
@@ -914,13 +1039,22 @@ func (a *Application) completeRegistrationByVerifyToken(verifyToken string) (*Us
 		err = tx.QueryRow(
 			`insert into users (email, name, password_hash, role, created_at)
 			 values ($1, $2, $3, $4, $5)
-			 returning id, email, name, role, is_blocked, created_at`,
+			 returning id, email, name, role, is_blocked, avatar_url, created_at, password_changed_at`,
 			req.Email,
 			req.Name,
 			req.PasswordHash,
 			userRoleViewer,
 			now,
-		).Scan(&user.ID, &user.Email, &user.Name, &user.Role, &user.Blocked, &user.CreatedAt)
+		).Scan(
+			&user.ID,
+			&user.Email,
+			&user.Name,
+			&user.Role,
+			&user.Blocked,
+			&user.AvatarURL,
+			&user.CreatedAt,
+			&user.PasswordChangedAt,
+		)
 		if err != nil {
 			if isUniqueNameError(err) {
 				if updateErr := rejectRequestBecauseNameTaken(req.ID); updateErr != nil {
