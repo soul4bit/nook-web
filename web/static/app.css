@@ -853,7 +853,7 @@ body {
 }
 
 .atlas-layout-two {
-  grid-template-columns: 332px minmax(0, 1fr);
+  grid-template-columns: 348px minmax(0, 1fr);
 }
 
 .atlas-rail,
@@ -1242,6 +1242,13 @@ body {
   pointer-events: none;
 }
 
+@media (min-width: 981px) {
+  .atlas-rail .atlas-sections-sidebar {
+    position: sticky;
+    top: 14px;
+  }
+}
+
 .atlas-sidebar-profile {
   --atlas-profile-accent: #158376;
   --atlas-profile-accent-2: #24a18f;
@@ -1437,6 +1444,22 @@ body {
   text-wrap: pretty;
 }
 
+.atlas-sidebar-profile-points {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  max-width: 100%;
+  padding: 3px 9px;
+  border: 1px solid rgba(138, 186, 173, 0.62);
+  border-radius: 999px;
+  background: rgba(247, 253, 250, 0.86);
+  color: #244e47;
+  font-size: 11px;
+  line-height: 1.2;
+  font-family: "IBM Plex Mono", "Consolas", monospace;
+  white-space: nowrap;
+}
+
 .atlas-sidebar-profile-progress-label {
   display: block;
   color: #355f57;
@@ -1508,15 +1531,55 @@ body {
 }
 
 .atlas-sidebar-hint {
-  margin: -4px 0 10px;
+  margin: 0 0 10px;
   color: #5b746d;
   font-size: 13px;
   line-height: 1.4;
 }
 
+.atlas-sidebar-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.atlas-sidebar-heading .panel-label {
+  margin-bottom: 0;
+}
+
+.atlas-sidebar-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 24px;
+  padding: 0 8px;
+  border: 1px solid #bfd7cf;
+  border-radius: 999px;
+  background: rgba(247, 253, 250, 0.88);
+  color: #24574f;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: "IBM Plex Mono", "Consolas", monospace;
+}
+
 .atlas-nav-search-wrap {
+  position: relative;
   display: block;
   margin-bottom: 11px;
+}
+
+.atlas-nav-search-wrap::before {
+  content: "⌕";
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6a8780;
+  font-size: 13px;
+  pointer-events: none;
 }
 
 .atlas-nav-search {
@@ -1525,7 +1588,7 @@ body {
   border-radius: 10px;
   border: 1px solid #c7d8d2;
   background: rgba(255, 255, 255, 0.82);
-  padding: 0 11px;
+  padding: 0 11px 0 31px;
   font: inherit;
   color: #284740;
   font-size: 14px;
@@ -4060,6 +4123,11 @@ body {
     font-size: 12px;
   }
 
+  .atlas-sidebar-profile-points {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
   .atlas-sidebar-profile-progress-label {
     font-size: 11px;
   }
@@ -4073,6 +4141,17 @@ body {
     height: 36px;
     border-radius: 9px;
     font-size: 17px;
+  }
+
+  .atlas-sidebar-count {
+    min-width: 25px;
+    height: 22px;
+    padding: 0 7px;
+    font-size: 11px;
+  }
+
+  .atlas-sidebar-hint {
+    font-size: 12px;
   }
 
   .atlas-mark {

@@ -42,7 +42,8 @@
               {{end}}
               <span class="atlas-sidebar-profile-copy">
                 <span class="atlas-sidebar-profile-name">@{{.User.Name}}</span>
-                <span class="atlas-sidebar-profile-rank">{{.User.RankLabel}} &middot; {{.User.EffectiveRating}}</span>
+                <span class="atlas-sidebar-profile-rank">{{.User.RankLabel}}</span>
+                <span class="atlas-sidebar-profile-points">Рейтинг: {{.User.EffectiveRating}}</span>
                 {{if .User.HasNextRank}}
                   <span class="atlas-sidebar-profile-progress-label">До следующего звания &laquo;{{.User.NextRankLabel}}&raquo;: {{.User.RatingToNextRank}} очков</span>
                   <span class="atlas-sidebar-profile-progress" role="presentation" aria-hidden="true">
@@ -58,10 +59,13 @@
             </a>
             <a class="atlas-sidebar-profile-settings" href="/app/profile" aria-label="Настройки профиля" title="Настройки профиля">&#9881;</a>
           </div>
-          <p class="panel-label">Разделы</p>
+          <div class="atlas-sidebar-heading">
+            <p class="panel-label">Разделы</p>
+            <span class="atlas-sidebar-count">{{len .Sections}}</span>
+          </div>
           <p class="atlas-sidebar-hint">Быстрая навигация по базе знаний</p>
           <label class="atlas-nav-search-wrap">
-            <input class="atlas-nav-search" type="search" placeholder="Найти раздел или тему..." />
+            <input class="atlas-nav-search" type="search" placeholder="Поиск по разделам и темам..." />
           </label>
           <ul class="atlas-nav">
             {{range .Sections}}
