@@ -9,6 +9,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"html/template"
 	"log"
 	"net"
@@ -177,6 +178,8 @@ type contextKey string
 const userContextKey contextKey = "authenticated_user"
 
 func New(cfg config.Config, logger *log.Logger) (*Application, error) {
+	applyRatingConfig(cfg)
+
 	db, err := sql.Open("pgx", cfg.DatabaseURL)
 	if err != nil {
 		return nil, err
@@ -321,6 +324,9 @@ func loadTemplates(staticVersion string) (map[string]*template.Template, error) 
 		"article_edit.tmpl",
 		"admin_users.tmpl",
 	}
+	sharedNames := []string{
+		filepath.Join("partials", "sidebar_profile.tmpl"),
+	}
 
 	funcMap := template.FuncMap{
 		"asset": func(name string) string {
@@ -337,8 +343,13 @@ func loadTemplates(staticVersion string) (map[string]*template.Template, error) 
 
 	result := make(map[string]*template.Template, len(names))
 	for _, name := range names {
-		fullPath := filepath.Join(templateDir, name)
-		tmpl, err := template.New(name).Funcs(funcMap).ParseFiles(fullPath)
+		parsePaths := make([]string, 0, len(sharedNames)+1)
+		for _, sharedName := range sharedNames {
+			parsePaths = append(parsePaths, filepath.Join(templateDir, sharedName))
+		}
+		parsePaths = append(parsePaths, filepath.Join(templateDir, name))
+
+		tmpl, err := template.New(name).Funcs(funcMap).ParseFiles(parsePaths...)
 		if err != nil {
 			return nil, err
 		}
@@ -413,6 +424,8 @@ func (a *Application) startBackgroundJobs() {
 }
 
 func runMigrations(db *sql.DB) error {
+	defaultRating := normalizeRating(defaultUserRating)
+
 	statements := []string{
 		`create table if not exists users (
 			id bigserial primary key,
@@ -454,8 +467,9 @@ func runMigrations(db *sql.DB) error {
 		`alter table if exists users add column if not exists avatar_url text not null default '';`,
 		`update users set avatar_url = '' where avatar_url is null;`,
 		`alter table if exists users add column if not exists password_changed_at timestamptz;`,
-		`alter table if exists users add column if not exists rating integer not null default 1000;`,
-		`update users set rating = 1000 where rating is null or rating < 1;`,
+		fmt.Sprintf(`alter table if exists users add column if not exists rating integer not null default %d;`, defaultRating),
+		fmt.Sprintf(`alter table if exists users alter column rating set default %d;`, defaultRating),
+		fmt.Sprintf(`update users set rating = %d where rating is null or rating < 0;`, defaultRating),
 		`with ranked as (
 			select
 				id,

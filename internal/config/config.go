@@ -13,6 +13,12 @@ type Config struct {
 	AppBaseURL          string
 	TrustedProxyCIDRs   string
 	DatabaseURL         string
+	DefaultUserRating   int
+	ArticleCreateXP     int
+	ArticleLikeXP       int
+	RankApprenticeMin   int
+	RankExpertMin       int
+	RankMasterMin       int
 	DBMaxOpenConns      int
 	DBMaxIdleConns      int
 	DBConnMaxLifetime   time.Duration
@@ -52,6 +58,12 @@ func Load() Config {
 		AppBaseURL:          strings.TrimRight(getEnv("APP_BASE_URL", "http://localhost:8080"), "/"),
 		TrustedProxyCIDRs:   getEnv("TRUSTED_PROXY_CIDRS", ""),
 		DatabaseURL:         databaseURL,
+		DefaultUserRating:   getEnvInt("DEFAULT_USER_RATING", 1000),
+		ArticleCreateXP:     getEnvInt("ARTICLE_CREATE_RATING_XP", 5),
+		ArticleLikeXP:       getEnvInt("ARTICLE_LIKE_RATING_XP", 10),
+		RankApprenticeMin:   getEnvInt("RANK_APPRENTICE_MIN_RATING", 1200),
+		RankExpertMin:       getEnvInt("RANK_EXPERT_MIN_RATING", 1600),
+		RankMasterMin:       getEnvInt("RANK_MASTER_MIN_RATING", 2200),
 		DBMaxOpenConns:      getEnvInt("DB_MAX_OPEN_CONNS", 20),
 		DBMaxIdleConns:      getEnvInt("DB_MAX_IDLE_CONNS", 10),
 		DBConnMaxLifetime:   time.Duration(getEnvInt("DB_CONN_MAX_LIFETIME_MINUTES", 30)) * time.Minute,

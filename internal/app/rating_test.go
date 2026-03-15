@@ -29,6 +29,34 @@ func TestRankByRating(t *testing.T) {
 	}
 }
 
+func TestRankByRatingBoundaries(t *testing.T) {
+	tests := []struct {
+		name   string
+		rating int
+		want   userRank
+	}{
+		{name: "zero", rating: 0, want: userRanks[0]},
+		{name: "before apprentice", rating: userRanks[1].min - 1, want: userRanks[0]},
+		{name: "at apprentice", rating: userRanks[1].min, want: userRanks[1]},
+		{name: "before expert", rating: userRanks[2].min - 1, want: userRanks[1]},
+		{name: "at expert", rating: userRanks[2].min, want: userRanks[2]},
+		{name: "before master", rating: userRanks[3].min - 1, want: userRanks[2]},
+		{name: "at master", rating: userRanks[3].min, want: userRanks[3]},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := rankByRating(tt.rating)
+			if got.class != tt.want.class {
+				t.Fatalf("class = %s, want %s", got.class, tt.want.class)
+			}
+			if got.label != tt.want.label {
+				t.Fatalf("label = %s, want %s", got.label, tt.want.label)
+			}
+		})
+	}
+}
+
 func TestUserRatingHelpers(t *testing.T) {
 	u := &User{Rating: 1610}
 
@@ -86,5 +114,34 @@ func TestUserRatingHelpersAtNoviceFloor(t *testing.T) {
 	}
 	if got := u.RankProgressPercent(); got != 83 {
 		t.Fatalf("RankProgressPercent = %d, want %d", got, 83)
+	}
+}
+
+func TestUserRatingHelpersNilUser(t *testing.T) {
+	var u *User
+
+	if got := u.EffectiveRating(); got != 0 {
+		t.Fatalf("EffectiveRating = %d, want %d", got, 0)
+	}
+	if got := u.RankClass(); got != userRanks[0].class {
+		t.Fatalf("RankClass = %s, want %s", got, userRanks[0].class)
+	}
+	if got := u.RankLabel(); got != userRanks[0].label {
+		t.Fatalf("RankLabel = %s, want %s", got, userRanks[0].label)
+	}
+	if got := u.HasNextRank(); !got {
+		t.Fatalf("HasNextRank = %t, want %t", got, true)
+	}
+	if got := u.NextRankLabel(); got != userRanks[1].label {
+		t.Fatalf("NextRankLabel = %s, want %s", got, userRanks[1].label)
+	}
+	if got := u.NextRankMinRating(); got != userRanks[1].min {
+		t.Fatalf("NextRankMinRating = %d, want %d", got, userRanks[1].min)
+	}
+	if got := u.RatingToNextRank(); got != userRanks[1].min {
+		t.Fatalf("RatingToNextRank = %d, want %d", got, userRanks[1].min)
+	}
+	if got := u.RankProgressPercent(); got != 0 {
+		t.Fatalf("RankProgressPercent = %d, want %d", got, 0)
 	}
 }

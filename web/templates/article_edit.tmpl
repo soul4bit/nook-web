@@ -33,32 +33,7 @@
     <section class="atlas-layout atlas-layout-two">
       <aside class="atlas-rail">
         <article class="atlas-card atlas-sections-sidebar">
-          <div class="atlas-sidebar-profile atlas-user-chip-rank-{{.User.RankClass}}">
-            <a class="atlas-sidebar-profile-main" href="/app/profile" aria-label="Открыть профиль @{{.User.Name}}" title="Рейтинг: {{.User.EffectiveRating}}, звание: {{.User.RankLabel}}">
-              {{if .User.AvatarURL}}
-                <img class="atlas-sidebar-profile-avatar" src="{{.User.AvatarURL}}" alt="Аватар @{{.User.Name}}" loading="lazy" />
-              {{else}}
-                <span class="atlas-sidebar-profile-avatar atlas-sidebar-profile-initial">{{if .User.Name}}{{printf "%.1s" .User.Name}}{{else}}?{{end}}</span>
-              {{end}}
-              <span class="atlas-sidebar-profile-copy">
-                <span class="atlas-sidebar-profile-name">@{{.User.Name}}</span>
-                <span class="atlas-sidebar-profile-rank">{{.User.RankLabel}}</span>
-                <span class="atlas-sidebar-profile-points">Рейтинг: {{.User.EffectiveRating}}</span>
-                {{if .User.HasNextRank}}
-                  <span class="atlas-sidebar-profile-progress-label">До следующего звания &laquo;{{.User.NextRankLabel}}&raquo;: {{.User.RatingToNextRank}} очков</span>
-                  <span class="atlas-sidebar-profile-progress" role="presentation" aria-hidden="true">
-                    <span class="atlas-sidebar-profile-progress-fill" style="width: {{.User.RankProgressPercent}}%;"></span>
-                  </span>
-                {{else}}
-                  <span class="atlas-sidebar-profile-progress-label">Максимальное звание достигнуто</span>
-                  <span class="atlas-sidebar-profile-progress atlas-sidebar-profile-progress-max" role="presentation" aria-hidden="true">
-                    <span class="atlas-sidebar-profile-progress-fill" style="width: 100%;"></span>
-                  </span>
-                {{end}}
-              </span>
-            </a>
-            <a class="atlas-sidebar-profile-settings" href="/app/profile" aria-label="Настройки профиля" title="Настройки профиля">&#9881;</a>
-          </div>
+          {{template "sidebar_profile" .}}
           <div class="atlas-sidebar-heading">
             <p class="panel-label">Разделы</p>
             <span class="atlas-sidebar-count">{{len .Sections}}</span>
@@ -150,4 +125,3 @@
   <script src="{{asset "editor-autosave.js"}}"></script>
 </body>
 </html>
-

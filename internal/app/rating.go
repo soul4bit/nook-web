@@ -1,9 +1,14 @@
 package app
 
+import "nook/internal/config"
+
 const (
-	defaultUserRating     = 1000
-	articleCreateRatingXP = 5
-	articleLikeRatingXP   = 10
+	defaultUserRatingFallback     = 1000
+	articleCreateRatingXPFallback = 5
+	articleLikeRatingXPFallback   = 10
+	rankApprenticeMinFallback     = 1200
+	rankExpertMinFallback         = 1600
+	rankMasterMinFallback         = 2200
 )
 
 type userRank struct {
@@ -12,11 +17,63 @@ type userRank struct {
 	min   int
 }
 
-var userRanks = []userRank{
-	{class: "novice", label: "Разведчик инцидентов", min: 0},
-	{class: "apprentice", label: "Навигатор дежурки", min: 1200},
-	{class: "expert", label: "Инженер стабильности", min: 1600},
-	{class: "master", label: "Хранитель продакшена", min: 2200},
+var (
+	defaultUserRating     = defaultUserRatingFallback
+	articleCreateRatingXP = articleCreateRatingXPFallback
+	articleLikeRatingXP   = articleLikeRatingXPFallback
+	userRanks             = buildUserRanks(rankApprenticeMinFallback, rankExpertMinFallback, rankMasterMinFallback)
+)
+
+func applyRatingConfig(cfg config.Config) {
+	defaultUserRating = nonNegativeOrFallback(cfg.DefaultUserRating, defaultUserRatingFallback)
+	articleCreateRatingXP = nonNegativeOrFallback(cfg.ArticleCreateXP, articleCreateRatingXPFallback)
+	articleLikeRatingXP = nonNegativeOrFallback(cfg.ArticleLikeXP, articleLikeRatingXPFallback)
+
+	apprenticeMin := positiveOrFallback(cfg.RankApprenticeMin, rankApprenticeMinFallback)
+	expertMin := positiveOrFallback(cfg.RankExpertMin, rankExpertMinFallback)
+	masterMin := positiveOrFallback(cfg.RankMasterMin, rankMasterMinFallback)
+	userRanks = buildUserRanks(apprenticeMin, expertMin, masterMin)
+}
+
+func nonNegativeOrFallback(value int, fallback int) int {
+	if value < 0 {
+		return fallback
+	}
+	return value
+}
+
+func positiveOrFallback(value int, fallback int) int {
+	if value <= 0 {
+		return fallback
+	}
+	return value
+}
+
+func buildUserRanks(apprenticeMin int, expertMin int, masterMin int) []userRank {
+	if apprenticeMin <= 0 {
+		apprenticeMin = rankApprenticeMinFallback
+	}
+
+	if expertMin <= apprenticeMin {
+		expertMin = rankExpertMinFallback
+		if expertMin <= apprenticeMin {
+			expertMin = apprenticeMin + 1
+		}
+	}
+
+	if masterMin <= expertMin {
+		masterMin = rankMasterMinFallback
+		if masterMin <= expertMin {
+			masterMin = expertMin + 1
+		}
+	}
+
+	return []userRank{
+		{class: "novice", label: "Разведчик инцидентов", min: 0},
+		{class: "apprentice", label: "Навигатор дежурки", min: apprenticeMin},
+		{class: "expert", label: "Инженер стабильности", min: expertMin},
+		{class: "master", label: "Хранитель продакшена", min: masterMin},
+	}
 }
 
 func normalizeRating(value int) int {
