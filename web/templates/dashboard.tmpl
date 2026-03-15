@@ -109,7 +109,7 @@
               <div class="atlas-pill-row atlas-hero-pills">
                 <span class="atlas-pill">Разделов: {{len .Sections}}</span>
                 <span class="atlas-pill">В ленте: {{len .RecentArticles}}</span>
-                <span class="atlas-pill">Роль: {{if .User.IsAdmin}}Администратор{{else if .User.CanEdit}}Редактор{{else}}Только просмотр{{end}}</span>
+                <span class="atlas-pill">Роль: {{.ProfileRoleLabel}}</span>
               </div>
               <div class="atlas-actions atlas-hero-actions">
                 {{if .SectionOverviews}}
@@ -187,4 +187,3 @@
   <script src="{{asset "wiki-ui.js"}}"></script>
 </body>
 </html>
-

@@ -13,10 +13,10 @@ type userRank struct {
 }
 
 var userRanks = []userRank{
-	{class: "novice", label: "Дежурный на локале", min: 0},
-	{class: "apprentice", label: "Гаситель алертов", min: 1200},
-	{class: "expert", label: "Повар CI/CD", min: 1600},
-	{class: "master", label: "Не деплоит в пятницу", min: 2200},
+	{class: "novice", label: "Разведчик инцидентов", min: 0},
+	{class: "apprentice", label: "Навигатор дежурки", min: 1200},
+	{class: "expert", label: "Инженер стабильности", min: 1600},
+	{class: "master", label: "Хранитель продакшена", min: 2200},
 }
 
 func normalizeRating(value int) int {

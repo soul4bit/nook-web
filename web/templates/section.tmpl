@@ -151,7 +151,7 @@
             {{if .User.CanEdit}}
               <p class="atlas-empty">В этом разделе пока нет статей. Нажмите «Новая статья» и добавьте первую.</p>
             {{else}}
-              <p class="atlas-empty">В этом разделе пока нет статей. У вас роль только на просмотр.</p>
+              <p class="atlas-empty">В этом разделе пока нет статей. Ваша роль: {{.ProfileRoleLabel}}.</p>
             {{end}}
           </article>
         {{end}}
@@ -165,4 +165,3 @@
   <script src="{{asset "wiki-ui.js"}}"></script>
 </body>
 </html>
-

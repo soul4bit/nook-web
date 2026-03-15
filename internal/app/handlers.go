@@ -103,12 +103,18 @@ func (a *Application) authViewData(title string) viewData {
 }
 
 func (a *Application) appViewData(user *User, title string) viewData {
+	roleLabelValue := ""
+	if user != nil {
+		roleLabelValue = roleLabel(user.Role)
+	}
+
 	return viewData{
 		AppName:             a.cfg.AppName,
 		Title:               title,
 		User:                user,
 		Sections:            wikiSections(),
 		MediaUploadEndpoint: a.mediaUploadEndpoint(),
+		ProfileRoleLabel:    roleLabelValue,
 	}
 }
 

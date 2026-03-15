@@ -27,11 +27,11 @@ func normalizeUserRole(role string) string {
 func roleLabel(role string) string {
 	switch normalizeUserRole(role) {
 	case userRoleAdmin:
-		return "Администратор"
+		return "Архитектор платформы"
 	case userRoleEditor:
-		return "Редактор"
+		return "Куратор знаний"
 	default:
-		return "Только просмотр"
+		return "Исследователь базы"
 	}
 }
 
