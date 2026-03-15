@@ -92,9 +92,12 @@ func (a *Application) insertAdminAuditEntry(adminUserID int64, action string, ta
 	return err
 }
 
-func (a *Application) listAdminAuditEntries(limit int) ([]adminAuditEntry, error) {
+func (a *Application) listAdminAuditEntries(limit int, offset int) ([]adminAuditEntry, bool, error) {
 	if limit < 1 {
 		limit = 1
+	}
+	if offset < 0 {
+		offset = 0
 	}
 
 	rows, err := a.db.Query(
@@ -110,15 +113,17 @@ func (a *Application) listAdminAuditEntries(limit int) ([]adminAuditEntry, error
 		from admin_audit_log l
 		left join users u on u.id = l.admin_user_id
 		order by l.created_at desc
-		limit $1`,
-		limit,
+		limit $1
+		offset $2`,
+		limit+1,
+		offset,
 	)
 	if err != nil {
-		return nil, err
+		return nil, false, err
 	}
 	defer rows.Close()
 
-	result := make([]adminAuditEntry, 0, limit)
+	result := make([]adminAuditEntry, 0, limit+1)
 	for rows.Next() {
 		var entry adminAuditEntry
 		if err := rows.Scan(
@@ -131,15 +136,21 @@ func (a *Application) listAdminAuditEntries(limit int) ([]adminAuditEntry, error
 			&entry.TargetUserID,
 			&entry.AdminUserID,
 		); err != nil {
-			return nil, err
+			return nil, false, err
 		}
 		entry.ActionLabel = adminAuditActionLabel(entry.Action)
 		result = append(result, entry)
 	}
 
 	if err := rows.Err(); err != nil {
-		return nil, err
+		return nil, false, err
 	}
 
-	return result, nil
+	hasNext := false
+	if len(result) > limit {
+		hasNext = true
+		result = result[:limit]
+	}
+
+	return result, hasNext, nil
 }

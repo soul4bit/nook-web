@@ -36,6 +36,8 @@ const (
 	adminTabCatalog = "catalog"
 	adminTabUsers   = "users"
 	adminTabAudit   = "audit"
+
+	adminAuditPageSize = 7
 )
 
 type adminJSONResponse struct {
@@ -71,6 +73,17 @@ func parseAdminRating(raw string) (int, error) {
 		return 0, errors.New("invalid rating range")
 	}
 	return value, nil
+}
+
+func parsePositivePage(raw string) int {
+	value, err := strconv.Atoi(strings.TrimSpace(raw))
+	if err != nil || value < 1 {
+		return 1
+	}
+	if value > 100000 {
+		return 100000
+	}
+	return value
 }
 
 func selectedRole(raw string) (string, error) {
@@ -482,11 +495,29 @@ func (a *Application) handleAdminUsers(w http.ResponseWriter, r *http.Request) {
 		}
 		data.PendingRequests = requests
 	case adminTabAudit:
-		auditEntries, err := a.listAdminAuditEntries(40)
+		page := parsePositivePage(r.URL.Query().Get("page"))
+		offset := (page - 1) * adminAuditPageSize
+
+		auditEntries, hasNext, err := a.listAdminAuditEntries(adminAuditPageSize, offset)
+		if err == nil && len(auditEntries) == 0 && page > 1 {
+			page--
+			offset = (page - 1) * adminAuditPageSize
+			auditEntries, hasNext, err = a.listAdminAuditEntries(adminAuditPageSize, offset)
+		}
+
 		if err != nil {
 			a.logger.Printf("admin list audit entries: %v", err)
 		} else {
 			data.AdminAuditEntries = auditEntries
+			data.AdminAuditPage = page
+			data.AdminAuditHasPrev = page > 1
+			data.AdminAuditHasNext = hasNext
+			if data.AdminAuditHasPrev {
+				data.AdminAuditPrevPage = page - 1
+			}
+			if data.AdminAuditHasNext {
+				data.AdminAuditNextPage = page + 1
+			}
 		}
 	}
 

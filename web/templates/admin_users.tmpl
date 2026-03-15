@@ -343,6 +343,17 @@
                 </article>
               {{end}}
             </div>
+            {{if or .AdminAuditHasPrev .AdminAuditHasNext}}
+              <div class="atlas-actions">
+                {{if .AdminAuditHasPrev}}
+                  <a class="button button-ghost button-compact" href="/app/admin/users?tab=audit&page={{.AdminAuditPrevPage}}">← Назад</a>
+                {{end}}
+                <span class="atlas-admin-meta">Страница {{if gt .AdminAuditPage 0}}{{.AdminAuditPage}}{{else}}1{{end}}</span>
+                {{if .AdminAuditHasNext}}
+                  <a class="button button-ghost button-compact" href="/app/admin/users?tab=audit&page={{.AdminAuditNextPage}}">Далее →</a>
+                {{end}}
+              </div>
+            {{end}}
           {{else}}
             <p class="atlas-empty">Журнал пока пуст.</p>
           {{end}}

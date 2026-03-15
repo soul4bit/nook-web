@@ -162,6 +162,11 @@ type viewData struct {
 	AdminUsers                  []adminUserListItem
 	PendingRequests             []registrationRequestListItem
 	AdminAuditEntries           []adminAuditEntry
+	AdminAuditPage              int
+	AdminAuditPrevPage          int
+	AdminAuditNextPage          int
+	AdminAuditHasPrev           bool
+	AdminAuditHasNext           bool
 	AvailableRoles              []roleOption
 	ProfileRoleLabel            string
 	ProfileAvatarURL            string
