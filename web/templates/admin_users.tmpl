@@ -290,6 +290,7 @@
                         {{end}}
                       </td>
                       <td>
+                        <p class="atlas-admin-meta">Рейтинг: {{.Rating}}</p>
                         <p class="atlas-admin-meta">Статей: {{.ArticlesCount}}</p>
                         <p class="atlas-admin-meta">Создан: {{.CreatedAt.Format "02.01.2006"}}</p>
                       </td>
@@ -304,6 +305,12 @@
                               {{end}}
                             </select>
                             <button class="button button-ghost button-compact" type="submit">Сменить роль</button>
+                          </form>
+                          <form method="post" action="/app/admin/users/rating" class="atlas-admin-role-form">
+                            <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}" />
+                            <input type="hidden" name="user_id" value="{{.ID}}" />
+                            <input class="atlas-admin-inline-input" type="number" name="rating" min="0" max="50000" step="1" value="{{.Rating}}" required />
+                            <button class="button button-ghost button-compact" type="submit">Обновить рейтинг</button>
                           </form>
                           {{if ne .ID $.User.ID}}
                             <div class="atlas-admin-user-secondary-actions">
@@ -377,4 +384,3 @@
   <script src="{{asset "admin-wiki-sort.js"}}"></script>
 </body>
 </html>
-

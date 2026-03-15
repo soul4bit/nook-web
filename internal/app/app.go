@@ -297,6 +297,7 @@ func (a *Application) Routes() http.Handler {
 	mux.HandleFunc("/app/admin/wiki/subsections/move", a.requireAuth(a.withAdminActionAudit(adminAuditActionMoveWikiSubsection, a.withCSRF(a.handleAdminMoveWikiSubsection))))
 	mux.HandleFunc("/app/admin/wiki/subsections/delete", a.requireAuth(a.withAdminActionAudit(adminAuditActionDeleteWikiSubsection, a.withCSRF(a.handleAdminDeleteWikiSubsection))))
 	mux.HandleFunc("/app/admin/users/role", a.requireAuth(a.withAdminActionAudit(adminAuditActionChangeUserRole, a.withCSRF(a.handleAdminChangeUserRole))))
+	mux.HandleFunc("/app/admin/users/rating", a.requireAuth(a.withAdminActionAudit(adminAuditActionChangeUserRating, a.withCSRF(a.handleAdminChangeUserRating))))
 	mux.HandleFunc("/app/admin/users/block", a.requireAuth(a.withAdminActionAudit(adminAuditActionBlockUser, a.withCSRF(a.handleAdminBlockUser))))
 	mux.HandleFunc("/app/admin/users/unblock", a.requireAuth(a.withAdminActionAudit(adminAuditActionUnblockUser, a.withCSRF(a.handleAdminUnblockUser))))
 	mux.HandleFunc("/app/admin/users/delete", a.requireAuth(a.withAdminActionAudit(adminAuditActionDeleteUser, a.withCSRF(a.handleAdminDeleteUser))))

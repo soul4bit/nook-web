@@ -9,6 +9,7 @@ const (
 	adminAuditActionApproveRegistration  = "registration_approve"
 	adminAuditActionRejectRegistration   = "registration_reject"
 	adminAuditActionChangeUserRole       = "user_role_change"
+	adminAuditActionChangeUserRating     = "user_rating_change"
 	adminAuditActionDeleteUser           = "user_delete"
 	adminAuditActionBlockUser            = "user_block"
 	adminAuditActionUnblockUser          = "user_unblock"
@@ -30,6 +31,8 @@ func adminAuditActionLabel(action string) string {
 		return "Отклонение регистрации"
 	case adminAuditActionChangeUserRole:
 		return "Смена роли пользователя"
+	case adminAuditActionChangeUserRating:
+		return "Изменение рейтинга пользователя"
 	case adminAuditActionDeleteUser:
 		return "Удаление пользователя"
 	case adminAuditActionBlockUser:

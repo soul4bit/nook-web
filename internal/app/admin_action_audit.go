@@ -113,6 +113,7 @@ func buildAdminActionDetails(r *http.Request, statusCode int, tab string, result
 	parts = appendAdminAuditDetail(parts, "order", r.FormValue("order"))
 	parts = appendAdminAuditDetail(parts, "slug", r.FormValue("slug"))
 	parts = appendAdminAuditDetail(parts, "role", r.FormValue("role"))
+	parts = appendAdminAuditDetail(parts, "rating", r.FormValue("rating"))
 	parts = appendAdminAuditDetail(parts, "name", r.FormValue("name"))
 	parts = appendAdminAuditDetail(parts, "title", r.FormValue("title"))
 	parts = appendAdminAuditDetail(parts, "message", message)

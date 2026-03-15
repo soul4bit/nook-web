@@ -19,6 +19,7 @@ type adminUserListItem struct {
 	Name          string
 	Role          string
 	RoleLabel     string
+	Rating        int
 	Blocked       bool
 	CreatedAt     time.Time
 	ArticlesCount int
@@ -57,6 +58,17 @@ func parsePositiveID(raw string) (int64, error) {
 	value, err := strconv.ParseInt(strings.TrimSpace(raw), 10, 64)
 	if err != nil || value < 1 {
 		return 0, errors.New("invalid id")
+	}
+	return value, nil
+}
+
+func parseAdminRating(raw string) (int, error) {
+	value, err := strconv.Atoi(strings.TrimSpace(raw))
+	if err != nil {
+		return 0, errors.New("invalid rating")
+	}
+	if value < 0 || value > 50000 {
+		return 0, errors.New("invalid rating range")
 	}
 	return value, nil
 }
@@ -158,6 +170,7 @@ func (a *Application) listUsersForAdmin() ([]adminUserListItem, error) {
 			u.email,
 			u.name,
 			u.role,
+			u.rating,
 			u.is_blocked,
 			u.created_at,
 			count(ar.id) as articles_count
@@ -185,6 +198,7 @@ func (a *Application) listUsersForAdmin() ([]adminUserListItem, error) {
 			&item.Email,
 			&item.Name,
 			&item.Role,
+			&item.Rating,
 			&item.Blocked,
 			&item.CreatedAt,
 			&item.ArticlesCount,
@@ -353,6 +367,24 @@ func (a *Application) updateUserBlockedStateByID(userID int64, blocked bool) (*U
 		returning id, email, name, role, rating, is_blocked, avatar_url, created_at, password_changed_at`,
 		userID,
 		blocked,
+	)
+
+	var user User
+	if err := row.Scan(&user.ID, &user.Email, &user.Name, &user.Role, &user.Rating, &user.Blocked, &user.AvatarURL, &user.CreatedAt, &user.PasswordChangedAt); err != nil {
+		return nil, err
+	}
+	user.Role = normalizeUserRole(user.Role)
+	return &user, nil
+}
+
+func (a *Application) updateUserRatingByID(userID int64, rating int) (*User, error) {
+	row := a.db.QueryRow(
+		`update users
+		set rating = $2
+		where id = $1
+		returning id, email, name, role, rating, is_blocked, avatar_url, created_at, password_changed_at`,
+		userID,
+		rating,
 	)
 
 	var user User
@@ -1023,6 +1055,65 @@ func (a *Application) handleAdminChangeUserRole(w http.ResponseWriter, r *http.R
 	}
 
 	success := fmt.Sprintf("Роль пользователя %s обновлена: %s.", updated.Email, roleLabel(updated.Role))
+	http.Redirect(w, r, adminUsersRedirectURL(success, ""), http.StatusSeeOther)
+}
+
+func (a *Application) handleAdminChangeUserRating(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	if a.requireAdmin(w, r) == nil {
+		return
+	}
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, "invalid form data", http.StatusBadRequest)
+		return
+	}
+
+	userID, err := parsePositiveID(r.FormValue("user_id"))
+	if err != nil {
+		http.Redirect(w, r, adminUsersRedirectURL("", "Некорректный ID пользователя."), http.StatusSeeOther)
+		return
+	}
+
+	newRating, err := parseAdminRating(r.FormValue("rating"))
+	if err != nil {
+		http.Redirect(w, r, adminUsersRedirectURL("", "Рейтинг должен быть числом от 0 до 50000."), http.StatusSeeOther)
+		return
+	}
+
+	target, err := a.getUserByID(userID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			http.Redirect(w, r, adminUsersRedirectURL("", "Пользователь не найден."), http.StatusSeeOther)
+			return
+		}
+		a.logger.Printf("admin get target user for rating change: %v", err)
+		http.Redirect(w, r, adminUsersRedirectURL("", "Не удалось обновить рейтинг."), http.StatusSeeOther)
+		return
+	}
+
+	updated, err := a.updateUserRatingByID(userID, newRating)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			http.Redirect(w, r, adminUsersRedirectURL("", "Пользователь не найден."), http.StatusSeeOther)
+			return
+		}
+		a.logger.Printf("admin update user rating: %v", err)
+		http.Redirect(w, r, adminUsersRedirectURL("", "Не удалось обновить рейтинг."), http.StatusSeeOther)
+		return
+	}
+
+	success := fmt.Sprintf(
+		"Рейтинг пользователя %s обновлен: %d -> %d (%s).",
+		updated.Email,
+		normalizeRating(target.Rating),
+		updated.EffectiveRating(),
+		updated.RankLabel(),
+	)
 	http.Redirect(w, r, adminUsersRedirectURL(success, ""), http.StatusSeeOther)
 }
 
